@@ -21,5 +21,5 @@ public abstract class TileEntity : MonoBehaviour
         BattleGrid.instance.map[x, z].SetEntityOnTile(this);
     }
 
-    public abstract void TakeDamage(float amount);
+    public abstract void TakeDamage(int amount);
 }

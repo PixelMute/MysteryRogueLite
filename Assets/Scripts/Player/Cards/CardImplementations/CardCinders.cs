@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 
 public class CardCinders : Card
 {
-    float damage = 10f;
+    int damage = 10 ;
     public CardCinders()
     {
         cardName = "Cinders";

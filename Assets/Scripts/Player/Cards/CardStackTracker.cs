@@ -4,7 +4,7 @@ public class CardStackTracker
 {
     private bool active; // Are we currently tracking stuff?
     private int damageDealt = 0; // How much damage has been dealt over this tracking session
-    private Card currentlyResolvingCard;
+    private Card currentlyResolvingCard; // If needed, we can make this an actual stack.
 
     public void AddCardToTracker(Card input)
     {
@@ -27,6 +27,12 @@ public class CardStackTracker
     public bool QueryDamageDealt(int input)
     {
         return (damageDealt >= input);
+    }
+
+    public void AddDamageDealt(int input)
+    {
+        if (active)
+            damageDealt += input;
     }
 
     public bool IsActive()

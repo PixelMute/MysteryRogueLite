@@ -306,7 +306,7 @@ public class BattleGrid : MonoBehaviour
         StrikeTile(new Vector2Int((int)target.x, (int)target.z), damage);
     }*/
 
-    public void StrikeTile(Vector2Int target, float damage)
+    public void StrikeTile(Vector2Int target, int damage)
     {
         Debug.Log("Attacking tile " + target + " for " + damage + " damage.");
         Tile targetTile = map[target.x, target.y];

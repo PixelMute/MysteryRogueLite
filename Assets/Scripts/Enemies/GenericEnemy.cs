@@ -9,9 +9,9 @@ using UnityEngine;
 public abstract class GenericEnemy : TileCreature
 {
     // Variables
-    [HideInInspector] private float health;
+    [HideInInspector] private int health;
     public int maxHealth = 70;
-    public float damage = 10;
+    public int damage = 10;
     [HideInInspector] public int shoutRange = 10;
     [HideInInspector] public int hearingRange = 8;
     public bool isDead = false;
@@ -42,7 +42,7 @@ public abstract class GenericEnemy : TileCreature
 
     protected TileEntity engagedTarget = null; // What target this is engaged with.
 
-    public float Health 
+    public int Health 
     {
         get { return health; }
         set { health = value; if (healthBar != null) healthBar.UpdateHealthDisplay(health, maxHealth);}
@@ -389,8 +389,9 @@ public abstract class GenericEnemy : TileCreature
         return false;
     }
 
-    public override void TakeDamage(float amount)
+    public override void TakeDamage(int amount)
     {
+        BattleManager.cardResolveStack.AddDamageDealt(amount);
         Health -= amount;
         if (Health <= 0)
             Eliminate(); // KO'd

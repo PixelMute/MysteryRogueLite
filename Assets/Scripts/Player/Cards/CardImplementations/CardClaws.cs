@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CardClaws : Card
 {
-    private float damage = 20f;
+    private int damage = 20;
     public CardClaws()
     {
         cardName = "Claws";

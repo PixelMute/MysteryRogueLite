@@ -21,7 +21,7 @@ public class BattleUIManager : MonoBehaviour
 
     public void ToggleMassCardView()
     {
-        //BattleManager.player.puim.ToggleShowMassCardView();
+        BattleManager.player.puim.ToggleShowMassCardView();
     }
 
     // Sets a toggle for which sets of cards to view.

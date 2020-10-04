@@ -23,7 +23,7 @@ public class PlayerController : TileCreature
 
 
     // Card Management
-    private Deck playerDeck;
+    public static Deck playerDeck;
     // The gameobject that exists on the canvas. Make the card templates children of this.
     public PlayerUIManager puim; // This class manages the player's ui graphically.
     
@@ -461,7 +461,7 @@ public class PlayerController : TileCreature
     }
 
     // Applies incoming damage
-    public override void TakeDamage(float damage)
+    public override void TakeDamage(int damage)
     {
         // Do we have defense?
         if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defense, out StatusEffectDataHolder val))

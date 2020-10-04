@@ -22,7 +22,7 @@ public class PlayerUIManager : MonoBehaviour
     public TextMeshProUGUI spiritTextComponent;
     private HorizontalLayoutGroup handLayout;
     private GridLayoutGroup statusEffectLayout;
-    private GridLayoutGroup deckViewGridLayout;
+    private GridLayoutGroup massCardViewGridLayout;
     private Image massCardViewBackground;
     //private bool massCardViewOpen = false;
 
@@ -84,7 +84,7 @@ public class PlayerUIManager : MonoBehaviour
         spiritTextComponent = valArray[4] as TextMeshProUGUI;
         handLayout = valArray[5] as HorizontalLayoutGroup;
         statusEffectLayout = valArray[6] as GridLayoutGroup;
-        deckViewGridLayout = valArray[7] as GridLayoutGroup;
+        massCardViewGridLayout = valArray[7] as GridLayoutGroup;
         massCardViewBackground = valArray[8] as Image;
 
         graphicalHand = new List<CardInterface>();
@@ -109,18 +109,6 @@ public class PlayerUIManager : MonoBehaviour
         // Has the player clicked?
         if (Input.GetMouseButtonDown(0))
         {
-            /*
-            // Detect wether this click is on the UI
-            pointerEventData = new PointerEventData(eventSystem);
-            pointerEventData.position = Input.mousePosition;
-
-            //Create a list of Raycast Results
-            List<RaycastResult> results = new List<RaycastResult>();
-
-            //Raycast using the Graphics Raycaster and mouse click position
-            raycaster.Raycast(pointerEventData, results);
-
-            Debug.Log("Click: Results = " + results.Count);*/ // Disabled after swap to Doozy
 
             if (EventSystem.current.IsPointerOverGameObject())
             {
@@ -550,7 +538,6 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
             return false;
-        
     }
 
     // Checks if we can move from the current state to 'state'.
@@ -578,7 +565,9 @@ public class PlayerUIManager : MonoBehaviour
             case PlayerUIState.controllingCamera:
                 vcam.Follow = transform; // Lock camera
                 vcam.LookAt = transform;
-
+                break;
+            case PlayerUIState.massCardView:
+                massCardViewBackground.gameObject.SetActive(false);
                 break;
         }
     }
@@ -590,6 +579,10 @@ public class PlayerUIManager : MonoBehaviour
             case PlayerUIState.controllingCamera:
                 vcam.Follow = null; // Unlock camera
                 vcam.LookAt = null;
+                break;
+            case PlayerUIState.massCardView: // Open mass card view
+                massCardViewBackground.gameObject.SetActive(true);
+                PopulateMassCardView();
                 break;
         }
         playerUIState = state;
@@ -622,13 +615,94 @@ public class PlayerUIManager : MonoBehaviour
 
     #endregion
 
+    #region MassCardView
     // Variables that indicate which sets of cards to include in the mass card view.
-    // Order is 
+    // Order is Draw, Discard, Hand, Banish.
+    // Need to shuffle draw.
     private bool[] whichCardsToInclude = { false, false, false, false };
     public void ToggleMassCardViewOption(int tar)
     {
         whichCardsToInclude[tar] = !whichCardsToInclude[tar];
+        PopulateMassCardView();
     }
+
+    //{ standardCardDrawer, standardNoCardDrawer, controllingCamera, massCardView}
+    // Can only open masscardview if we're in standard. Close if we're in massCardView.
+    public void ToggleShowMassCardView()
+    {
+        PlayerUIState state = GetState();
+        switch (state)
+        {
+            case PlayerUIState.standardCardDrawer:
+            case PlayerUIState.standardNoCardDrawer: // Open window
+                MoveToState(PlayerUIState.massCardView);
+                break;
+            case PlayerUIState.massCardView: // Close window
+                MoveToState(PlayerUIState.standardCardDrawer);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void PopulateMassCardView() // Clears out the mass card view, then spawns cards into it.
+    {
+
+        Debug.Log("Populating. Hand: " + whichCardsToInclude[0] + ", discard: " + whichCardsToInclude[1] + ", hand: " + whichCardsToInclude[2]);
+        // Clear it out
+        foreach (Transform t in massCardViewGridLayout.transform)
+        {
+            BattleManager.RecursivelyEliminateObject(t);
+        }
+
+        // Spawn cards in deck if able
+        if (whichCardsToInclude[0])
+        {
+            List<Card> shuffledDeck = new List<Card>(PlayerController.playerDeck.drawPile.Count); // Need to make a temp list to shuffle them
+            foreach (Card c in PlayerController.playerDeck.drawPile)
+            {
+                shuffledDeck.Insert(UnityEngine.Random.Range(0, shuffledDeck.Count), c);
+            }
+
+            // Now add these cards to the view
+            foreach (Card c in shuffledDeck)
+            {
+                GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
+                CardInterface ci = newCard.GetComponent<CardInterface>();
+                ci.cardData = c;
+                ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardView);
+            }
+        }
+        
+        if (whichCardsToInclude[1])
+        {
+            foreach (Card c in PlayerController.playerDeck.discardPile)
+            {
+                GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
+                CardInterface ci = newCard.GetComponent<CardInterface>();
+                ci.cardData = c;
+                ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardView);
+            }
+        }
+
+        if (whichCardsToInclude[2])
+        {
+            foreach (Card c in PlayerController.playerDeck.hand)
+            {
+                GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
+                CardInterface ci = newCard.GetComponent<CardInterface>();
+                ci.cardData = c;
+                ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardView);
+            }
+        }
+
+        if (whichCardsToInclude[3])
+        {
+            // There's no banish pile yet.
+        }
+
+    }
+    #endregion
 
     #region Camera
     // This method takes movement input and applies it to the camera.
