@@ -33,15 +33,6 @@ public class Card
         Effects.Add(effect);
     }
 
-    public bool TargetWithinRange(Vector2Int player, Vector2Int target)
-    {
-        if (Range == null)
-        {
-            return false;
-        }
-        else return Range.IsTargetInRange(player, target);
-    }
-
     /// <summary>
     /// Activate the cards effect
     /// </summary>

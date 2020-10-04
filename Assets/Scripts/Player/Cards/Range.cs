@@ -7,65 +7,81 @@ using UnityEngine;
 
 public static class RangeFactory
 {
-    public static Range GetRangeFromString(string rangeString)
+    public static List<PlayCondition> GetPlayConditionsFromString(string conditionString)
     {
-        var split = rangeString.ToLower().Split(':');
+        var split = conditionString.ToLower().Split(':');
         var playConditions = new List<PlayCondition>();
-        for (int i = 1; i < split.Length; i++)
+        for (int i = 0; i < split.Length; i++)
         {
             if (Enum.TryParse(split[i], true, out PlayCondition res))
             {
                 playConditions.Add(res);
             }
         }
-        switch (split[0])
-        {
-            case "melee":
-                return new MeleeRange(playConditions);
-        }
-        return null;
+        return playConditions;
     }
 }
 
 
-public abstract class Range
+public class Range
 {
-    public List<PlayCondition> PlayConditions { get; protected set; }
+    public List<PlayCondition> PlayConditions { get; private set; }
+    public int MinRange { get; private set; }
+    public int MaxRange { get; private set; }
+    public bool[,] RangeArray { get; private set; }
 
-    public Range(List<PlayCondition> playConditions)
+    public Range(List<PlayCondition> playConditions, int minRange, int maxRange)
     {
         PlayConditions = playConditions;
+        MinRange = minRange;
+        MaxRange = maxRange;
+        RangeArray = GetRangeArray();
     }
 
-    /// <summary>
-    /// Returns whether or not the target is within range of the player.
-    /// Assumes that all play conditions have been met for this range
-    /// </summary>
-    /// <param name="player">Location of entity playing the card</param>
-    /// <param name="target">Location of target</param>
-    /// <returns></returns>
-    public abstract bool IsTargetInRange(Vector2Int player, Vector2Int target);
-
-    // Sets up the array of possible target tiles
-    public abstract bool[,] GetRangeArray();
-}
-
-public class MeleeRange : Range
-{
-    public MeleeRange(List<PlayCondition> playConditions) : base(playConditions) { }
-
-    public override bool IsTargetInRange(Vector2Int player, Vector2Int target)
+    private bool[,] GetRangeArray()
     {
-        var xDiff = Math.Abs(player.x - target.x);
-        var yDiff = Math.Abs(player.y - target.y);
-        return xDiff == 1 || yDiff == 1;
+        var array = new bool[MaxRange * 2 + 1, MaxRange * 2 + 1];
+        for (int i = 0; i < MaxRange * 2; i++)
+        {
+            for (int j = 0; j < MaxRange * 2; j++)
+            {
+                var distanceX = Math.Abs(i - MaxRange);
+                var distanceY = Math.Abs(j - MaxRange);
+                array[i, j] = distanceX < MaxRange && distanceY < MaxRange && (distanceX >= MinRange || distanceY >= MinRange);
+            }
+        }
+        if (PlayConditions.Contains(PlayCondition.straightLine))
+        {
+            array = BattleManager.ANDArray(array, FillLineArray(MaxRange, true));
+        }
+        return array;
     }
 
-    public override bool[,] GetRangeArray()
+    // Makes an array with lines through it.
+    private bool[,] FillLineArray(int size, bool diagonal)
     {
-        bool[,] array = new bool[,] { { true, true, true }, { true, false, true }, { true, true, true } };
+        int arraySize = size * 2 + 1;
+        bool[,] array = new bool[arraySize, arraySize];
+
+        // Make something like
+        // T X T X T
+        // X T T T X
+        // T T T T T
+        // X T T T X
+        // T X T X T
+        for (int i = 0; i < arraySize; i++)
+        {
+            array[i, size] = true;
+            array[size, i] = true;
+            if (diagonal)
+            {
+                array[i, i] = true;
+                array[arraySize - i - 1, i] = true;
+            }
+
+        }
+
         return array;
     }
 }
-
 

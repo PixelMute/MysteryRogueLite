@@ -1,2 +1,2 @@
-ID, spiritCost, energyCost, name, description, effects, range, sprite, animation
-1, 3, 1, Claws, Deal 20 damage.\nRange1., damage:20, melee:needsLOS:mustHitCreature
+ID, spiritCost, energyCost, name, description, effects, minrange, maxrange, playconditions, sprite, animation
+1, 3, 1, Claws, Deal 20 damage.\nRange1., damage:20, 1,2, needsLOS:mustHitCreature

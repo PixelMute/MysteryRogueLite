@@ -403,7 +403,7 @@ public class PlayerUIManager : MonoBehaviour
             }
         }
 
-        bool[,] range = cardRange.GetRangeArray();
+        bool[,] range = cardRange.RangeArray;
 
         if (needsLOS)
         {

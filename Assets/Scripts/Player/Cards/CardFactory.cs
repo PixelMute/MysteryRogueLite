@@ -43,8 +43,11 @@ public class CardFactory
             };
             var effectString = line[5];
             var effectList = EffectFactory.GetListOfEffectsFromString(effectString.Trim());
-            var rangeString = line[6];
-            var range = RangeFactory.GetRangeFromString(rangeString.Trim());
+            var minRange = int.Parse(line[6]);
+            var maxRange = int.Parse(line[7]);
+
+            var conditions = RangeFactory.GetPlayConditionsFromString(line[8].Trim());
+            var range = new Range(conditions, minRange, maxRange);
             var card = new Card(cardInfo, range, effectList);
             CardDictionary.Add(cardInfo.Name.ToLower(), card);
         }
