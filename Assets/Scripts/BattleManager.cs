@@ -1,10 +1,10 @@
-﻿using System;
+﻿using DG.Tweening.Plugins;
+using NesScripts.Controls.PathFind;
+using Roguelike;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Roguelike;
-using NesScripts.Controls.PathFind;
-using DG.Tweening.Plugins;
 using UnityEngine.UIElements;
 
 // Global level manager. Should be attached to an empty object or the camera.
@@ -18,7 +18,7 @@ public class BattleManager : MonoBehaviour
     [HideInInspector] public enum TurnPhase { player, enemy, waiting }; // Whose turn it currently is
     public static TurnPhase currentTurn = TurnPhase.player;
 
-    public enum StatusEffectEnum { defense, momentum, inspiration};
+    public enum StatusEffectEnum { defense, momentum, inspiration };
     // This should be set as an array of sprites that corresponds to each enum in order
     [SerializeField] public Sprite[] statusEffectReference;
 
@@ -31,6 +31,14 @@ public class BattleManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
+            try
+            {
+                CardFactory.LoadCards();
+            }
+            catch (Exception e)
+            {
+                //Handle exception if we can't load cards
+            }
         }
         else if (instance != this)
         {
@@ -46,7 +54,7 @@ public class BattleManager : MonoBehaviour
     public void CreateFloor()
     {
         map = FindObjectOfType<BattleGrid>();
-        
+
         map.GenerateFloor(60, 60);
     }
 

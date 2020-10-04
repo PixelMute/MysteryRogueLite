@@ -1,14 +1,14 @@
-﻿using NesScripts.Controls.PathFind;
+﻿using DungeonGenerator;
+using DungeonGenerator.core;
+using FoW;
+using NesScripts.Controls.PathFind;
+using Roguelike;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Roguelike;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
-using DungeonGenerator;
-using DungeonGenerator.core;
-using FoW;
 
 // The battlegrid holds data relevant to one floor of a dungeon
 public class BattleGrid : MonoBehaviour
@@ -59,7 +59,7 @@ public class BattleGrid : MonoBehaviour
         int seed = UnityEngine.Random.Range(-10000, 100000);
         dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.DENSE,
             DungeonGenerator.gen.hints.GenRoomShape.SPLATTER, DungeonGenerator.gen.hints.GenRoomSize.MEDIUM,
-            DungeonGenerator.gen.hints.GenMazeType.DEPTH_FIRST,DungeonGenerator.gen.hints.GenPathing.TRUNCATE,
+            DungeonGenerator.gen.hints.GenMazeType.DEPTH_FIRST, DungeonGenerator.gen.hints.GenPathing.TRUNCATE,
             DungeonGenerator.gen.hints.GenEgress.RANDOM_PLACEMENT, 3, 1);
 
         terrainHolder = GameObject.Find("TerrainHolder");
@@ -71,7 +71,7 @@ public class BattleGrid : MonoBehaviour
 
         map = new Tile[sizeX, sizeZ];
 
-        
+
 
         // Fill in the map
         for (int i = 0; i < sizeX; i++)
@@ -229,7 +229,7 @@ public class BattleGrid : MonoBehaviour
     private void SpawnWallAt(int x, int z)
     {
         // Check to see if the tile we're trying to spawn on is empty
-        if (map[x,z].tileEntityType != Tile.TileEntityType.empty)
+        if (map[x, z].tileEntityType != Tile.TileEntityType.empty)
         {
             Debug.Log("Battlegrid::SpawnWallAt(" + x + "," + z + ")--Tried to spawn a wall here, but that tile is not empty.");
             return;
@@ -242,7 +242,7 @@ public class BattleGrid : MonoBehaviour
 
         // spawn it graphically
         // NOTE: Used to have offset of 0.5f here
-       
+
     }
 
     // You have LoS on a tile if you can draw a line from your center to one of the corners of the tile.
@@ -275,15 +275,15 @@ public class BattleGrid : MonoBehaviour
     }
 
 
-    public enum AcceptableTileTargetFailReasons {success, mustTargetCreature };
+    public enum AcceptableTileTargetFailReasons { success, mustTargetCreature };
     // Returns true if this tile is an acceptable target.
     // Only checks conditions POST-HIGHLIGHTING check
     public AcceptableTileTargetFailReasons AcceptableTileTarget(Vector2Int tileTarget, Card cardData)
     {
         bool needsToTargetCreature = false;
-        foreach (Card.PlayCondition x in cardData.conditions)
+        foreach (PlayCondition x in cardData.Range.PlayConditions)
         {
-            if (x == Card.PlayCondition.mustHitCreature)
+            if (x == PlayCondition.mustHitCreature)
                 needsToTargetCreature = true;
         }
 
@@ -349,7 +349,7 @@ public class BattleGrid : MonoBehaviour
                     // Now check the collision
                     Vector3 fromPosition = new Vector3(realXPosition, 0.5f, realZPosition);
                     //Debug.Log("Checking from " + fromPosition + " to " + playerEffectivePosition + ", and assigning that to " + i + ", " + j);
-                    grid[i, j] = CheckLoS(playerEffectivePosition, fromPosition );
+                    grid[i, j] = CheckLoS(playerEffectivePosition, fromPosition);
                     simpleLoSGrid[i, j] = CheckSimpleLoS(playerEffectivePosition, fromPosition);
 
                     if (disabledCollider)
@@ -372,8 +372,8 @@ public class BattleGrid : MonoBehaviour
         int tryNum = 0;
         do
         {
-            tarX = UnityEngine.Random.Range(1, sizeX-1);
-            tarZ = UnityEngine.Random.Range(1, sizeZ-1);
+            tarX = UnityEngine.Random.Range(1, sizeX - 1);
+            tarZ = UnityEngine.Random.Range(1, sizeZ - 1);
 
             if (map[tarX, tarZ].tileEntityType == Tile.TileEntityType.empty)
                 found = true;
@@ -395,7 +395,7 @@ public class BattleGrid : MonoBehaviour
         {
             for (int j = 0; j < sizeZ; j++)
             {
-                if (map[i,j].tileEntityType == Tile.TileEntityType.empty)
+                if (map[i, j].tileEntityType == Tile.TileEntityType.empty)
                 {
                     return new Vector2Int(i, j);
                 }

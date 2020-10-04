@@ -1,60 +1,68 @@
-﻿
-// This class stores data related to a single card. Goes on the cardManager.
-using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
 
-public abstract class Card
+
+public enum PlayCondition { needsLOS, straightLine, emptyTile, cornerCutting, mustHitCreature };
+
+public class Card
 {
-    // This enum describes different conditions for playing the card.
-    public enum PlayCondition { needsLOS, straightLine, emptyTile, cornerCutting, mustHitCreature };
-    public PlayCondition[] conditions;
-    public bool[,] rangeCondition; // Which tiles this card can hit, relative to the player.
+    public CardInfo CardInfo { get; private set; }
+    public List<IEffect> Effects { get; private set; }
+    public Range Range { get; private set; }
 
-    public int maxRange = 1;
-    public int minRange = 1;
+    public TileCreature Owner { get; set; }
 
-    public string cardName;
-    public string cardDescription;
-    public int energyCost;
-    public int spiritCost = 5;
+    //public Sprite Sprite { get; private set; }  //For when we have different sprites for each card
+    //public ICardAnimation Animation { get; private set; } //For when we have different animations for each card
 
-    public TileCreature owner;
-    // TODO: Support for upgrades
+    public Card(CardInfo cardInfo, Range range) : this(cardInfo, range, new List<IEffect>()) { }
 
-    public override string ToString()
+    public Card(CardInfo cardInfo, Range range, List<IEffect> effects)
     {
-        return cardName;
+        Effects = effects;
+        CardInfo = cardInfo;
+        Range = range;
     }
 
-    // Sets up the array of possible target tiles
-    protected abstract bool[,] GetRangeArray();
-
-    public abstract void CardPlayEffect(Vector2Int tileTarget);
-
-    // Makes an array with lines through it.
-    public static bool[,] FillLineArray(int size, bool diagonal)
+    public void AddEffect(IEffect effect)
     {
-        int arraySize = size * 2 + 1;
-        bool[,] array = new bool[arraySize,arraySize];
+        Effects.Add(effect);
+    }
 
-        // Make something like
-        // T X T X T
-        // X T T T X
-        // T T T T T
-        // X T T T X
-        // T X T X T
-        for (int i = 0; i < arraySize; i ++)
+    public bool TargetWithinRange(Vector2Int player, Vector2Int target)
+    {
+        if (Range == null)
         {
-            array[i, size] = true;
-            array[size, i] = true;
-            if (diagonal)
-            {
-                array[i, i] = true;
-                array[arraySize - i - 1, i] = true;
-            }
-            
+            return false;
         }
+        else return Range.IsTargetInRange(player, target);
+    }
 
-        return array;
+    /// <summary>
+    /// Activate the cards effect
+    /// </summary>
+    /// <param name="player">The player that played the card</param>
+    /// <param name="target">The target of the card</param>
+    public void Activate(Vector2Int player, Vector2Int target)
+    {
+        foreach (var effect in Effects)
+        {
+            effect.Activate(player, target);
+        }
+        //TODO: Add animation to this 
     }
 }
+
+public class CardInfo
+{
+    public int SpiritCost { get; set; }
+    public int EnergyCost { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public int ID { get; set; }
+}
+

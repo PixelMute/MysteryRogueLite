@@ -1,9 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 // This class inherits from MonoBehavior to interface between the card data and Unity
 public class CardInterface : MonoBehaviour
@@ -23,7 +23,7 @@ public class CardInterface : MonoBehaviour
     [HideInInspector] public bool isHighlighted = false;
 
     // Indicates where on the ui this card is.
-    public enum CardInterfaceLocations {hand, cardView};
+    public enum CardInterfaceLocations { hand, cardView };
     private CardInterfaceLocations location;
 
     private void Awake()
@@ -36,7 +36,7 @@ public class CardInterface : MonoBehaviour
     {
 
         string[] objNames = new string[] { "CardEnergyCostTextObject", "CardSpiritCostTextObject", "CardTitleTextObject", "CardDescriptionTextObject", "HighlightParticleSystemRight", "HighlightParticleSystemLeft" };
-        Type[] typeNames = new Type[] { typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(ParticleFollowPath), typeof(ParticleFollowPath)};
+        Type[] typeNames = new Type[] { typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(ParticleFollowPath), typeof(ParticleFollowPath) };
         Component[] partArray = BattleManager.RecursiveVariableAssign(gameObject, objNames, typeNames);
 
         cardTitleTextfield = partArray[2] as TextMeshProUGUI;
@@ -76,7 +76,7 @@ public class CardInterface : MonoBehaviour
             selectionParticleSystems[1].DisableParticlePath();
             isHighlighted = false;
         }
-            
+
     }
 
     // This is called by the ui system when the card is clicked.
@@ -86,17 +86,18 @@ public class CardInterface : MonoBehaviour
         {
             BattleManager.player.puim.CardInHandClicked(cardHandIndex);
         }
-        
+
     }
 
     // Handles setting the details of the card when it is spawned.
     public void OnCardSpawned(CardInterfaceLocations location)
     {
         this.location = location;
-        cardTitleTextfield.SetText(cardData.cardName);
-        cardDescTextfield.SetText(cardData.cardDescription);
-        energyCostTextField.SetText(cardData.energyCost + "");
-        spiritCostTextField.SetText(cardData.spiritCost + "");
+        var info = cardData.CardInfo;
+        cardTitleTextfield.SetText(info.Name);
+        cardDescTextfield.SetText(info.Description);
+        energyCostTextField.SetText(info.EnergyCost + "");
+        spiritCostTextField.SetText(info.SpiritCost + "");
     }
 
     public CardInterfaceLocations GetLocation()

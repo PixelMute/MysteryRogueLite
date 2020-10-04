@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Roguelike;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.XR;
-using Roguelike;
 
 // This goes onto the player holder.
 public class PlayerController : TileCreature
@@ -26,7 +26,7 @@ public class PlayerController : TileCreature
     private Deck playerDeck;
     // The gameobject that exists on the canvas. Make the card templates children of this.
     public PlayerUIManager puim; // This class manages the player's ui graphically.
-    
+
     private int cardRedrawAmount = 8; // Redraw up to this number of cards.
     private int maxTurnsUntilDraw = 2; // Draw a card every X turns.
     private int turnsUntilDraw = 2;
@@ -51,10 +51,10 @@ public class PlayerController : TileCreature
         get { return currentSpirit; }
         set { currentSpirit = value; puim.SetSpiritPercentage(currentSpirit / maxSpirit); } // Automatically update the display whenever spirit changes
     }
-    public int CurrentEnergy 
+    public int CurrentEnergy
     {
         get { return currentEnergy; }
-        set {currentEnergy = value; puim.SetCurrentEnergy(currentEnergy); }
+        set { currentEnergy = value; puim.SetCurrentEnergy(currentEnergy); }
     }
     public int Health
     {
@@ -119,14 +119,14 @@ public class PlayerController : TileCreature
             puim = GetComponent<PlayerUIManager>();
 
         // Placeholder cards.
-        Card claws = new CardClaws();
-        claws.owner = this;
-        Card footwork = new CardFootwork();
+        Card claws = CardFactory.GetCard("claws");
+        claws.Owner = this;
+        /*Card footwork = new CardFootwork();
         footwork.owner = this;
         Card cinders = new CardCinders();
         cinders.owner = this;
         Card dragonheart = new CardDragonHeart();
-        dragonheart.owner = this;
+        dragonheart.owner = this;*/
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
@@ -134,12 +134,12 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
-        playerDeck.InsertCardAtEndOfDrawPile(footwork);
-        playerDeck.InsertCardAtEndOfDrawPile(footwork);
-        playerDeck.InsertCardAtEndOfDrawPile(cinders);
-        playerDeck.InsertCardAtEndOfDrawPile(cinders);
-        playerDeck.InsertCardAtEndOfDrawPile(cinders);
-        playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
+        //playerDeck.InsertCardAtEndOfDrawPile(footwork);
+        //playerDeck.InsertCardAtEndOfDrawPile(footwork);
+        //playerDeck.InsertCardAtEndOfDrawPile(cinders);
+        //playerDeck.InsertCardAtEndOfDrawPile(cinders);
+        //playerDeck.InsertCardAtEndOfDrawPile(cinders);
+        //playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -188,7 +188,7 @@ public class PlayerController : TileCreature
         }
     }
 
-    public enum AttemptToPlayCardFailReasons { success, notPlayerTurn, notEnoughEnergy};
+    public enum AttemptToPlayCardFailReasons { success, notPlayerTurn, notEnoughEnergy };
     // Attempts to play that card index on given tile.
     public AttemptToPlayCardFailReasons AttemptToPlayCard(int index, Vector2Int target)
     {
@@ -199,7 +199,7 @@ public class PlayerController : TileCreature
         Card cardToPlay = playerDeck.hand[index];
 
         // Do we have the energy for it?
-        if (cardToPlay.energyCost > CurrentEnergy)
+        if (cardToPlay.CardInfo.EnergyCost > CurrentEnergy)
         {
             return AttemptToPlayCardFailReasons.notPlayerTurn;
         }
@@ -221,7 +221,7 @@ public class PlayerController : TileCreature
         PayCardCost(cardToPlay);
 
         // Activate its effects.
-        cardToPlay.CardPlayEffect(target);
+        cardToPlay.Activate(BattleManager.ConvertVector(transform.position), target);
 
         if (resetTrackerWhenDone)
             ResolveCardStack();
@@ -230,14 +230,14 @@ public class PlayerController : TileCreature
     // Called at the end of a stack of card effects.
     private void ResolveCardStack()
     {
-        BattleManager.instance.StopCardTracking(); 
+        BattleManager.instance.StopCardTracking();
     }
 
     // Deducts the energy and spirit cost of the card.
     private void PayCardCost(Card cardData)
     {
-        CurrentEnergy -= cardData.energyCost;
-        LoseSpirit(cardData.spiritCost);
+        CurrentEnergy -= cardData.CardInfo.EnergyCost;
+        LoseSpirit(cardData.CardInfo.SpiritCost);
     }
 
     // Discards this card and fixes the indexes for the others.
@@ -304,7 +304,7 @@ public class PlayerController : TileCreature
         // Lerp our position towards the target. If we've reached it, unset isMoving.
         transform.position = Vector3.MoveTowards(transform.position, moveTarget, inverseMovementTime * Time.deltaTime);
         //Debug.Log("Moved to " + transform.position);
-        
+
         // Now we check if we've hit the target.
         if (Math.Abs(transform.position.x - moveTarget.x) < Mathf.Epsilon && Math.Abs(transform.position.z - moveTarget.z) < Mathf.Epsilon)
         {
@@ -336,7 +336,7 @@ public class PlayerController : TileCreature
                 MoveTo(movementVector, true);
                 EndOfTurn();
             }
-                
+
         }
 
         // Otherwise, do nothing.
@@ -446,7 +446,7 @@ public class PlayerController : TileCreature
             {
                 transform.position = moveTarget;
             }
-            moveTarget = BattleManager.ConvertVector(newMoveTarget, yLevel) ;
+            moveTarget = BattleManager.ConvertVector(newMoveTarget, yLevel);
 
             // Set up our variables to start movement
             isMoving = true;
@@ -468,7 +468,7 @@ public class PlayerController : TileCreature
         {
             int oldDamage = (int)damage;
             damage -= val.EffectValue;
-            ApplyStatusEffect(BattleManager.StatusEffectEnum.defense , - 1 * oldDamage); // Deal damage to defense
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1 * oldDamage); // Deal damage to defense
         }
 
         if (damage > 0)
@@ -485,7 +485,7 @@ public class PlayerController : TileCreature
         LoseSpirit(1);
 
         puim.EndOfTurn();
-        
+
         BattleManager.instance.EndOfTurn();
 
         StartOfTurn();
@@ -509,7 +509,7 @@ public class PlayerController : TileCreature
         // Do we have defense?
         if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defense, out StatusEffectDataHolder val))
         { // Lose one defense
-            ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1); 
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1);
         }
     }
 
