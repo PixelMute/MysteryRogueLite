@@ -47,7 +47,7 @@ public class Range
             {
                 var distanceX = Math.Abs(i - MaxRange);
                 var distanceY = Math.Abs(j - MaxRange);
-                array[i, j] = distanceX < MaxRange && distanceY < MaxRange && (distanceX >= MinRange || distanceY >= MinRange);
+                array[i, j] = distanceX <= MaxRange && distanceY <= MaxRange && (distanceX >= MinRange || distanceY >= MinRange);
             }
         }
         if (PlayConditions.Contains(PlayCondition.straightLine))
