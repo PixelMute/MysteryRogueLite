@@ -11,6 +11,7 @@ public interface IEffect
     void Activate(Vector2Int player, Vector2Int target);
 }
 
+//Damages the enemy on the given target
 public class Strike : IEffect
 {
     public int Damage { get; private set; }
@@ -51,6 +52,7 @@ public class Teleport : IEffect
 }
 
 //Might want to make this a more generic class to apply different status effects
+//Upgrades the players defence by the given amount
 public class UpgradeDefence : IEffect
 {
     public int Defence { get; private set; }
@@ -68,6 +70,7 @@ public class UpgradeDefence : IEffect
 
 public static class EffectFactory
 {
+    //Gets the effect based on the string in the csv file
     public static IEffect GetEffectFromString(string effect)
     {
         var split = effect.ToLower().Split(':');

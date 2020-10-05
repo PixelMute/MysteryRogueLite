@@ -10,6 +10,10 @@ using UnityEngine;
 public class CardFactory
 {
     private static Dictionary<string, Card> CardDictionary;
+
+    /// <summary>
+    /// Loads the card information from the csv file
+    /// </summary>
     public static void LoadCards()
     {
         var fileName = Application.dataPath + "/Resources/cardinfo.csv";
@@ -26,6 +30,7 @@ public class CardFactory
         }
     }
 
+    //Creates the dictionary to store the cards in memory
     private static void CreateCardDictionary(StreamReader file)
     {
         CardDictionary = new Dictionary<string, Card>();
@@ -53,6 +58,11 @@ public class CardFactory
         }
     }
 
+    /// <summary>
+    /// Gets the card with the given card name. Returns null if that card does not exist
+    /// </summary>
+    /// <param name="cardName">Name of the card</param>
+    /// <returns></returns>
     public static Card GetCard(string cardName)
     {
         if (CardDictionary.ContainsKey(cardName.ToLower()))
@@ -62,6 +72,11 @@ public class CardFactory
         return null;
     }
 
+    /// <summary>
+    /// Gets the card with the given ID. Returns null if that card does not exist
+    /// </summary>
+    /// <param name="id">ID of the card</param>
+    /// <returns></returns>
     public static Card GetCardByID(int id)
     {
         foreach (var card in CardDictionary.Values)

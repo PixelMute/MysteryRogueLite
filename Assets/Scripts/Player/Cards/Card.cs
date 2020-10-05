@@ -28,6 +28,7 @@ public class Card
         Range = range;
     }
 
+    //Adds the effect to the card. The new effect will be activated last
     public void AddEffect(IEffect effect)
     {
         Effects.Add(effect);
@@ -48,6 +49,7 @@ public class Card
     }
 }
 
+//Contains all the basic card info
 public class CardInfo
 {
     public int SpiritCost { get; set; }

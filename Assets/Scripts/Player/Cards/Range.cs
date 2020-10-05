@@ -7,6 +7,7 @@ using UnityEngine;
 
 public static class RangeFactory
 {
+    //Gets the play conditions for the card from the string in the csv
     public static List<PlayCondition> GetPlayConditionsFromString(string conditionString)
     {
         var split = conditionString.ToLower().Split(':');
@@ -28,6 +29,7 @@ public class Range
     public List<PlayCondition> PlayConditions { get; private set; }
     public int MinRange { get; private set; }
     public int MaxRange { get; private set; }
+    //Array of booleans of where the card can be placed. Does not take into account any play conditions other than straightLine
     public bool[,] RangeArray { get; private set; }
 
     public Range(List<PlayCondition> playConditions, int minRange, int maxRange)
@@ -38,7 +40,10 @@ public class Range
         RangeArray = GetRangeArray();
     }
 
-    private bool[,] GetRangeArray()
+    //Constructs the range array for this Range. Uses the minRange and max range to fill in the booleans
+    //Returns either a box or straight lines depending on if we have straightLines as a play condition
+    //Can be overriden if we have cards with some weird ranges
+    protected virtual bool[,] GetRangeArray()
     {
         var array = new bool[MaxRange * 2 + 1, MaxRange * 2 + 1];
         for (int i = 0; i < MaxRange * 2 + 1; i++)
@@ -58,7 +63,7 @@ public class Range
     }
 
     // Makes an array with lines through it.
-    private bool[,] FillLineArray(int size, bool diagonal)
+    protected bool[,] FillLineArray(int size, bool diagonal)
     {
         int arraySize = size * 2 + 1;
         bool[,] array = new bool[arraySize, arraySize];
