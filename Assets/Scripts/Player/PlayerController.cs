@@ -121,10 +121,11 @@ public class PlayerController : TileCreature
         // Placeholder cards.
         Card claws = CardFactory.GetCard("claws");
         claws.Owner = this;
+        Card cinders = CardFactory.GetCard("cinders");
+        cinders.Owner = this;
         /*Card footwork = new CardFootwork();
         footwork.owner = this;
-        Card cinders = new CardCinders();
-        cinders.owner = this;
+        
         Card dragonheart = new CardDragonHeart();
         dragonheart.owner = this;*/
         playerDeck.InsertCardAtEndOfDrawPile(claws);
@@ -136,9 +137,9 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         //playerDeck.InsertCardAtEndOfDrawPile(footwork);
         //playerDeck.InsertCardAtEndOfDrawPile(footwork);
-        //playerDeck.InsertCardAtEndOfDrawPile(cinders);
-        //playerDeck.InsertCardAtEndOfDrawPile(cinders);
-        //playerDeck.InsertCardAtEndOfDrawPile(cinders);
+        playerDeck.InsertCardAtEndOfDrawPile(cinders);
+        playerDeck.InsertCardAtEndOfDrawPile(cinders);
+        playerDeck.InsertCardAtEndOfDrawPile(cinders);
         //playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
         playerDeck.ShuffleDeck();
