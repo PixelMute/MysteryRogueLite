@@ -41,9 +41,9 @@ public class Range
     private bool[,] GetRangeArray()
     {
         var array = new bool[MaxRange * 2 + 1, MaxRange * 2 + 1];
-        for (int i = 0; i < MaxRange * 2; i++)
+        for (int i = 0; i < MaxRange * 2 + 1; i++)
         {
-            for (int j = 0; j < MaxRange * 2; j++)
+            for (int j = 0; j < MaxRange * 2 + 1; j++)
             {
                 var distanceX = Math.Abs(i - MaxRange);
                 var distanceY = Math.Abs(j - MaxRange);

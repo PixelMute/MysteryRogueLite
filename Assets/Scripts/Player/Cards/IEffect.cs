@@ -26,6 +26,15 @@ public class Strike : IEffect
     }
 }
 
+public class Teleport : IEffect
+{
+    //Teleports player to target
+    public void Activate(Vector2Int player, Vector2Int target)
+    {
+        BattleManager.player.MoveTo(target, true);
+    }
+}
+
 public static class EffectFactory
 {
     public static IEffect GetEffectFromString(string effect)
@@ -33,10 +42,20 @@ public static class EffectFactory
         var split = effect.ToLower().Split(':');
         if (split.Length == 2 && int.TryParse(split[1], out var val))
         {
+            //For effects that need a value
             switch (split[0])
             {
                 case "damage":
                     return new Strike(val);
+            }
+        }
+        else if (split.Length == 1)
+        {
+            //For effects that don't need a value
+            switch (split[0])
+            {
+                case "teleport":
+                    return new Teleport();
             }
         }
         return null;
