@@ -70,8 +70,8 @@ public class PlayerController : TileCreature
     private void Start()
     {
         AssignVariables();
-        ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, 4);
-        ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, 5);
+        ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 4);
+        ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 5);
         ApplyStatusEffect(BattleManager.StatusEffectEnum.inspiration, 2);
         ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, 5);
     }
@@ -125,9 +125,8 @@ public class PlayerController : TileCreature
         cinders.Owner = this;
         Card footwork = CardFactory.GetCard("Footwork");
         footwork.Owner = this;
-
-        //Card dragonheart = new CardDragonHeart();
-        //dragonheart.owner = this;
+        Card dragonheart = CardFactory.GetCard("DragonHeart");
+        dragonheart.Owner = this;
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
@@ -140,7 +139,7 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
-        //playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
+        playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -465,11 +464,11 @@ public class PlayerController : TileCreature
     public override void TakeDamage(float damage)
     {
         // Do we have defense?
-        if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defense, out StatusEffectDataHolder val))
+        if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defence, out StatusEffectDataHolder val))
         {
             int oldDamage = (int)damage;
             damage -= val.EffectValue;
-            ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1 * oldDamage); // Deal damage to defense
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1 * oldDamage); // Deal damage to defense
         }
 
         if (damage > 0)
@@ -508,9 +507,9 @@ public class PlayerController : TileCreature
     private void StartOfTurnStatusDecay()
     {
         // Do we have defense?
-        if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defense, out StatusEffectDataHolder val))
+        if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defence, out StatusEffectDataHolder val))
         { // Lose one defense
-            ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1);
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1);
         }
     }
 

@@ -18,7 +18,7 @@ public class BattleManager : MonoBehaviour
     [HideInInspector] public enum TurnPhase { player, enemy, waiting }; // Whose turn it currently is
     public static TurnPhase currentTurn = TurnPhase.player;
 
-    public enum StatusEffectEnum { defense, momentum, inspiration };
+    public enum StatusEffectEnum { defence, momentum, inspiration };
     // This should be set as an array of sprites that corresponds to each enum in order
     [SerializeField] public Sprite[] statusEffectReference;
 
