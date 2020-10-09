@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -16,12 +17,20 @@ public class CardFactory
     /// </summary>
     public static void LoadCards()
     {
+        var config = new CsvHelper.Configuration.CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            LineBreakInQuotedFieldIsBadData = false,     //Set so we don't get bad data if there is line break in description
+            TrimOptions = CsvHelper.Configuration.TrimOptions.Trim,     //Trim excess white space
+        };
         var fileName = Application.dataPath + "/Resources/cardinfo.csv";
         try
         {
             using (var fileReader = new StreamReader(fileName))
             {
-                CreateCardDictionary(fileReader);
+                using (var csv = new CsvReader(fileReader, config, false))
+                {
+                    CreateCardDictionary(csv);
+                }
             }
         }
         catch (Exception e)
@@ -31,27 +40,27 @@ public class CardFactory
     }
 
     //Creates the dictionary to store the cards in memory
-    private static void CreateCardDictionary(StreamReader file)
+    private static void CreateCardDictionary(CsvReader csv)
     {
         CardDictionary = new Dictionary<string, Card>();
-        var header = file.ReadLine();
-        while (!file.EndOfStream)
+        csv.Read();
+        csv.ReadHeader();
+        while (csv.Read())
         {
-            var line = file.ReadLine().Split(',');
             var cardInfo = new CardInfo()
             {
-                ID = int.Parse(line[0]),
-                SpiritCost = int.Parse(line[1]),
-                EnergyCost = int.Parse(line[2]),
-                Name = line[3].Trim(),
-                Description = line[4].Trim(),
+                ID = csv.GetField<int>("ID"),
+                SpiritCost = csv.GetField<int>("SpiritCost"),
+                EnergyCost = csv.GetField<int>("EnergyCost"),
+                Name = csv.GetField<string>("Name"),
+                Description = csv.GetField<string>("Description"),
             };
-            var effectString = line[5];
-            var effectList = EffectFactory.GetListOfEffectsFromString(effectString.Trim());
-            var minRange = int.Parse(line[6]);
-            var maxRange = int.Parse(line[7]);
+            var effectString = csv.GetField<string>("Effects");
+            var effectList = EffectFactory.GetListOfEffectsFromString(effectString);
+            var minRange = csv.GetField<int>("MinRange");
+            var maxRange = csv.GetField<int>("MaxRange");
 
-            var conditions = RangeFactory.GetPlayConditionsFromString(line[8].Trim());
+            var conditions = RangeFactory.GetPlayConditionsFromString(csv.GetField<string>("PlayConditions"));
             var range = new Range(conditions, minRange, maxRange);
             var card = new Card(cardInfo, range, effectList);
             CardDictionary.Add(cardInfo.Name.ToLower(), card);
