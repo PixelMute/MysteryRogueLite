@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Cinemachine;
+using Roguelike;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using TMPro;
-using System.Drawing;
-using System.Linq;
-using Roguelike;
-using Cinemachine;
 
 // This class keeps track of the graphical hand.
 
@@ -28,7 +28,7 @@ public class PlayerUIManager : MonoBehaviour
 
     // Player UI FSM.
     // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
-    public enum PlayerUIState { standardCardDrawer, standardNoCardDrawer, controllingCamera, massCardView}
+    public enum PlayerUIState { standardCardDrawer, standardNoCardDrawer, controllingCamera, massCardView }
     private PlayerUIState playerUIState = PlayerUIState.standardCardDrawer;
 
     private PlayerController pc;
@@ -62,7 +62,7 @@ public class PlayerUIManager : MonoBehaviour
     // Camera
     private CinemachineVirtualCamera vcam;
 
-    
+
 
     public void Awake()
     {
@@ -326,7 +326,7 @@ public class PlayerUIManager : MonoBehaviour
                     ((GenericEnemy)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).DisplayHealthBar();
                 }
             }
-                
+
         }
     }
 
@@ -371,33 +371,34 @@ public class PlayerUIManager : MonoBehaviour
     // Generates the range array for the selected card
     private bool[,] GenerateCardRange(Card cardData)
     {
+        var cardRange = cardData.Range;
         bool needsLOS = false;
         bool needsEmptyTile = false;
         bool cornerCutting = false;
-        foreach (Card.PlayCondition x in cardData.conditions)
+        foreach (var x in cardRange.PlayConditions)
         {
             switch (x)
             {
-                case Card.PlayCondition.needsLOS:
+                case PlayCondition.needsLOS:
                     needsLOS = true;
                     break;
-                case Card.PlayCondition.emptyTile:
+                case PlayCondition.emptyTile:
                     needsEmptyTile = true;
                     break;
-                case Card.PlayCondition.cornerCutting:
+                case PlayCondition.cornerCutting:
                     cornerCutting = true;
                     break;
             }
         }
 
-        bool[,] range = cardData.rangeCondition;
+        bool[,] range = cardRange.RangeArray;
 
         if (needsLOS)
         {
             if (cornerCutting)
-                range = BattleManager.ANDArray(pc.LoSGrid, cardData.rangeCondition);
+                range = BattleManager.ANDArray(pc.LoSGrid, range);
             else
-                range = BattleManager.ANDArray(pc.SimpleLoSGrid, cardData.rangeCondition);
+                range = BattleManager.ANDArray(pc.SimpleLoSGrid, range);
         }
 
         if (needsEmptyTile)
