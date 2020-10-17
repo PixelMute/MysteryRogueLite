@@ -7,6 +7,7 @@ public class Deck
     public List<Card> drawPile;
     public List<Card> discardPile;
     public List<Card> hand;
+    public List<Card> banishPile;
 
     public static Deck instance; // Singleton
 
