@@ -28,12 +28,14 @@ public class PlayerController : TileCreature
     public PlayerUIManager puim; // This class manages the player's ui graphically.
 
     private int cardRedrawAmount = 8; // Redraw up to this number of cards.
+    private int maxHandSize = 12;
     private int maxTurnsUntilDraw = 2; // Draw a card every X turns.
     private int turnsUntilDraw = 2;
 
     // Resources
     private int currentEnergy;
     private int energyPerTurn = 3;
+
     private float currentSpirit;
     private int maxSpirit = 1000;
     private int spiritCostPerDiscard = 15; // How much spirit it costs to discard a card
@@ -43,6 +45,8 @@ public class PlayerController : TileCreature
     // LOS
     public bool[,] LoSGrid; // A grid that shows which tiles the player has LOS to relative to themselves. Used for un-obscuring the camera.
     public bool[,] SimpleLoSGrid; // Uses simple middle-to-middle LoS. Used for non-corner cutting attacks.
+
+    // Status effects
 
     private List<TileEntity> engagedEnemies;
 
@@ -72,7 +76,7 @@ public class PlayerController : TileCreature
         AssignVariables();
         ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 4);
         ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 5);
-        ApplyStatusEffect(BattleManager.StatusEffectEnum.inspiration, 2);
+        ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, 2);
         ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, 5);
     }
 
@@ -125,8 +129,16 @@ public class PlayerController : TileCreature
         cinders.Owner = this;
         Card footwork = CardFactory.GetCard("Footwork");
         footwork.Owner = this;
-        Card dragonheart = CardFactory.GetCard("DragonHeart");
+        Card dragonheart = CardFactory.GetCard("dragonheart");
         dragonheart.Owner = this;
+        Card needles = CardFactory.GetCard("needles");
+        needles.Owner = this;
+        Card shadow = CardFactory.GetCard("shadowphase");
+        shadow.Owner = this;
+        Card thunderstep = CardFactory.GetCard("thunderstep");
+        thunderstep.Owner = this;
+        Card backflip = CardFactory.GetCard("backflip");
+        backflip.Owner = this;
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
@@ -140,6 +152,14 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
+
+        // Non-default deck
+        playerDeck.InsertCardAtEndOfDrawPile(needles);
+        playerDeck.InsertCardAtEndOfDrawPile(shadow);
+        playerDeck.InsertCardAtEndOfDrawPile(thunderstep);
+        playerDeck.InsertCardAtEndOfDrawPile(thunderstep);
+        playerDeck.InsertCardAtEndOfDrawPile(backflip);
+        playerDeck.InsertCardAtEndOfDrawPile(backflip);
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -155,16 +175,13 @@ public class PlayerController : TileCreature
             if (playerDeck.hand.Count < cardRedrawAmount)
             {
                 // Draw one card.
-                Card drawnCard = playerDeck.DrawCard();
-                if (drawnCard == null)
+                if (!DrawCard())
                 {
-                    Debug.Log("PlayerController::EndOfTurnDraw() -- CANNOT DRAW CARD!");
+                    // Failed
                     turnsUntilDraw = 1; // Cannot draw.
                     puim.SetTurnsUntilDrawText(1);
                     return;
                 }
-                // Now spawn in the card.
-                puim.SpawnCardInHand(drawnCard);
                 turnsUntilDraw = maxTurnsUntilDraw;
             }
             else
@@ -173,6 +190,39 @@ public class PlayerController : TileCreature
             }
         }
         puim.SetTurnsUntilDrawText(turnsUntilDraw);
+    }
+
+    /// <summary>
+    /// WHAT DOES THE FUNCTION DRAWCARD() DO?
+    /// IT ALLOWS ME TO DRAW ~~two~~ ONE CARD FROM MY DECK AND ADD IT TO MY HAND
+    /// Returns true if successful
+    /// </summary>
+    public bool DrawCard()
+    {
+        if (playerDeck.hand.Count >= maxHandSize)
+        {
+            return false; // Too many cards. Cannot draw more.
+        }
+
+        Card drawnCard = playerDeck.DrawCard();
+        if (drawnCard == null)
+        {
+            Debug.Log("PlayerController::DrawCard() -- CANNOT DRAW CARD!");
+            return false;
+        }
+        // Now spawn in the card.
+        puim.SpawnCardInHand(drawnCard);
+        return true;
+    }
+
+    /// <summary>
+    /// Adds energy to the player
+    /// </summary>
+    /// <param name="amount"></param>
+    public void AddEnergy(int amount)
+    {
+        // Later, do stuff here.
+        currentEnergy += amount;
     }
 
     private void DrawToHandLimit()
@@ -201,7 +251,7 @@ public class PlayerController : TileCreature
         // Do we have the energy for it?
         if (cardToPlay.CardInfo.EnergyCost > CurrentEnergy)
         {
-            return AttemptToPlayCardFailReasons.notPlayerTurn;
+            return AttemptToPlayCardFailReasons.notEnoughEnergy;
         }
 
         // Play the card
@@ -224,12 +274,21 @@ public class PlayerController : TileCreature
         cardToPlay.Activate(BattleManager.ConvertVector(transform.position), target);
 
         if (resetTrackerWhenDone)
-            ResolveCardStack();
+            ResolveCardPlayed();
     }
 
     // Called at the end of a stack of card effects.
-    private void ResolveCardStack()
+    private void ResolveCardPlayed()
     {
+        // If we used momentium, clear all our momentium.
+        if (BattleManager.cardResolveStack.QueryUsedMomentum())
+        {
+            if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.momentum, out var val))
+            { 
+                ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1 * val.EffectValue); // Removes momentium
+            }
+        }
+
         BattleManager.instance.StopCardTracking();
     }
 
@@ -493,7 +552,7 @@ public class PlayerController : TileCreature
 
     private void StartOfTurn()
     {
-        // Defense decay
+        // Status decay
         StartOfTurnStatusDecay();
 
         // Refill energy
@@ -507,9 +566,22 @@ public class PlayerController : TileCreature
     private void StartOfTurnStatusDecay()
     {
         // Do we have defense?
-        if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defence, out StatusEffectDataHolder val))
+        if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.defence))
         { // Lose one defense
             ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1);
+        }
+        // Do we have any engaged enemies?
+        if (engagedEnemies.Count == 0)
+        {
+            // We need to lose 1 momentum and insight.
+            if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.momentum))
+            { // Lose one momentum
+                ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1);
+            }
+            if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.insight))
+            { // Lose one insight
+                ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, -1);
+            }
         }
     }
 
@@ -566,6 +638,36 @@ public class PlayerController : TileCreature
             // We don't have the status effect. Add it.
             statusEffects.Add(status, puim.AddNewStatusEffect(status, amount));
         }
+
+        if (statusEffects.TryGetValue(status, out var val))
+        {
+            Debug.Log("We now have " + val.EffectValue + " power");
+        }
     }
 
+    // Returns the damage bonus from momentum
+    internal int GetMomentumBonus()
+    {
+        if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.momentum, out var val))
+        {
+            return val.EffectValue;
+        }
+        else
+            return 0;
+    }
+
+    // Returns damage bonus from insight, then removes it.
+    internal float GetInsightBonus()
+    {
+        if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.insight, out var val))
+        {
+            int returnVal = val.EffectValue;
+            // Remove our status
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, -1 * returnVal);
+
+            return returnVal + 1f;
+        }
+        else
+            return 1f;
+    }
 }
