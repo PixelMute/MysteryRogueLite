@@ -301,11 +301,6 @@ public class BattleGrid : MonoBehaviour
     }
 
     // Damages whatever is on the given tile. If it's got HP, we'll smack it.
-    /*public void StrikeTile(Vector3 target, float damage)
-    {
-        StrikeTile(new Vector2Int((int)target.x, (int)target.z), damage);
-    }*/
-
     public void StrikeTile(Vector2Int target, int damage)
     {
         Debug.Log("Attacking tile " + target + " for " + damage + " damage.");
@@ -316,6 +311,23 @@ public class BattleGrid : MonoBehaviour
         }
 
         targetTile.GetEntityOnTile().TakeDamage(damage);
+    }
+
+    /// <summary>
+    /// Applies a status effect to the entity on the specified tile.
+    /// </summary>
+    /// <param name="target">A Vector2Int specifying which tile to target</param>
+    /// <param name="status">Enum located in BattleManager that corresponds to which status effect you want to apply</param>
+    /// <param name="power">How much status to apply</param>
+    public void ApplyStatusEffectOnTile(Vector2Int target, BattleManager.StatusEffectEnum status, int power)
+    {
+        Debug.Log("Applying status effect " + status.ToString() + " on tile " + target + ", with power " + power);
+        Tile targetTile = map[target.x, target.y];
+        TileCreature tarCreature = targetTile.GetEntityOnTile() as TileCreature;
+        if (tarCreature != null)
+        {
+            tarCreature.ApplyStatusEffect(status, power);
+        }
     }
 
     public AcceptableTileTargetFailReasons AcceptableTileTarget(Vector3 tileTarget, Card cardData)
