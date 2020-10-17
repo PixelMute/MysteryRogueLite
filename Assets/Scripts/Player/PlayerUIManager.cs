@@ -458,6 +458,7 @@ public class PlayerUIManager : MonoBehaviour
                     break;
                 case PlayerController.AttemptToPlayCardFailReasons.success:
                     DiscardCardAtIndex(cardIndex);
+                    DestroyHighlightTiles();
                     if (cardIndex == selectedCard)
                         DeselectCard();
                     break;
@@ -515,8 +516,12 @@ public class PlayerUIManager : MonoBehaviour
     // Creates a dataholder and spawns a new icon.
     public StatusEffectDataHolder AddNewStatusEffect(BattleManager.StatusEffectEnum setType, int val)
     {
+        Debug.Log("Spawning new status effect.");
         StatusEffectDataHolder baseObj = new StatusEffectDataHolder();
-        baseObj.iconInterface = Instantiate(statusEffectIconPrefab, statusEffectLayout.transform, false).GetComponent<StatusEffectIconInterface>();
+        GameObject go = Instantiate(statusEffectIconPrefab, statusEffectLayout.transform, false);
+        go.name = "StatusIconFor" + setType.ToString();
+        Debug.Log("spawned " + go.name);
+        baseObj.iconInterface = go.GetComponent<StatusEffectIconInterface>();
         baseObj.iconInterface.SetStatusEffect(setType);
         baseObj.EffectValue = val; // Setter method will update the number
         return baseObj;
@@ -699,7 +704,13 @@ public class PlayerUIManager : MonoBehaviour
 
         if (whichCardsToInclude[3])
         {
-            // There's no banish pile yet.
+            foreach (Card c in PlayerController.playerDeck.banishPile)
+            {
+                GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
+                CardInterface ci = newCard.GetComponent<CardInterface>();
+                ci.cardData = c;
+                ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardView);
+            }
         }
 
     }
