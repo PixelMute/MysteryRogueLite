@@ -19,6 +19,9 @@ public class BasicMeleeEnemy : GenericEnemy
         healthBar = SetUpHealthBar(1f);
         healthBarFade = healthBar.GetComponentsInParent<FadeObjectScript>(true)[0];
 
+        // Set up exclamation fade
+        exclamationPointFade = enemyCanvas.GetComponentsInChildren<FadeObjectScript>(true)[0];
+
         moveTarget = transform.position;
         maxHealth = 40;
         Health = maxHealth;
