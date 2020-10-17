@@ -5,6 +5,7 @@ public class CardStackTracker
     private bool active; // Are we currently tracking stuff?
     private int damageDealt = 0; // How much damage has been dealt over this tracking session
     private Card currentlyResolvingCard; // If needed, we can make this an actual stack.
+    private bool usedMomentum = false;
 
     public void AddCardToTracker(Card input)
     {
@@ -21,6 +22,7 @@ public class CardStackTracker
         active = false;
         damageDealt = 0;
         currentlyResolvingCard = null;
+        usedMomentum = false;
     }
 
     // Have we dealt at least this much?
@@ -38,5 +40,26 @@ public class CardStackTracker
     public bool IsActive()
     {
         return active;
+    }
+
+    public int GetMomentumBonus()
+    {
+        usedMomentum = true;
+        return BattleManager.player.GetMomentumBonus();
+    }
+
+    public float GetInsightBonus()
+    {
+        return BattleManager.player.GetInsightBonus();
+    }
+
+    public void SetUsedMomentum(bool mo)
+    {
+        usedMomentum = mo;
+    }
+
+    public bool QueryUsedMomentum()
+    {
+        return usedMomentum;
     }
 }
