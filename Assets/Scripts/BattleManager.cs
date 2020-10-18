@@ -48,6 +48,10 @@ public class BattleManager : MonoBehaviour
 
         player = GameObject.Find("PlayerHolder").GetComponent<PlayerController>();
         mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+    }
+
+    private void Start()
+    {
         CreateFloor();
     }
 
