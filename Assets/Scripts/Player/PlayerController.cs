@@ -63,7 +63,7 @@ public class PlayerController : TileCreature
     public int Health
     {
         get { return health; }
-        set { health = value; puim.SetCurrentHealth(health); }
+        set { health = value; puim.SetCurrentHealth(health, maxHealth); }
     }
 
     void Awake()
@@ -154,15 +154,26 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
         // Non-default deck
+        /*
         playerDeck.InsertCardAtEndOfDrawPile(needles);
         playerDeck.InsertCardAtEndOfDrawPile(shadow);
         playerDeck.InsertCardAtEndOfDrawPile(thunderstep);
         playerDeck.InsertCardAtEndOfDrawPile(thunderstep);
         playerDeck.InsertCardAtEndOfDrawPile(backflip);
-        playerDeck.InsertCardAtEndOfDrawPile(backflip);
+        playerDeck.InsertCardAtEndOfDrawPile(backflip);*/
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
+    }
+
+    /// <summary>
+    /// Adds the selected card to the discard pile.
+    /// </summary>
+    /// <param name="cardData">Card to add</param>
+    internal void GainCard(Card cardData)
+    {
+        cardData.Owner = this;
+        playerDeck.discardPile.Add(cardData);
     }
 
     // Every X turns, we draw one card if we're below max.
@@ -522,17 +533,26 @@ public class PlayerController : TileCreature
     // Applies incoming damage
     public override void TakeDamage(int damage)
     {
-        // Do we have defense?
-        if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defence, out StatusEffectDataHolder val))
+        if (damage >= 0) // Damage
         {
-            int oldDamage = (int)damage;
-            damage -= val.EffectValue;
-            ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1 * oldDamage); // Deal damage to defense
-        }
+            // Do we have defense?
+            if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defence, out StatusEffectDataHolder val))
+            {
+                int oldDamage = (int)damage;
+                damage -= val.EffectValue;
+                ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1 * oldDamage); // Deal damage to defense
+            }
 
-        if (damage > 0)
+            if (damage > 0)
+            {
+                Health -= damage;
+            }
+        }
+        else // healing
         {
-            Health -= (int)damage;
+            Health += damage;
+            if (Health > maxHealth)
+                Health = maxHealth;
         }
     }
 
@@ -643,6 +663,12 @@ public class PlayerController : TileCreature
         {
             Debug.Log("We now have " + val.EffectValue + " power");
         }
+    }
+
+    // Right now, this is called by a button.
+    public void GetCardReward()
+    {
+        puim.OpenCardRewardView();
     }
 
     // Returns the damage bonus from momentum
