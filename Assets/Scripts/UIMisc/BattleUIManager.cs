@@ -24,6 +24,16 @@ public class BattleUIManager : MonoBehaviour
         BattleManager.player.puim.ToggleShowMassCardView();
     }
 
+    public void GetCardRewardButtonClicked()
+    {
+        BattleManager.player.GetCardReward();
+    }
+
+    public void SkipCardRewardButtonClicked()
+    {
+        BattleManager.player.puim.LeaveCardRewardScreen(false);
+    }
+
     // Sets a toggle for which sets of cards to view.
     // 0 - Draw, 1 - Discard, 2 - Hand, 3 - Banish
     public void SetMassCardViewButtonToggle(int index)
