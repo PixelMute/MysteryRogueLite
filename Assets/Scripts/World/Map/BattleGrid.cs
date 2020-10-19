@@ -23,7 +23,7 @@ public class BattleGrid : MonoBehaviour
     public GameObject stairsDown;
 
     public GameObject terrainHolder;
-
+    public TextMeshProUGUI FloorDisplay;
 
 
     // Enemy stuff
@@ -99,18 +99,25 @@ public class BattleGrid : MonoBehaviour
 
     public void GoDownFloor()
     {
-        StartCoroutine(LoadNewFloorCoroutine());
+        if (!LoadingNewFloor)
+        {
+            LoadingNewFloor = true;
+            StartCoroutine(LoadNewFloorCoroutine());
+        }
     }
 
+    private bool LoadingNewFloor = false;
     private IEnumerator LoadNewFloorCoroutine()
     {
         var fader = FindObjectOfType<SceneFader>();
-        yield return fader.Fade(SceneFader.FadeDirection.In);       //Start fading to black
-        floorManager.GoDownFloor();                                 //When screen is black, despawn current floor, generate new floor
-        SetFogOfWarBounds(CurrentFloor.sizeX, CurrentFloor.sizeZ);  //Update fog of war
-        BattleManager.player.UpdateLOS();                           //Update player LOS
-        yield return new WaitForSeconds(2);
-        yield return fader.Fade(SceneFader.FadeDirection.Out, 2);      //Fade back in
+        yield return fader.Fade(SceneFader.FadeDirection.In);                   //Start fading to black
+        floorManager.GoDownFloor();                                             //When screen is black, despawn current floor, generate new floor
+        SetFogOfWarBounds(CurrentFloor.sizeX, CurrentFloor.sizeZ);              //Update fog of war
+        BattleManager.player.UpdateLOS();                                       //Update player LOS
+        FloorDisplay.text = (floorManager.CurrentFloorNumber + 1).ToString();
+        yield return new WaitForSeconds(1f);
+        yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
+        LoadingNewFloor = false;
     }
 
     public void GenerateFirstLevel()

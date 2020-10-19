@@ -19,23 +19,14 @@ public class FloorManager
 
     public void GenerateNewFloor()
     {
-        var timer = new Stopwatch();
-        timer.Start();
         CurrentFloor = GenerateRandomFloor(CurrentFloorNumber);
-        UnityEngine.Debug.Log($"Took {timer.ElapsedMilliseconds} milliseconds to generate floor");
         AllFloors.Append(CurrentFloor);
-        timer.Reset();
-        timer.Start();
         CurrentFloor.InstantiateFloor();
-        UnityEngine.Debug.Log($"Took {timer.ElapsedMilliseconds} milliseconds to instantiate floor");
     }
 
     public void GoDownFloor()
     {
-        var timer = new Stopwatch();
-        timer.Start();
         CurrentFloor.DespawnFloor();
-        UnityEngine.Debug.Log($"Took {timer.ElapsedMilliseconds} milliseconds to despawn floor");
         CurrentFloorNumber++;
         if (CurrentFloorNumber < AllFloors.Count)
         {
@@ -177,10 +168,7 @@ public class Floor
 
         PlacePlayerInDungeon();
 
-        var timer = new Stopwatch();
-        timer.Start();
         GenerateWalkableMap();
-        UnityEngine.Debug.Log($"Took {timer.ElapsedMilliseconds} to generate walkable map");
     }
 
     public void DespawnFloor()
