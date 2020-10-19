@@ -3,16 +3,53 @@ using DungeonGenerator.core;
 using NesScripts.Controls.PathFind;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public static class FloorFactory
+public class FloorManager
 {
+    public int CurrentFloorNumber { get; private set; } = 0;
+    public List<Floor> AllFloors { get; private set; } = new List<Floor>();
+    public Floor CurrentFloor { get; private set; }
+
+    public void GenerateNewFloor()
+    {
+        var timer = new Stopwatch();
+        timer.Start();
+        CurrentFloor = GenerateRandomFloor(CurrentFloorNumber);
+        UnityEngine.Debug.Log($"Took {timer.ElapsedMilliseconds} milliseconds to generate floor");
+        AllFloors.Append(CurrentFloor);
+        timer.Reset();
+        timer.Start();
+        CurrentFloor.InstantiateFloor();
+        UnityEngine.Debug.Log($"Took {timer.ElapsedMilliseconds} milliseconds to instantiate floor");
+    }
+
+    public void GoDownFloor()
+    {
+        var timer = new Stopwatch();
+        timer.Start();
+        CurrentFloor.DespawnFloor();
+        UnityEngine.Debug.Log($"Took {timer.ElapsedMilliseconds} milliseconds to despawn floor");
+        CurrentFloorNumber++;
+        if (CurrentFloorNumber < AllFloors.Count)
+        {
+            CurrentFloor = AllFloors[CurrentFloorNumber];
+            CurrentFloor.InstantiateFloor();
+        }
+        else
+        {
+            GenerateNewFloor();
+        }
+    }
+
     //Generates a floor. Can be modified to see certain floors to have different types
-    public static Floor GenerateFloor(int x, int y, Tilemap tileMap, int seed = 0)
+    public Floor GenerateRandomFloor(int floorNumber, int x = 60, int y = 60, int seed = 0)
     {
         //Allows us to create the exact same floor if we know the seed
         if (seed == 0)
@@ -23,10 +60,9 @@ public static class FloorFactory
             DungeonGenerator.gen.hints.GenRoomShape.SPLATTER, DungeonGenerator.gen.hints.GenRoomSize.MEDIUM,
             DungeonGenerator.gen.hints.GenMazeType.DEPTH_FIRST, DungeonGenerator.gen.hints.GenPathing.TRUNCATE,
             DungeonGenerator.gen.hints.GenEgress.RANDOM_PLACEMENT, 3, 1);
-        return new Floor(dungeonData, tileMap, seed);
+        return new Floor(dungeonData, floorNumber, seed);
     }
 }
-
 
 
 public class Floor
@@ -37,21 +73,27 @@ public class Floor
     public int sizeX { get; private set; }
     public int sizeZ { get; private set; }
     public int seed { get; private set; }
+    public int FloorNumber { get; private set; }
+    public List<GenericEnemy> enemies { get; private set; } = new List<GenericEnemy>();
+
+    private Vector2Int stairsUpLocation;
+    private Vector2Int stairsDownLocation;
 
     // Pathfinding
     private float[,] walkCostsMap = null; // This is the cost of that tile. 0 = impassable.
     public WalkableTilesGrid walkGrid = null;
 
-    public Floor(Sirpgeon dungeonData, Tilemap tileMap, int seed)
+    public Floor(Sirpgeon dungeonData, int floorNumber, int seed)
     {
         this.dungeonData = dungeonData;
-        this.tileMap = tileMap;
+        tileMap = BattleGrid.instance.tileMap;
         this.seed = seed;
+        FloorNumber = floorNumber;
         BuildFloor();
     }
 
     //Builds the floor from the dungeon data
-    private void BuildFloor()
+    public void BuildFloor()
     {
         DunNode[][] nodes = dungeonData.getNodes();
 
@@ -60,19 +102,64 @@ public class Floor
 
         map = new Roguelike.Tile[sizeX, sizeZ];
 
-        Tile topLeft = Resources.Load<Tile>("Tiles/GroundTopLeft");
-        Tile topRight = Resources.Load<Tile>("Tiles/GroundTopRight");
-        Tile bottomLeft = Resources.Load<Tile>("Tiles/GroundBottomLeft");
-        Tile bottomRight = Resources.Load<Tile>("Tiles/GroundBottomRight");
-
         // Fill in the map
         for (int i = 0; i < sizeX; i++)
         {
             for (int j = 0; j < sizeZ; j++)
             {
                 map[i, j] = new Roguelike.Tile();
-                // For each element in nodes, translate it onto map.
-                if (nodes[i][j].open())
+                // If it isn't an empty space, it should be a wall
+                if (!nodes[i][j].open())
+                {
+                    map[i, j].tileEntityType = Roguelike.Tile.TileEntityType.wall;
+                }
+            }
+        }
+
+        // Set the enemies locations
+        SetEnemyLocation();
+        SetEnemyLocation();
+        SetEnemyLocation();
+        SetEnemyLocation();
+        SetEnemyLocation();
+        SetEnemyLocation();
+        SetEnemyLocation();
+        SetEnemyLocation();
+
+        SetStairsLocation();
+    }
+
+    public void InstantiateFloor()
+    {
+        Tile topLeft = Resources.Load<Tile>("Tiles/GroundTopLeft");
+        Tile topRight = Resources.Load<Tile>("Tiles/GroundTopRight");
+        Tile bottomLeft = Resources.Load<Tile>("Tiles/GroundBottomLeft");
+        Tile bottomRight = Resources.Load<Tile>("Tiles/GroundBottomRight");
+
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeZ; j++)
+            {
+                switch (map[i, j].tileEntityType)
+                {
+                    case Roguelike.Tile.TileEntityType.wall:
+                        SpawnWallAt(i, j);
+                        break;
+                    case Roguelike.Tile.TileEntityType.enemy:
+                        SpawnEnemyAt(i, j);
+                        break;
+                    //case Roguelike.Tile.TileEntityType.stairsUp:
+                    //    var spawnLoc = new Vector2Int(i, j);
+                    //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
+                    //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
+                    //    break;
+                    case Roguelike.Tile.TileEntityType.stairsDown:
+                        var spawnLoc = new Vector2Int(i, j);
+                        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
+                        PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsDown);
+                        break;
+                }
+                if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.wall)
                 {
                     Tile tile;
                     if (i % 2 == 0)
@@ -85,34 +172,76 @@ public class Floor
                     }
                     tileMap.SetTile(new Vector3Int(i, j, 0), tile);
                 }
-                else
-                {
-                    SpawnWallAt(i, j);
-                }
             }
         }
 
-        // Spawn an enemy
-        SpawnEnemy();
-        SpawnEnemy();
-        SpawnEnemy();
-        SpawnEnemy();
-        SpawnEnemy();
-        SpawnEnemy();
-        SpawnEnemy();
-        SpawnEnemy();
+        PlacePlayerInDungeon();
 
+        var timer = new Stopwatch();
+        timer.Start();
         GenerateWalkableMap();
+        UnityEngine.Debug.Log($"Took {timer.ElapsedMilliseconds} to generate walkable map");
+    }
 
+    public void DespawnFloor()
+    {
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeZ; j++)
+            {
+                if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.player)
+                {
+                    BattleGrid.instance.DestroyGameObject(map[i, j].GetEntityOnTile()?.gameObject);
+                }
+            }
+        }
+        tileMap.ClearAllTiles();
+    }
+
+    private void SetEnemyLocation()
+    {
+        Vector2Int spawnLoc = PickRandomEmptyTile();
+        map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
+    }
+
+    private void SetStairsLocation()
+    {
+        Vector2Int spawnLoc = PickRandomEmptyTile();
+        map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.stairsDown;
+        stairsDownLocation = spawnLoc;
+        //if (FloorNumber != 0)
+        //{
+        //    spawnLoc = PickRandomEmptyTile();
+        //    map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.stairsUp;
+        //    stairsUpLocation = spawnLoc;
+        //}
     }
 
     public void PlacePlayerInDungeon()
     {
-        List<Room> rooms = dungeonData.getRooms();
-        int x = rooms[0].bottomRight().x();
-        int y = rooms[0].bottomRight().y();
-        BattleManager.player.EstablishSelf(x, y);
-        BattleManager.player.transform.position = new Vector3(x, 0.05f, y);
+        var spawnLocation = PickRandomEmptyTile();
+        BattleManager.player.EstablishSelf(spawnLocation.x, spawnLocation.y);
+        BattleManager.player.transform.position = new Vector3(spawnLocation.x, 0.05f, spawnLocation.y);
+        BattleManager.player.moveTarget = new Vector3(spawnLocation.x, BattleManager.player.transform.position.y, spawnLocation.y);
+        BattleManager.player.isMoving = false;
+    }
+
+    private void SpawnStairs()
+    {
+        //List<Room> rooms = dungeonData.getRooms();
+        //var spawnLoc = new Vector2Int(rooms.Last().bottomRight().x(), rooms.Last().bottomRight().y());
+        var spawnLoc = PickRandomEmptyTile();
+        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
+        PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsDown);
+        stairsDownLocation = spawnLoc;
+        if (FloorNumber != 0)
+        {
+            //spawnLoc = new Vector2Int(rooms[0].bottomRight().x(), rooms[0].bottomRight().y());
+            spawnLoc = PickRandomEmptyTile();
+            var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
+            PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
+            stairsUpLocation = spawnLoc;
+        }
     }
 
     // Picks a random empty tile out of the map.
@@ -135,7 +264,7 @@ public class Floor
 
         if (tryNum >= 100)
         {
-            Debug.LogError("BattleGrid--PickRandomEmptytile():: Uh... couldn't find a single empty tile. That seems unlikely.");
+            UnityEngine.Debug.LogError("BattleGrid--PickRandomEmptytile():: Uh... couldn't find a single empty tile. That seems unlikely.");
             return ForceFindEmptyTile();
         }
         return new Vector2Int(tarX, tarZ);
@@ -155,14 +284,22 @@ public class Floor
             }
         }
 
-        Debug.LogError("BattleGrid--ForceFindEmptyTile():: And we couldn't even find one by looping through. What did you do to the game board!?!?");
+        UnityEngine.Debug.LogError("BattleGrid--ForceFindEmptyTile():: And we couldn't even find one by looping through. What did you do to the game board!?!?");
         return Vector2Int.one;
     }
 
     public void SpawnEnemy()
     {
         Vector2Int spawnLoc = PickRandomEmptyTile();
+        SpawnEnemyAt(spawnLoc.x, spawnLoc.y);
+    }
+
+    private void SpawnEnemyAt(int x, int z)
+    {
+        var spawnLoc = new Vector2Int(x, z);
         var newEnemy = BattleGrid.instance.SpawnEnemy(spawnLoc);
+        enemies.Add(newEnemy);
+        newEnemy.name = "EnemyID: " + enemies.Count;
         PlaceObjectOn(spawnLoc.x, spawnLoc.y, newEnemy);
     }
 
@@ -180,21 +317,14 @@ public class Floor
             for (int j = 0; j < sizeZ; j++)
             {
                 walkCostsMap[i, j] = map[i, j].GetPathfindingCost();
-                walkGrid = new WalkableTilesGrid(walkCostsMap);
             }
         }
+        walkGrid = new WalkableTilesGrid(walkCostsMap);
     }
 
     // Spawns a wall at this location for the corresponding Tile in the array.
     private void SpawnWallAt(int x, int z)
     {
-        // Check to see if the tile we're trying to spawn on is empty
-        if (map[x, z].tileEntityType != Roguelike.Tile.TileEntityType.empty)
-        {
-            Debug.Log("Battlegrid::SpawnWallAt(" + x + "," + z + ")--Tried to spawn a wall here, but that tile is not empty.");
-            return;
-        }
-
         var entityTile = BattleGrid.instance.SpawnWall(x, z);
         PlaceObjectOn(x, z, entityTile);
     }
@@ -226,7 +356,7 @@ public class Floor
     {
         if (obj != map[obj.xPos, obj.zPos].GetEntityOnTile())
         {
-            Debug.LogError("Error, tried to move " + obj.name + ", but it isn't where it says it should be.");
+            UnityEngine.Debug.LogError("Error, tried to move " + obj.name + ", but it isn't where it says it should be.");
             return;
         }
 

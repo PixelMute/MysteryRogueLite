@@ -10,7 +10,7 @@ using UnityEngine.XR;
 public class PlayerController : TileCreature
 {
     private const int movementEnergyCost = 1;
-    private bool isMoving = false;
+    public bool isMoving = false;
     public Rigidbody rb;
     public BoxCollider boxCollider;
 
@@ -107,6 +107,11 @@ public class PlayerController : TileCreature
         engagedEnemies = new List<TileEntity>();
 
         statusEffects = new Dictionary<BattleManager.StatusEffectEnum, StatusEffectDataHolder>();
+    }
+
+    public void UpdateLOS()
+    {
+        LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
     }
 
     // Builds the player's starting deck
@@ -453,8 +458,19 @@ public class PlayerController : TileCreature
             MoveTowardsTarget();
         }
 
-        // Update position
-        BattleGrid.instance.MoveObjectTo(newMoveTarget, this);
+        //Check if target is stairs
+        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
+        if (tile.tileEntityType == Tile.TileEntityType.stairsDown)
+        {
+            BattleGrid.instance.GoDownFloor();
+            isMoving = false;
+            moveTarget = new Vector3(xPos, yLevel, zPos);
+        }
+        else
+        {
+            // Update position
+            BattleGrid.instance.MoveObjectTo(newMoveTarget, this);
+        }
 
         // Recalculate LOS
         LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
@@ -480,7 +496,6 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     private void EndOfTurn()
     {
-
         // Spirit decay
         LoseSpirit(1);
 

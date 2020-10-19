@@ -6,6 +6,7 @@ using Roguelike;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -18,10 +19,15 @@ public class BattleGrid : MonoBehaviour
 
     public GameObject wallPrefab;
     public Tilemap tileMap;
-    private GameObject terrainHolder;
+    public GameObject stairsUp;
+    public GameObject stairsDown;
+
+    public GameObject terrainHolder;
+
+
 
     // Enemy stuff
-    [HideInInspector] public List<GenericEnemy> enemies;
+    [HideInInspector]
     public GameObject enemyPrefab;
 
     // Line of Sight
@@ -31,7 +37,15 @@ public class BattleGrid : MonoBehaviour
     FogOfWarTeam fogOfWar;
     FogOfWarUnit playerReveal;
 
-    public Floor CurrentFloor { get; private set; }
+    public Floor CurrentFloor
+    {
+        get
+        {
+            return floorManager.CurrentFloor;
+        }
+    }
+    private FloorManager floorManager = new FloorManager();
+
 
     public int sizeX
     {
@@ -83,13 +97,30 @@ public class BattleGrid : MonoBehaviour
 
     }
 
-    public void GenerateFloor(int x, int y)
+    public void GoDownFloor()
     {
-        terrainHolder = GameObject.Find("TerrainHolder");
+        StartCoroutine(LoadNewFloorCoroutine());
+    }
 
-        CurrentFloor = FloorFactory.GenerateFloor(x, y, tileMap);
-        CurrentFloor.PlacePlayerInDungeon();
+    private IEnumerator LoadNewFloorCoroutine()
+    {
+        var fader = FindObjectOfType<SceneFader>();
+        yield return fader.Fade(SceneFader.FadeDirection.In);       //Start fading to black
+        floorManager.GoDownFloor();                                 //When screen is black, despawn current floor, generate new floor
+        SetFogOfWarBounds(CurrentFloor.sizeX, CurrentFloor.sizeZ);  //Update fog of war
+        BattleManager.player.UpdateLOS();                           //Update player LOS
+        yield return new WaitForSeconds(2);
+        yield return fader.Fade(SceneFader.FadeDirection.Out, 2);      //Fade back in
+    }
 
+    public void GenerateFirstLevel()
+    {
+        floorManager.GenerateNewFloor();
+        InitFogOfWar();
+    }
+
+    private void InitFogOfWar()
+    {
         fogOfWar = GameObject.Find("FogOfWarHolder").GetComponent<FogOfWarTeam>();
         playerReveal = BattleManager.player.gameObject.GetComponentInChildren<FogOfWarUnit>();
         playerReveal.transform.SetParent(null);
@@ -107,19 +138,37 @@ public class BattleGrid : MonoBehaviour
     }
 
     //Instantiates enemy
-    public TileEntity SpawnEnemy(Vector2Int spawnLoc)
+    public GenericEnemy SpawnEnemy(Vector2Int spawnLoc)
     {
         GameObject enemyObj = Instantiate(enemyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), Quaternion.identity, transform);
         GenericEnemy newEnemy = enemyObj.GetComponent<GenericEnemy>();
-        enemies.Add(newEnemy);
-        newEnemy.name = "EnemyID: " + enemies.Count;
         return newEnemy;
+    }
+
+    public TileEntity SpawnStairsUp(Vector2Int spawnLoc)
+    {
+        var newObj = Instantiate(stairsUp, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), stairsUp.transform.rotation);
+        return newObj.GetComponent<Stairs>();
+    }
+
+    public TileEntity SpawnStairsDown(Vector2Int spawnLoc)
+    {
+        var newObj = Instantiate(stairsDown, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), stairsDown.transform.rotation);
+        return newObj.GetComponent<Stairs>();
     }
 
     // Picks a random empty tile out of the map.
     public Vector2Int PickRandomEmptyTile()
     {
         return CurrentFloor.PickRandomEmptyTile();
+    }
+
+    public void DestroyGameObject(GameObject gameObject)
+    {
+        if (gameObject != null)
+        {
+            Destroy(gameObject);
+        }
     }
 
     // Sets up the boundary for fog of war based on the map size.
@@ -135,7 +184,7 @@ public class BattleGrid : MonoBehaviour
     {
         List<GenericEnemy> enemiesLeftToAct = new List<GenericEnemy>();
         // Add all enemies to this list.
-        enemiesLeftToAct.AddRange(enemies);
+        enemiesLeftToAct.AddRange(CurrentFloor.enemies);
 
         while (enemiesLeftToAct.Count > 0)
         {
@@ -161,7 +210,7 @@ public class BattleGrid : MonoBehaviour
         if (CurrentFloor.map[target.x, target.y].tileEntityType == Roguelike.Tile.TileEntityType.enemy)
         {
             // Remove this from the list of enemies.
-            enemies.Remove((GenericEnemy)CurrentFloor.map[target.x, target.y].GetEntityOnTile());
+            CurrentFloor.enemies.Remove((GenericEnemy)CurrentFloor.map[target.x, target.y].GetEntityOnTile());
         }
         CurrentFloor.map[target.x, target.y].SetEntityOnTile(null);
     }

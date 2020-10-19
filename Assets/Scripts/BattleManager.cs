@@ -59,7 +59,7 @@ public class BattleManager : MonoBehaviour
     {
         map = FindObjectOfType<BattleGrid>();
 
-        map.GenerateFloor(60, 60);
+        map.GenerateFirstLevel();
     }
 
     // Called when the player ends their turn
