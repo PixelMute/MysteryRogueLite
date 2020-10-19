@@ -26,6 +26,7 @@ public abstract class GenericEnemy : TileCreature
     public GameObject enemyCanvas; // The actual object, not the prefab
     protected HealthBarScript healthBar;
     protected FadeObjectScript healthBarFade;
+    protected FadeObjectScript exclamationPointFade;
 
     // AI
     public enum EnemyAIState { standing, inCombat, movingToWanderTarget, milling, alerted} // Describes what the enemy is doing right now
@@ -107,6 +108,7 @@ public abstract class GenericEnemy : TileCreature
             {
                 // Go to alerted, take no action. But do shout for help.
                 currentAIState = EnemyAIState.alerted;
+                exclamationPointFade.StartFadeCycle(1, 1.25f);
                 InitCombat();
                 ShoutForHelp();
             }

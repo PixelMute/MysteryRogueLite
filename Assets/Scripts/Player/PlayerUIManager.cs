@@ -19,16 +19,19 @@ public class PlayerUIManager : MonoBehaviour
     public TextMeshProUGUI energyPerTurnTextComponent;
     public TextMeshProUGUI healthTextComponent;
     public Image spiritFillImage;
+    public Image healthFillImage;
     public TextMeshProUGUI spiritTextComponent;
     private HorizontalLayoutGroup handLayout;
     private GridLayoutGroup statusEffectLayout;
     private GridLayoutGroup massCardViewGridLayout;
     private Image massCardViewBackground;
+    private Image cardRewardViewbackground;
+    private HorizontalLayoutGroup cardRewardHorizontalLayout;
     //private bool massCardViewOpen = false;
 
     // Player UI FSM.
     // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
-    public enum PlayerUIState { standardCardDrawer, standardNoCardDrawer, controllingCamera, massCardView }
+    public enum PlayerUIState { standardCardDrawer, standardNoCardDrawer, controllingCamera, massCardView, cardRewardView }
     private PlayerUIState playerUIState = PlayerUIState.standardCardDrawer;
 
     private PlayerController pc;
@@ -72,9 +75,9 @@ public class PlayerUIManager : MonoBehaviour
             baseUIObject = GameObject.Find("Canvas - MasterCanvas");
 
         string[] objNames = new string[] {"CurrentEnergyText", "EnergyPerTurnText", "HealthTextObject", "SpiritBarFill", "SpiritTextObject", "HandLayout", "StatusEffectGridLayout",
-                                            "DeckViewContent", "View - MassCardView"};
+                                            "DeckViewContent", "View - MassCardView", "View - GainCardView", "CardOptionsHolder", "HealthBarFill"};
         Type[] typeNames = new Type[] {typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(Image), typeof(TextMeshProUGUI), typeof(HorizontalLayoutGroup),
-        typeof (GridLayoutGroup), typeof (GridLayoutGroup), typeof(Image)};
+        typeof (GridLayoutGroup), typeof (GridLayoutGroup), typeof(Image), typeof(Image), typeof(HorizontalLayoutGroup), typeof(Image)};
         Component[] valArray = BattleManager.RecursiveVariableAssign(baseUIObject, objNames, typeNames);
 
         energyTextComponent = valArray[0] as TextMeshProUGUI;
@@ -86,6 +89,9 @@ public class PlayerUIManager : MonoBehaviour
         statusEffectLayout = valArray[6] as GridLayoutGroup;
         massCardViewGridLayout = valArray[7] as GridLayoutGroup;
         massCardViewBackground = valArray[8] as Image;
+        cardRewardViewbackground = valArray[9] as Image;
+        cardRewardHorizontalLayout = valArray[10] as HorizontalLayoutGroup;
+        healthFillImage = valArray[11] as Image;
 
         graphicalHand = new List<CardInterface>();
         pc = GetComponent<PlayerController>();
@@ -458,6 +464,7 @@ public class PlayerUIManager : MonoBehaviour
                     break;
                 case PlayerController.AttemptToPlayCardFailReasons.success:
                     DiscardCardAtIndex(cardIndex);
+                    DestroyHighlightTiles();
                     if (cardIndex == selectedCard)
                         DeselectCard();
                     break;
@@ -494,8 +501,9 @@ public class PlayerUIManager : MonoBehaviour
         energyTextComponent.SetText(amount.ToString());
     }
 
-    public void SetCurrentHealth(int amount)
+    public void SetCurrentHealth(int amount, int maxHealth)
     {
+        healthFillImage.fillAmount = Mathf.Clamp((1.0f * amount) / maxHealth, 0, 1f);
         healthTextComponent.SetText(amount + "");
     }
     #endregion
@@ -515,8 +523,12 @@ public class PlayerUIManager : MonoBehaviour
     // Creates a dataholder and spawns a new icon.
     public StatusEffectDataHolder AddNewStatusEffect(BattleManager.StatusEffectEnum setType, int val)
     {
+        Debug.Log("Spawning new status effect.");
         StatusEffectDataHolder baseObj = new StatusEffectDataHolder();
-        baseObj.iconInterface = Instantiate(statusEffectIconPrefab, statusEffectLayout.transform, false).GetComponent<StatusEffectIconInterface>();
+        GameObject go = Instantiate(statusEffectIconPrefab, statusEffectLayout.transform, false);
+        go.name = "StatusIconFor" + setType.ToString();
+        Debug.Log("spawned " + go.name);
+        baseObj.iconInterface = go.GetComponent<StatusEffectIconInterface>();
         baseObj.iconInterface.SetStatusEffect(setType);
         baseObj.EffectValue = val; // Setter method will update the number
         return baseObj;
@@ -570,6 +582,9 @@ public class PlayerUIManager : MonoBehaviour
             case PlayerUIState.massCardView:
                 massCardViewBackground.gameObject.SetActive(false);
                 break;
+            case PlayerUIState.cardRewardView:
+                cardRewardViewbackground.gameObject.SetActive(false);
+                break;
         }
     }
 
@@ -584,6 +599,10 @@ public class PlayerUIManager : MonoBehaviour
             case PlayerUIState.massCardView: // Open mass card view
                 massCardViewBackground.gameObject.SetActive(true);
                 PopulateMassCardView();
+                break;
+            case PlayerUIState.cardRewardView: // Open card reward view
+                cardRewardViewbackground.gameObject.SetActive(true);
+                PopulateCardRewardView();
                 break;
         }
         playerUIState = state;
@@ -699,7 +718,13 @@ public class PlayerUIManager : MonoBehaviour
 
         if (whichCardsToInclude[3])
         {
-            // There's no banish pile yet.
+            foreach (Card c in PlayerController.playerDeck.banishPile)
+            {
+                GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
+                CardInterface ci = newCard.GetComponent<CardInterface>();
+                ci.cardData = c;
+                ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardView);
+            }
         }
 
     }
@@ -737,5 +762,58 @@ public class PlayerUIManager : MonoBehaviour
 
         vcam.transform.position = snappedPosition;
     }
+    #endregion
+
+    #region CardRewardScreen
+
+    public void OpenCardRewardView()
+    {
+        // Move to card reward viewing state.
+        MoveToState(PlayerUIState.cardRewardView);
+    }
+
+    // Spawns 3 cards for the player to pick from.
+    // Why 3? All the cool games do 3.
+    private void PopulateCardRewardView()
+    {
+        Debug.Log("Populating card reward screen.");
+        // Clear it out
+        foreach (Transform t in cardRewardHorizontalLayout.transform)
+        {
+            BattleManager.RecursivelyEliminateObject(t);
+        }
+
+        // Now spawn 3 random cards.
+        for (int i = 0; i < 3; i++)
+        {
+            // For now, just pick a random number from 1-22
+            int pickedCard = UnityEngine.Random.Range(1, 22);
+            GameObject newCard = GameObject.Instantiate(cardPrefab, cardRewardHorizontalLayout.transform);
+            CardInterface ci = newCard.GetComponent<CardInterface>();
+            ci.cardData = CardFactory.GetCardByID(pickedCard);
+            Debug.Log("Picked number " + pickedCard + ", which is card " + ci.cardData.CardInfo.Name);
+            ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardReward);
+        }
+    }
+
+    /// <summary>
+    /// Leaves the CardRewardScreen
+    /// </summary>
+    /// <param name="pickedSomething">True if the player selected a card. False if they skipped.</param>
+    public void LeaveCardRewardScreen(bool pickedSomething)
+    {
+        if (!pickedSomething)
+            BattleManager.player.TakeDamage(-10); // Heal player for 10
+
+        // Clear it out
+        foreach (Transform t in cardRewardHorizontalLayout.transform)
+        {
+            BattleManager.RecursivelyEliminateObject(t);
+        }
+
+        // Exit out of state
+        MoveToState(PlayerUIState.standardCardDrawer);
+    }
+
     #endregion
 }

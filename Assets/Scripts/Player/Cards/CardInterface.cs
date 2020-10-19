@@ -23,7 +23,7 @@ public class CardInterface : MonoBehaviour
     [HideInInspector] public bool isHighlighted = false;
 
     // Indicates where on the ui this card is.
-    public enum CardInterfaceLocations { hand, cardView };
+    public enum CardInterfaceLocations { hand, cardView, cardReward };
     private CardInterfaceLocations location;
 
     private void Awake()
@@ -34,7 +34,6 @@ public class CardInterface : MonoBehaviour
     // Finds all textmesh objects on this and assigns the variables to them
     private void AssignTextMeshVariables()
     {
-
         string[] objNames = new string[] { "CardEnergyCostTextObject", "CardSpiritCostTextObject", "CardTitleTextObject", "CardDescriptionTextObject", "HighlightParticleSystemRight", "HighlightParticleSystemLeft" };
         Type[] typeNames = new Type[] { typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(ParticleFollowPath), typeof(ParticleFollowPath) };
         Component[] partArray = BattleManager.RecursiveVariableAssign(gameObject, objNames, typeNames);
@@ -82,9 +81,15 @@ public class CardInterface : MonoBehaviour
     // This is called by the ui system when the card is clicked.
     public void RegisterClick()
     {
-        if (location == CardInterfaceLocations.hand)
+        switch (location)
         {
-            BattleManager.player.puim.CardInHandClicked(cardHandIndex);
+            case CardInterfaceLocations.hand:
+                BattleManager.player.puim.CardInHandClicked(cardHandIndex);
+                break;
+            case CardInterfaceLocations.cardReward:
+                BattleManager.player.GainCard(cardData);
+                BattleManager.player.puim.LeaveCardRewardScreen(true);
+                break;
         }
 
     }

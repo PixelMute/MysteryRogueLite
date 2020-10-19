@@ -35,6 +35,7 @@ public class CardFactory
         }
         catch (Exception e)
         {
+            Debug.Log("Error caught: " + e.Message);
             throw new Exception("Unable to open card info file.", e);
         }
     }
@@ -63,6 +64,7 @@ public class CardFactory
             var conditions = RangeFactory.GetPlayConditionsFromString(csv.GetField<string>("PlayConditions"));
             var range = new Range(conditions, minRange, maxRange);
             var card = new Card(cardInfo, range, effectList);
+            Debug.Log("Adding card: " + cardInfo.Name.ToLower());
             CardDictionary.Add(cardInfo.Name.ToLower(), card);
         }
     }
