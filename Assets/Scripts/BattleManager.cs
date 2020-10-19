@@ -48,6 +48,10 @@ public class BattleManager : MonoBehaviour
 
         player = GameObject.Find("PlayerHolder").GetComponent<PlayerController>();
         mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+    }
+
+    private void Start()
+    {
         CreateFloor();
     }
 
@@ -55,7 +59,7 @@ public class BattleManager : MonoBehaviour
     {
         map = FindObjectOfType<BattleGrid>();
 
-        map.GenerateFloor(60, 60);
+        map.GenerateFirstLevel();
     }
 
     // Called when the player ends their turn

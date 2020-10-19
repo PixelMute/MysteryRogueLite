@@ -10,7 +10,7 @@ using UnityEngine.XR;
 public class PlayerController : TileCreature
 {
     private const int movementEnergyCost = 1;
-    private bool isMoving = false;
+    public bool isMoving = false;
     public Rigidbody rb;
     public BoxCollider boxCollider;
 
@@ -113,11 +113,16 @@ public class PlayerController : TileCreature
         statusEffects = new Dictionary<BattleManager.StatusEffectEnum, StatusEffectDataHolder>();
     }
 
+    public void UpdateLOS()
+    {
+        LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
+    }
+
     // Builds the player's starting deck
     private void AssignInitialDeck()
     {
-        if (Deck.instance == null)
-            playerDeck = new Deck();
+        playerDeck = new Deck();
+        Deck.instance = playerDeck;
 
         if (puim == null)
             puim = GetComponent<PlayerUIManager>();
@@ -523,8 +528,19 @@ public class PlayerController : TileCreature
             MoveTowardsTarget();
         }
 
-        // Update position
-        BattleGrid.instance.MoveObjectTo(newMoveTarget, this);
+        //Check if target is stairs
+        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
+        if (tile.tileEntityType == Tile.TileEntityType.stairsDown)
+        {
+            BattleGrid.instance.GoDownFloor();
+            isMoving = false;
+            moveTarget = new Vector3(xPos, yLevel, zPos);
+        }
+        else
+        {
+            // Update position
+            BattleGrid.instance.MoveObjectTo(newMoveTarget, this);
+        }
 
         // Recalculate LOS
         LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
@@ -554,12 +570,16 @@ public class PlayerController : TileCreature
             if (Health > maxHealth)
                 Health = maxHealth;
         }
+
+        if (Health <= 0)
+        {
+            GameOverScreen.PlayerDeath();
+        }
     }
 
     // Handles stuff that happens at the end of the player turn.
     private void EndOfTurn()
     {
-
         // Spirit decay
         LoseSpirit(1);
 

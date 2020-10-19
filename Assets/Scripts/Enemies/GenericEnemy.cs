@@ -29,7 +29,7 @@ public abstract class GenericEnemy : TileCreature
     protected FadeObjectScript exclamationPointFade;
 
     // AI
-    public enum EnemyAIState { standing, inCombat, movingToWanderTarget, milling, alerted} // Describes what the enemy is doing right now
+    public enum EnemyAIState { standing, inCombat, movingToWanderTarget, milling, alerted } // Describes what the enemy is doing right now
     [SerializeField] protected EnemyAIState currentAIState = EnemyAIState.standing;
     protected int turnsLeftToMill = 1; // Number of turns the enemy will spend wandering in a small area
     [SerializeField] protected Vector2Int wanderTarget; // Square the enemy wants to go to
@@ -43,10 +43,10 @@ public abstract class GenericEnemy : TileCreature
 
     protected TileEntity engagedTarget = null; // What target this is engaged with.
 
-    public int Health 
+    public int Health
     {
         get { return health; }
-        set { health = value; if (healthBar != null) healthBar.UpdateHealthDisplay(health, maxHealth);}
+        set { health = value; if (healthBar != null) healthBar.UpdateHealthDisplay(health, maxHealth); }
     }
 
     public override float GetPathfindingCost()
@@ -125,7 +125,7 @@ public abstract class GenericEnemy : TileCreature
             }
             DecideIdleAction();
         }
-            
+
     }
 
     // Tries to get help from other enemies.
@@ -136,7 +136,7 @@ public abstract class GenericEnemy : TileCreature
     {
         Debug.Log("I shout for help! Is anyone out there?");
         // Get the list of enemies.
-        foreach (GenericEnemy x in BattleGrid.instance.enemies)
+        foreach (GenericEnemy x in BattleGrid.instance.CurrentFloor.enemies)
         {
             if (x != this)
             {
@@ -178,7 +178,7 @@ public abstract class GenericEnemy : TileCreature
     protected virtual bool InCombatCondition(TileEntity target)
     {
         float distance = Vector3.Distance(transform.position, target.transform.position);
-        return (distance <= visionRange && BattleGrid.instance.CheckLoS(transform.position,target.transform.position));
+        return (distance <= visionRange && BattleGrid.instance.CheckLoS(transform.position, target.transform.position));
     }
 
     // Sets the given target as the thing this enemy is attacking.
@@ -199,7 +199,7 @@ public abstract class GenericEnemy : TileCreature
                 pc.AddEngagedEnemy(this);
             }
         }
-        
+
     }
 
     // Performs the enemy's attack action.
@@ -287,7 +287,7 @@ public abstract class GenericEnemy : TileCreature
                 currentAIState = EnemyAIState.milling;
                 turnsLeftToMill = UnityEngine.Random.Range(4, 12);
             }
-                
+
         }
     }
 

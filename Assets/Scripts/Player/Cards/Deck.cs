@@ -13,14 +13,8 @@ public class Deck
 
     public Deck()
     {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != this)
-        {
-            throw new System.Exception("Deck--Deck():: trying to make a second deck when one already exists.");
-        }
+
+        instance = this;
 
         drawPile = new List<Card>();
         discardPile = new List<Card>();
