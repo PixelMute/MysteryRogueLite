@@ -99,6 +99,11 @@ public class BattleGrid : MonoBehaviour
 
     public void GoDownFloor()
     {
+        if (floorManager.CurrentFloorNumber + 1 == 5)
+        {
+            GameOverScreen.PlayerWon();
+            return;
+        }
         if (!LoadingNewFloor)
         {
             LoadingNewFloor = true;
@@ -116,6 +121,7 @@ public class BattleGrid : MonoBehaviour
         BattleManager.player.UpdateLOS();                                       //Update player LOS
         FloorDisplay.text = (floorManager.CurrentFloorNumber + 1).ToString();
         yield return new WaitForSeconds(1f);
+        fogOfWar.ManualUpdate(1f);
         yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
         LoadingNewFloor = false;
     }

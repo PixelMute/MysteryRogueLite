@@ -117,8 +117,8 @@ public class PlayerController : TileCreature
     // Builds the player's starting deck
     private void AssignInitialDeck()
     {
-        if (Deck.instance == null)
-            playerDeck = new Deck();
+        playerDeck = new Deck();
+        Deck.instance = playerDeck;
 
         if (puim == null)
             puim = GetComponent<PlayerUIManager>();
@@ -490,6 +490,11 @@ public class PlayerController : TileCreature
         if (damage > 0)
         {
             Health -= (int)damage;
+        }
+
+        if (Health <= 0)
+        {
+            GameOverScreen.PlayerDeath();
         }
     }
 
