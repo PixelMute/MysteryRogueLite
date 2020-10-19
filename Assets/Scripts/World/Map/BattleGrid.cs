@@ -304,7 +304,7 @@ public class BattleGrid : MonoBehaviour
     public void ApplyStatusEffectOnTile(Vector2Int target, BattleManager.StatusEffectEnum status, int power)
     {
         Debug.Log("Applying status effect " + status.ToString() + " on tile " + target + ", with power " + power);
-        Tile targetTile = map[target.x, target.y];
+        Roguelike.Tile targetTile = map[target.x, target.y];
         TileCreature tarCreature = targetTile.GetEntityOnTile() as TileCreature;
         if (tarCreature != null)
         {
