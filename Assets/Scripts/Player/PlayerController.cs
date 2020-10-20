@@ -136,16 +136,6 @@ public class PlayerController : TileCreature
         footwork.Owner = this;
         Card dragonheart = CardFactory.GetCard("dragonheart");
         dragonheart.Owner = this;
-        Card needles = CardFactory.GetCard("needles");
-        needles.Owner = this;
-        Card shadow = CardFactory.GetCard("shadowphase");
-        shadow.Owner = this;
-        Card thunderstep = CardFactory.GetCard("thunderstep");
-        thunderstep.Owner = this;
-        Card backflip = CardFactory.GetCard("backflip");
-        backflip.Owner = this;
-        playerDeck.InsertCardAtEndOfDrawPile(claws);
-        playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
@@ -153,19 +143,9 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(footwork);
         playerDeck.InsertCardAtEndOfDrawPile(footwork);
-        playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
-
-        // Non-default deck
-        /*
-        playerDeck.InsertCardAtEndOfDrawPile(needles);
-        playerDeck.InsertCardAtEndOfDrawPile(shadow);
-        playerDeck.InsertCardAtEndOfDrawPile(thunderstep);
-        playerDeck.InsertCardAtEndOfDrawPile(thunderstep);
-        playerDeck.InsertCardAtEndOfDrawPile(backflip);
-        playerDeck.InsertCardAtEndOfDrawPile(backflip);*/
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -297,11 +277,12 @@ public class PlayerController : TileCreature
     private void ResolveCardPlayed()
     {
         // If we used momentium, clear all our momentium.
-        if (BattleManager.cardResolveStack.QueryUsedMomentum())
+        int momentumUsed = BattleManager.cardResolveStack.QueryUsedMomentum();
+        if (momentumUsed > 0)
         {
             if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.momentum, out var val))
             {
-                ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1 * val.EffectValue); // Removes momentium
+                ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1 * momentumUsed); // Removes momentium
             }
         }
 
@@ -670,6 +651,7 @@ public class PlayerController : TileCreature
     // Adds amount to the status effect.
     public override void ApplyStatusEffect(BattleManager.StatusEffectEnum status, int amount)
     {
+        Debug.Log("Status effect applied: " + status.ToString() + " w/ power " + amount);
         if (statusEffects.ContainsKey(status))
         {
             StatusEffectDataHolder x = statusEffects[status];
