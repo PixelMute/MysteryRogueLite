@@ -218,7 +218,7 @@ public class PlayerController : TileCreature
     public void AddEnergy(int amount)
     {
         // Later, do stuff here.
-        currentEnergy += amount;
+        CurrentEnergy += amount;
     }
 
     private void DrawToHandLimit()
