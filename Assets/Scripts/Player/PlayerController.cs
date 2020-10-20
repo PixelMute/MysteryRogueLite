@@ -74,10 +74,10 @@ public class PlayerController : TileCreature
     private void Start()
     {
         AssignVariables();
-        ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 4);
-        ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 5);
-        ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, 2);
-        ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, 5);
+        //ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 4);
+        //ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 5);
+        //ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, 2);
+        //ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, 5);
     }
 
     // 0 means cannot be moved through
@@ -576,7 +576,7 @@ public class PlayerController : TileCreature
         }
         else // healing
         {
-            Health += damage;
+            Health -= damage;
             if (Health > maxHealth)
                 Health = maxHealth;
         }
