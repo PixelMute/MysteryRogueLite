@@ -300,7 +300,7 @@ public class PlayerController : TileCreature
         if (BattleManager.cardResolveStack.QueryUsedMomentum())
         {
             if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.momentum, out var val))
-            { 
+            {
                 ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1 * val.EffectValue); // Removes momentium
             }
         }
@@ -357,6 +357,16 @@ public class PlayerController : TileCreature
             // Hitting enter ends turn.
             EndOfTurn();
             return;
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+#if UNITY_EDITOR
+            // Application.Quit() does not work in the editor so
+            // UnityEditor.EditorApplication.isPlaying need to be set to false to end the game
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
         }
         else
         {
