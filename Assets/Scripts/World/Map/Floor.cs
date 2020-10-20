@@ -320,6 +320,7 @@ public class Floor
     // Sets obj's internal tracking of position, as well as updates the battlegrid.
     public void PlaceObjectOn(int x, int z, TileEntity obj)
     {
+
         float oldCost;
         if (walkCostsMap != null) // Might have to recalculate now that something has moved.
         {
@@ -337,6 +338,7 @@ public class Floor
         obj.xPos = x;
         obj.zPos = z;
         map[x, z].SetEntityOnTile(obj);
+
     }
 
     // Moves the given object from wherever it is to the given location on the battlegrid.

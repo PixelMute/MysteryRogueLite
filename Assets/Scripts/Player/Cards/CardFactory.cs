@@ -22,7 +22,7 @@ public class CardFactory
             LineBreakInQuotedFieldIsBadData = false,     //Set so we don't get bad data if there is line break in description
             TrimOptions = CsvHelper.Configuration.TrimOptions.Trim,     //Trim excess white space
         };
-        var fileName = Application.dataPath + "/Resources/cardinfo.csv";
+        var fileName = Application.dataPath + "/StreamingAssets/cardinfo.csv";
         try
         {
             using (var fileReader = new StreamReader(fileName))
