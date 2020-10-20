@@ -107,15 +107,12 @@ public class Floor
             }
         }
 
+        int numEnemies = FloorNumber + 1 == 5 ? 50 : 5 + (FloorNumber * 2);
         // Set the enemies locations
-        SetEnemyLocation();
-        SetEnemyLocation();
-        SetEnemyLocation();
-        SetEnemyLocation();
-        SetEnemyLocation();
-        SetEnemyLocation();
-        SetEnemyLocation();
-        SetEnemyLocation();
+        for (int i = 0; i < numEnemies; i++)
+        {
+            SetEnemyLocation();
+        }
 
         SetStairsLocation();
     }
