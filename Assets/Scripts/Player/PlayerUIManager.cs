@@ -485,7 +485,7 @@ public class PlayerUIManager : MonoBehaviour
     internal void SetTurnsUntilDrawText(int amount)
     {
         //turnsUntilDrawTextComponent.SetText(amount + "");
-        Debug.Log("This used to be to set TurnsUntilDrawText... but I removed it.");
+        //Debug.Log("This used to be to set TurnsUntilDrawText... but I removed it.");
     }
 
     // Fills in the circle to the percentage given.
@@ -517,6 +517,7 @@ public class PlayerUIManager : MonoBehaviour
     // Destroys the icon for a status effect 
     public void RemoveStatusEffect(StatusEffectDataHolder baseObj)
     {
+        Debug.Log("Destroying icon " + baseObj.iconInterface.gameObject.name);
         Destroy(baseObj.iconInterface.gameObject);
     }
 
@@ -786,8 +787,8 @@ public class PlayerUIManager : MonoBehaviour
         // Now spawn 3 random cards.
         for (int i = 0; i < 3; i++)
         {
-            // For now, just pick a random number from 1-22
-            int pickedCard = UnityEngine.Random.Range(1, 22);
+            // For now, just pick a random number from 1-23
+            int pickedCard = UnityEngine.Random.Range(1, 23);
             GameObject newCard = GameObject.Instantiate(cardPrefab, cardRewardHorizontalLayout.transform);
             CardInterface ci = newCard.GetComponent<CardInterface>();
             ci.cardData = CardFactory.GetCardByID(pickedCard);
