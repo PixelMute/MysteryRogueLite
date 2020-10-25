@@ -281,7 +281,6 @@ public class PlayerUIManager : MonoBehaviour
     public void DeselectTile()
     {
         // If we've selected an enemy, hide its canvas
-        Debug.Log(selectedTileGridCoords);
         if (BattleManager.IsVectorNonNeg(selectedTileGridCoords) && BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType == Tile.TileEntityType.enemy)
             ((GenericEnemy)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).HideHealthBar(0.3f, 1f);
         selectedTileGridCoords = Vector2Int.one * -1;
