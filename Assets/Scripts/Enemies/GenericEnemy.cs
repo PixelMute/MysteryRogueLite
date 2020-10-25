@@ -51,7 +51,7 @@ public abstract class GenericEnemy : TileCreature
 
     public override float GetPathfindingCost()
     {
-        return 3f; // Other enemies could wait for this one to move.
+        return 4f; // Other enemies could wait for this one to move.
     }
 
     // Makes a Step towards
