@@ -60,7 +60,6 @@ public class Deck
     // Shuffles the deck to make it random
     public void ShuffleDeck()
     {
-        Debug.Log("Deck--ShuffleDeck()::Every day I'm shufflin");
         int n = drawPile.Count;
         while (n > 1)
         {
