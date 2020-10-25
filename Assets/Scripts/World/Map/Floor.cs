@@ -40,17 +40,18 @@ public class FloorManager
     }
 
     //Generates a floor. Can be modified to see certain floors to have different types
-    public Floor GenerateRandomFloor(int floorNumber, int x = 60, int y = 60, int seed = 0)
+    public Floor GenerateRandomFloor(int floorNumber, int x = 40, int y = 40, int seed = 0)
     {
         //Allows us to create the exact same floor if we know the seed
         if (seed == 0)
         {
-            seed = UnityEngine.Random.Range(-10000, 100000);
+            seed = UnityEngine.Random.Range(-100000, 100000);
         }
-        var dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.DENSE,
-            DungeonGenerator.gen.hints.GenRoomShape.SPLATTER, DungeonGenerator.gen.hints.GenRoomSize.MEDIUM,
-            DungeonGenerator.gen.hints.GenMazeType.DEPTH_FIRST, DungeonGenerator.gen.hints.GenPathing.TRUNCATE,
-            DungeonGenerator.gen.hints.GenEgress.RANDOM_PLACEMENT, 3, 1);
+
+        var dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.NORMAL,
+            DungeonGenerator.gen.hints.GenRoomShape.BOX_AMALGAM, DungeonGenerator.gen.hints.GenRoomSize.HUGE,
+            DungeonGenerator.gen.hints.GenMazeType.WILSON, DungeonGenerator.gen.hints.GenPathing.ROOM_TO_ROOM,
+            DungeonGenerator.gen.hints.GenEgress.RANDOM_PLACEMENT, 0, 1);
         return new Floor(dungeonData, floorNumber, seed);
     }
 }
@@ -107,7 +108,7 @@ public class Floor
             }
         }
 
-        int numEnemies = FloorNumber + 1 == 5 ? 50 : 5 + (FloorNumber * 2);
+        int numEnemies = FloorNumber + 1 == 5 ? 50 : 5 + (FloorNumber * 3);
         // Set the enemies locations
         for (int i = 0; i < numEnemies; i++)
         {
@@ -141,12 +142,10 @@ public class Floor
                     //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
                     //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
                     //    break;
-                    case Roguelike.Tile.TileEntityType.stairsDown:
-                        var spawnLoc = new Vector2Int(i, j);
-                        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
-                        PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsDown);
-                        break;
+                        
                 }
+
+                // Determine terrain
                 if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.wall)
                 {
                     Tile tile;
@@ -158,6 +157,14 @@ public class Floor
                     {
                         tile = j % 2 == 0 ? bottomLeft : bottomRight;
                     }
+
+                    if (map[i,j].tileTerrainType == Roguelike.Tile.TileTerrainType.stairsDown)
+                    {
+                        var spawnLoc = new Vector2Int(i, j);
+                        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
+                        PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
+                    }
+
                     tileMap.SetTile(new Vector3Int(i, j, 0), tile);
                 }
             }
@@ -191,9 +198,13 @@ public class Floor
 
     private void SetStairsLocation()
     {
-        Vector2Int spawnLoc = PickRandomEmptyTile();
-        map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.stairsDown;
-        stairsDownLocation = spawnLoc;
+        for (int i = 0; i < 6; i++)
+        {
+            Vector2Int spawnLoc = PickRandomEmptyTile();
+            map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
+        }
+        
+        //stairsDownLocation = spawnLoc;
         //if (FloorNumber != 0)
         //{
         //    spawnLoc = PickRandomEmptyTile();
@@ -217,14 +228,14 @@ public class Floor
         //var spawnLoc = new Vector2Int(rooms.Last().bottomRight().x(), rooms.Last().bottomRight().y());
         var spawnLoc = PickRandomEmptyTile();
         var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
-        PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsDown);
+        PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
         stairsDownLocation = spawnLoc;
         if (FloorNumber != 0)
         {
             //spawnLoc = new Vector2Int(rooms[0].bottomRight().x(), rooms[0].bottomRight().y());
             spawnLoc = PickRandomEmptyTile();
             var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
-            PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
+            PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsUp);
             stairsUpLocation = spawnLoc;
         }
     }
@@ -318,23 +329,33 @@ public class Floor
     public void PlaceObjectOn(int x, int z, TileEntity obj)
     {
 
-        float oldCost;
+        float oldCost = 0f;
         if (walkCostsMap != null) // Might have to recalculate now that something has moved.
         {
-            if (map[x, z].tileEntityType == Roguelike.Tile.TileEntityType.empty)
-                oldCost = 0f;
-            else
-                oldCost = map[x, z].GetEntityOnTile().GetPathfindingCost();
-            if (oldCost != obj.GetPathfindingCost()) // Need to update
-            {
-                walkCostsMap[x, z] = obj.GetPathfindingCost();
-                walkGrid.UpdateGrid(walkCostsMap);
-            }
+            oldCost = map[x, z].GetPathfindingCost();
         }
 
         obj.xPos = x;
         obj.zPos = z;
         map[x, z].SetEntityOnTile(obj);
+
+
+        if (walkCostsMap != null && oldCost != map[x, z].GetPathfindingCost()) // Need to update
+        {
+            walkCostsMap[x, z] = map[x, z].GetPathfindingCost();
+            walkGrid.UpdateGrid(walkCostsMap);
+        }
+    }
+
+    public void PlaceTerrainOn(int x, int z, TileTerrain ter)
+    {
+        if (walkCostsMap != null && ter.GetPathfindingCost() != 1f) // Might have to recalculate now that something has moved.
+        {
+            walkCostsMap[x, z] = map[x,z].GetPathfindingCost();
+            walkGrid.UpdateGrid(walkCostsMap);
+        }
+
+        map[x, z].SetTerrainOnTile(ter);
 
     }
 
