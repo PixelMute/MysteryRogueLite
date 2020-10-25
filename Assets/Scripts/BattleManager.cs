@@ -35,7 +35,7 @@ public class BattleManager : MonoBehaviour
             {
                 CardFactory.LoadCards();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //Handle exception if we can't load cards
             }
@@ -65,9 +65,14 @@ public class BattleManager : MonoBehaviour
     // Called when the player ends their turn
     public void EndOfTurn()
     {
-        currentTurn = TurnPhase.enemy;
-        map.ProcessEnemyTurn();
-        currentTurn = TurnPhase.player;
+        if (currentTurn != TurnPhase.waiting)
+        {
+            Debug.Log("End of turn. Phase: " + currentTurn.ToString());
+            currentTurn = TurnPhase.enemy;
+            map.ProcessEnemyTurn();
+            currentTurn = TurnPhase.player;
+        }
+
     }
 
     public Tile GetTileAtLocation(int xPos, int zPos)
