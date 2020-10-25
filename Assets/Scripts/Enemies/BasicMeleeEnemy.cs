@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using NesScripts.Controls.PathFind;
+using Roguelike;
 
 public class BasicMeleeEnemy : GenericEnemy
 {
