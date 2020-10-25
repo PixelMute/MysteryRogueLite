@@ -49,7 +49,6 @@ public class PlayerController : TileCreature
     // Status effects
 
     private List<TileEntity> engagedEnemies;
-
     public float CurrentSpirit
     {
         get { return currentSpirit; }
@@ -336,6 +335,7 @@ public class PlayerController : TileCreature
         else if (Input.GetKeyDown(KeyCode.Return))
         {
             // Hitting enter ends turn.
+            Debug.Log("Enter pressed");
             EndOfTurn();
             return;
         }
@@ -400,6 +400,7 @@ public class PlayerController : TileCreature
             if (CheckCanMoveInDirection(xDir, zDir))
             {
                 MoveTo(movementVector, true);
+                Debug.Log("Movement made. Turn phase = " + BattleManager.currentTurn.ToString()) ;
                 EndOfTurn();
             }
 
@@ -521,8 +522,9 @@ public class PlayerController : TileCreature
 
         //Check if target is stairs
         var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
-        if (tile.tileEntityType == Tile.TileEntityType.stairsDown)
+        if (tile.tileTerrainType == Tile.TileTerrainType.stairsDown)
         {
+            BattleManager.currentTurn = BattleManager.TurnPhase.waiting;
             BattleGrid.instance.GoDownFloor();
             isMoving = false;
             moveTarget = new Vector3(xPos, yLevel, zPos);
@@ -571,6 +573,7 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     private void EndOfTurn()
     {
+        Debug.Log("Player Controller end of turn");
         // Spirit decay
         LoseSpirit(1);
 
