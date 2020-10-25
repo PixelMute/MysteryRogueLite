@@ -124,6 +124,7 @@ public class BattleGrid : MonoBehaviour
         fogOfWar.ManualUpdate(1f);
         yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
         LoadingNewFloor = false;
+        BattleManager.currentTurn = BattleManager.TurnPhase.player;
     }
 
     public void GenerateFirstLevel()
@@ -158,13 +159,13 @@ public class BattleGrid : MonoBehaviour
         return newEnemy;
     }
 
-    public TileEntity SpawnStairsUp(Vector2Int spawnLoc)
+    public TileTerrain SpawnStairsUp(Vector2Int spawnLoc)
     {
         var newObj = Instantiate(stairsUp, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), stairsUp.transform.rotation);
         return newObj.GetComponent<Stairs>();
     }
 
-    public TileEntity SpawnStairsDown(Vector2Int spawnLoc)
+    public TileTerrain SpawnStairsDown(Vector2Int spawnLoc)
     {
         var newObj = Instantiate(stairsDown, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), stairsDown.transform.rotation);
         return newObj.GetComponent<Stairs>();
@@ -336,7 +337,8 @@ public class BattleGrid : MonoBehaviour
                     // We want to disable the collider of the wall this tile is on.
                     if (CurrentFloor.map[realXPosition, realZPosition].tileEntityType == Roguelike.Tile.TileEntityType.wall)
                     {
-                        ((Wall)CurrentFloor.map[realXPosition, realZPosition].GetEntityOnTile()).gameObject.GetComponent<BoxCollider>().enabled = false;
+                        Wall wall = (Wall)CurrentFloor.map[realXPosition, realZPosition].GetEntityOnTile();
+                        (wall).gameObject.GetComponent<BoxCollider>().enabled = false;
                         disabledCollider = true;
                     }
 
