@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Roguelike;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Stairs : TileEntity
+public class Stairs : TileTerrain
 {
     public bool IsUp;
 
@@ -19,10 +20,12 @@ public class Stairs : TileEntity
         return true;
     }
 
-
-    public override void TakeDamage(int amount)
+    public override Tile.TileTerrainType GetTerrainType()
     {
-        return;     //Doesn't need to be able to take damage
+        if (IsUp)
+            return Tile.TileTerrainType.stairsUp;
+        else
+            return Tile.TileTerrainType.stairsUp;
     }
 }
 
