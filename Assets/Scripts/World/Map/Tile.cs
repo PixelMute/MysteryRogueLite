@@ -6,11 +6,16 @@ namespace Roguelike
     // The BattleGrid stores a 2d array of these.
     public class Tile
     {
+        public enum TileEntityType { empty, wall, enemy, player };
+        [HideInInspector] public TileEntityType tileEntityType = TileEntityType.empty;
         // This is null if there's nothing here but a floor.
         private TileEntity entityOnTile = null;
 
-        public enum TileEntityType { empty, wall, enemy, player, stairsUp, stairsDown };
-        [HideInInspector] public TileEntityType tileEntityType = TileEntityType.empty;
+        [HideInInspector] public TileItem itemOnTile = null;
+
+        public enum TileTerrainType { floor, stairsUp, stairsDown };
+        private TileTerrain terrainOnTile = null;
+        [HideInInspector] public TileTerrainType tileTerrainType = TileTerrainType.floor;
 
         public Tile()
         {
@@ -29,13 +34,30 @@ namespace Roguelike
                 tileEntityType = TileEntityType.enemy;
             else if (entityOnTile is PlayerController)
                 tileEntityType = TileEntityType.player;
-            else if (entityOnTile is Stairs)
-                tileEntityType = ((Stairs)entityOnTile).IsUp ? TileEntityType.stairsUp : TileEntityType.stairsDown;
+            //else if (entityOnTile is Stairs)
+                //tileEntityType = ((Stairs)entityOnTile).IsUp ? TileEntityType.stairsUp : TileEntityType.stairsDown;
         }
 
         public TileEntity GetEntityOnTile()
         {
             return entityOnTile;
+        }
+
+        public void SetTerrainOnTile(TileTerrain terrain)
+        {
+            terrainOnTile = terrain;
+
+            if (terrain == null)
+                tileTerrainType = TileTerrainType.floor;
+            else if (terrain is Stairs)
+            {
+                Stairs s = terrain as Stairs;
+                if (s.IsUp)
+                    tileTerrainType = TileTerrainType.stairsUp;
+                else
+                    tileTerrainType = TileTerrainType.stairsDown;
+
+            }
         }
 
         public float GetPathfindingCost()
@@ -46,7 +68,10 @@ namespace Roguelike
             }
             else
             {
-                return entityOnTile.GetPathfindingCost();
+                float mult = 1f; // multiplier from terrain
+                if (terrainOnTile != null)
+                    mult = terrainOnTile.GetPathfindingCost();
+                return entityOnTile.GetPathfindingCost() * mult ;
             }
         }
 
@@ -66,17 +91,10 @@ namespace Roguelike
         // Returns true if there's a moving character on this tile
         public bool IsCreatureOnTile()
         {
-            if (entityOnTile == null)
-            {
-                return false;
-            }
+            if (tileEntityType == TileEntityType.enemy || tileEntityType == TileEntityType.player)
+                return true;
             else
-            {
-                if (tileEntityType == TileEntityType.enemy || tileEntityType == TileEntityType.player)
-                    return true;
-                else
-                    return false;
-            }
+                return false;
         }
     }
 }
