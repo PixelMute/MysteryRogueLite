@@ -37,6 +37,9 @@ public class BattleGrid : MonoBehaviour
     FogOfWarTeam fogOfWar;
     FogOfWarUnit playerReveal;
 
+    // Items
+    public GameObject moneyPrefab;
+
     public Floor CurrentFloor
     {
         get
@@ -133,6 +136,7 @@ public class BattleGrid : MonoBehaviour
         InitFogOfWar();
     }
 
+
     private void InitFogOfWar()
     {
         fogOfWar = GameObject.Find("FogOfWarHolder").GetComponent<FogOfWarTeam>();
@@ -152,11 +156,20 @@ public class BattleGrid : MonoBehaviour
     }
 
     //Instantiates enemy
-    public GenericEnemy SpawnEnemy(Vector2Int spawnLoc)
+    public GenericEnemy CreateEnemy(Vector2Int spawnLoc)
     {
         GameObject enemyObj = Instantiate(enemyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), Quaternion.identity, transform);
         GenericEnemy newEnemy = enemyObj.GetComponent<GenericEnemy>();
         return newEnemy;
+    }
+
+    //Instantiates money and tries to place it.
+    public void SpawnMoneyOnTile(Vector2Int spawnLoc, int amount)
+    {
+        GameObject moneyObj = Instantiate(moneyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.25f), Quaternion.identity, transform);
+        DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
+        newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
+        CurrentFloor.TryPlaceTileItemOn(spawnLoc, newMoneyBloodMoney, 2);
     }
 
     public TileTerrain SpawnStairsUp(Vector2Int spawnLoc)
@@ -198,8 +211,8 @@ public class BattleGrid : MonoBehaviour
     {
         List<GenericEnemy> enemiesLeftToAct = new List<GenericEnemy>();
         // Add all enemies to this list.
+        // This is so that if an enemy dies mid-turn, it doesn't break everything.
         enemiesLeftToAct.AddRange(CurrentFloor.enemies);
-
         while (enemiesLeftToAct.Count > 0)
         {
             enemiesLeftToAct[0].ProcessTurn();
@@ -212,11 +225,6 @@ public class BattleGrid : MonoBehaviour
     {
         CurrentFloor.MoveObjectTo(tar, obj);
     }
-
-    /*public void MoveObjectTo(Vector3 target, TileEntity obj)
-    {
-        MoveObjectTo((int)target.x, (int)target.z, obj);
-    }*/
 
     // Removes everything on given tile
     public void ClearTile(Vector2Int target)

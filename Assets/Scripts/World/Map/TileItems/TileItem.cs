@@ -1,18 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿// An abstract class that represents one stack of item on the ground.
+
 using UnityEngine;
 
-public class TileItem : MonoBehaviour
+public abstract class TileItem : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public int xPos;
+    public int zPos;
 }

@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cardList>
+
+<!--Card1: Claws-->
+<card>
+<id val="1"/>
+<spiritcost val="3"/>
+<energycost val="1"/>
+<name>Claws</name>
+<description>Deal 15 damage. &lt;br&gt;Range 1-1.</description>
+<effects>
+	<strike dmg="15"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<playconditions>
+	<needsLOS/>
+	<mustHitCreature/>
+</playconditions>
+</card>
+
+<!--Card2: Cinders-->
+<card>
+<id val="2"/>
+<spiritcost val="4"/>
+<energycost val="1"/>
+<name>Cinders</name>
+<description>Deal 10 damage. &lt;br&gt;Range 1-3. Line.</description>
+<effects>
+	<strike dmg="10"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="3"/>
+<playconditions>
+	<needsLOS/>
+	<straightLine/>
+	<mustHitCreature/>
+</playconditions>
+</card>
+
+<!--Card3: Footwork-->
+<card>
+<id val="3"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Footwork</name>
+<description>Move to an empty tile in range 1-1. Cuts corner.</description>
+<effects>
+	<teleport/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<playconditions>
+	<needsLOS/>
+	<cornercutting/>
+	<emptyTile/>
+</playconditions>
+<theme>Impundulu</theme>
+</card>
+
+<!--Card4:DragonHeart-->
+<card>
+<id val="4"/>
+<spiritcost val="5"/>
+<energycost val="2"/>
+<name>DragonHeart</name>
+<description>Gain 12 defense, then deal damage equal to defense in range 1-2. Does not need LOS.</description>
+<effects>
+	<applyStatusEffect self="true" status="defence" power="12"/>
+	<damagebasedonstatus status="defence"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>Draconic</theme>
+<playconditions>
+	<mustHitCreature/>
+</playconditions>
+</card>
+
+<!--Card5:Jackpot-->
+<card>
+<id val="5"/>
+<spiritcost val="4"/>
+<energycost val="1"/>
+<name>Jackpot</name>
+<description>Deal 7 damage three times. &lt;br&gt;Range 1-3. Line.</description>
+<effects>
+	<strike dmg="7"/>
+	<strike dmg="7"/>
+	<strike dmg="7"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="3"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<mustHitCreature/>
+	<straightLine/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card6:Shadowphase-->
+<card>
+<id val="6"/>
+<spiritcost val="4"/>
+<energycost val="1"/>
+<name>Shadowphase</name>
+<description>Move to the targeted tile. Gain momentum 5.&lt;br&gt;Range 2-3. Line.</description>
+<effects>
+	<teleport/>
+	<applystatuseffect status="momentum" self="true" power="5"/>
+</effects>
+<minrange val="2"/>
+<maxrange val="3"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<emptyTile/>
+	<straightLine/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card7:ThunderStep-->
+<card>
+<id val="7"/>
+<spiritcost val="10"/>
+<energycost val="2"/>
+<name>ThunderStep</name>
+<description>Deal 30 damage to all adjacent enemies, then move to target. Range 1-1.</description>
+<effects>
+	<aoe selftar="true" radius="1" hitempty="false">
+		<strike dmg="30"/>
+	</aoe>
+	<teleport/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<playconditions>
+	<emptyTile/>
+</playconditions>
+</card>
+
+<!--Card8:Backflip-->
+<card>
+<id val="8"/>
+<spiritcost val="8"/>
+<energycost val="2"/>
+<name>Backflip</name>
+<description>Gain 8 defense. Draw 2 cards.</description>
+<effects>
+	<applystatuseffect status="defence" power="8" self="true"/>
+	<drawcards val="2"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card9:Slice-->
+<card>
+<id val="9"/>
+<spiritcost val="2"/>
+<energycost val="0"/>
+<name>Slice</name>
+<description>Deal 10 damage. Gain Momentum 4.</description>
+<effects>
+	<strike dmg="10"/>
+	<applystatuseffect status="momentum" power="4" self="true"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<musthitcreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card10:Celerity-->
+<card>
+<id val="10"/>
+<spiritcost val="3"/>
+<energycost val="1"/>
+<name>Celerity</name>
+<description>Draw a card. Gain Momentum 4.</description>
+<effects>
+	<applystatuseffect status="momentum" power="4" self="true"/>
+	<drawcards val="1"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card11:Sagacity-->
+<card>
+<id val="11"/>
+<spiritcost val="5"/>
+<energycost val="2"/>
+<name>Sagacity</name>
+<description>Draw a card. Gain Insight 1.</description>
+<effects>
+	<applystatuseffect status="insight" power="1" self="true"/>
+	<drawcards val="1"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Draconic</theme>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card12:Crusading Savagery-->
+<card>
+<id val="12"/>
+<spiritcost val="15"/>
+<energycost val="3"/>
+<name>Crusading Savagery</name>
+<description>Deal 80 damage. Range 1-1.</description>
+<effects>
+	<strike dmg="80"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>Draconic</theme>
+<playconditions>
+	<needsLOS/>
+	<mustHitCreature/>
+</playconditions>
+</card>
+
+<!--Card13:Needles-->
+<card>
+<id val="13"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Needles</name>
+<description>Deal 4 damage five times. Range 3-5. Line.</description>
+<effects>
+	<strike dmg="4"/>
+	<strike dmg="4"/>
+	<strike dmg="4"/>
+	<strike dmg="4"/>
+	<strike dmg="4"/>
+</effects>
+<minrange val="3"/>
+<maxrange val="5"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<needsLOS/>
+	<mustHitCreature/>
+	<straightLine/>
+</playconditions>
+</card>
+
+<!--Card14:Fallback-->
+<card>
+<id val="14"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Fallback</name>
+<description>Gain 8 defense. Move to the targeted tile. Range 1-2.</description>
+<effects>
+	<applystatuseffect status="defence" power="8" self="true"/>
+	<teleport/>
+</effects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>Draconic</theme>
+<playconditions>
+	<needsLOS/>
+	<emptyTile/>
+</playconditions>
+</card>
+
+<!--Card15:Blue Bolt-->
+<card>
+<id val="15"/>
+<spiritcost val="8"/>
+<energycost val="2"/>
+<name>Blue Bolt</name>
+<description>Deal 40 damage. Range 2-2.</description>
+<effects>
+	<strike dmg="40"/>
+</effects>
+<minrange val="2"/>
+<maxrange val="2"/>
+<theme>Draconic</theme>
+<playconditions>
+	<needsLOS/>
+	<mustHitCreature/>
+</playconditions>
+</card>
+
+<!--Card16:Serenity-->
+<card>
+<id val="16"/>
+<spiritcost val="1"/>
+<energycost val="3"/>
+<name>Serenity</name>
+<description>Gain Insight 2.</description>
+<effects>
+	<applystatuseffect status="insight" power="2" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Draconic</theme>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card17:Overwhelm-->
+<card>
+<id val="17"/>
+<spiritcost val="7"/>
+<energycost val="1"/>
+<name>Overwhelm</name>
+<description>Deal 10 damage twice. Gain Momentium 4.</description>
+<effects>
+	<strike dmg="10"/>
+	<strike dmg="10"/>
+	<applystatuseffect status="momentum" power="4" self="true"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>Draconic</theme>
+<playconditions>
+	<needsLOS/>
+	<mustHitCreature/>
+</playconditions>
+</card>
+
+<!--Card18:ElectroLance-->
+<card>
+<id val="18"/>
+<spiritcost val="5"/>
+<energycost val="2"/>
+<name>ElectroLance</name>
+<description>Deal 30 damage. Gain Momentum 5. Range 1-4. Cuts corners. Line.</description>
+<effects>
+	<strike dmg="30"/>
+	<applystatuseffect status="momentum" power="5" self="true"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="4"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<needsLOS/>
+	<cornerCutting/>
+	<straightLine/>
+	<mustHitCreature/>
+</playconditions>
+</card>
+
+<!--Card19:Shockwave-->
+<card>
+<id val="19"/>
+<spiritcost val="12"/>
+<energycost val="3"/>
+<name>Shockwave</name>
+<description>Deal 15, 10, and 5 damage to all enemies in range 1, 2, and 3 respectively.</description>
+<effects>
+	<aoe selftar="true" radius="1" hitempty="false">
+		<strike dmg="15"/>
+	</aoe>
+	<aoe selftar="true" radius="2" hitempty="false">
+		<strike dmg="10"/>
+	</aoe>
+	<aoe selftar="true" radius="3" hitempty="false">
+		<strike dmg="5"/>
+	</aoe>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card20:Firestorm-->
+<card>
+<id val="20"/>
+<spiritcost val="6"/>
+<energycost val="2"/>
+<name>Firestorm</name>
+<description>Deal 10 damage to target, and 10 damage to everything in range 0-1 of target. Range 1-3.</description>
+<effects>
+	<strike dmg="10"/>
+	<aoe selftar="false" radius="1" hitempty="false">
+		<strike dmg="10"/>
+	</aoe>
+</effects>
+<minrange val="1"/>
+<maxrange val="3"/>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card21:Kindle-->
+<card>
+<id val="21"/>
+<spiritcost val="1"/>
+<energycost val="0"/>
+<name>Kindle</name>
+<description>Gain 1 energy.</description>
+<effects>
+	<gainenergy val="1"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card22:Wardance-->
+<card>
+<id val="22"/>
+<spiritcost val="6"/>
+<energycost val="2"/>
+<name>Wardance</name>
+<description>Deal 5 damage. Gain Insight 1. Draw 2 cards. Range 1-1. Cuts corners.</description>
+<effects>
+	<strike dmg="5"/>
+	<applystatuseffect power="1" status="insight" self="true"/>
+	<drawcards val="2"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+	<cornercutting/>
+</playconditions>
+</card>
+
+<!--Card23:Defiance-->
+<card>
+<id val="23"/>
+<spiritcost val="4"/>
+<energycost val="1"/>
+<name>Defiance</name>
+<description>Gain 4 defense per creature within 3 tiles.</description>
+<effects>
+	<aoe selftar="true" radius="3" hitempty="false">
+		<applystatuseffect status="defence" power="4" self="true"/>
+	</aoe>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Draconic</theme>
+<playconditions>
+</playconditions>
+</card>
+</cardList>

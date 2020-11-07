@@ -108,7 +108,7 @@ public class Floor
             }
         }
 
-        int numEnemies = FloorNumber + 1 == 5 ? 50 : 5 + (FloorNumber * 3);
+        int numEnemies = FloorNumber + 1 == 5 ? 25 : 5 + (FloorNumber * 3);
         // Set the enemies locations
         for (int i = 0; i < numEnemies; i++)
         {
@@ -284,16 +284,10 @@ public class Floor
         return Vector2Int.one;
     }
 
-    public void SpawnEnemy()
-    {
-        Vector2Int spawnLoc = PickRandomEmptyTile();
-        SpawnEnemyAt(spawnLoc.x, spawnLoc.y);
-    }
-
     private void SpawnEnemyAt(int x, int z)
     {
         var spawnLoc = new Vector2Int(x, z);
-        var newEnemy = BattleGrid.instance.SpawnEnemy(spawnLoc);
+        var newEnemy = BattleGrid.instance.CreateEnemy(spawnLoc);
         enemies.Add(newEnemy);
         newEnemy.name = "EnemyID: " + enemies.Count;
         PlaceObjectOn(spawnLoc.x, spawnLoc.y, newEnemy);
@@ -325,10 +319,53 @@ public class Floor
         PlaceObjectOn(x, z, entityTile);
     }
 
+    /// <summary>
+    /// Spawns an item on or around the given tile. Does the backend style stuff, not spawning the gameobject.
+    /// This also does not prevent you from spawningan item in a wall. Returns true if placed.
+    /// </summary>
+    /// <param name="target">Where to try and place the item</param>
+    /// <param name="item">What item to place</param>
+    /// <param name="bounceBehavior">Use -1 to force place the item on this tile. Otherwise, this is the number of random bounces this item can take before not being placed.
+    /// An item will bounce if the targetted tile is taken.</param>
+    public bool TryPlaceTileItemOn(Vector2Int target, TileItem item, int bounceBehavior)
+    {
+        // Make sure we're inside the map.
+        if (target.x >= BattleGrid.instance.map.GetLength(0) || target.x < 0 || target.y >= BattleGrid.instance.map.GetLength(1) || target.y < 0)
+            return false; // Lost to the either.
+
+        item.xPos = target.x;
+        item.zPos = target.y;
+
+        if (map[target.x, target.y].ItemOnTile == null || bounceBehavior <= -1)
+        {
+            // Target tile is empty, or we need to force spawn item. Spawn the item on it.
+            map[target.x, target.y].SetItemOnTile(item);
+            return true;
+        }
+        else if (bounceBehavior == 0)
+        { // This item is lost to the ether.
+            return false;
+        }
+        else
+        { // Bounce and reduce bounce behavior by 1.
+            for (int i = 1; i >= -1; i--) // Up, and to the Right!
+            {
+                for (int j = 1; j >= -1; j--)
+                {
+                    if (TryPlaceTileItemOn(new Vector2Int(target.x + i, target.y + j), item, bounceBehavior - 1))
+                    {
+                        return true; // Found a place for this item.
+                    }
+                }
+            }
+            // Didn't find a place.
+            return false;
+        }
+    }
+
     // Sets obj's internal tracking of position, as well as updates the battlegrid.
     public void PlaceObjectOn(int x, int z, TileEntity obj)
     {
-
         float oldCost = 0f;
         if (walkCostsMap != null) // Might have to recalculate now that something has moved.
         {

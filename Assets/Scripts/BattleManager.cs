@@ -243,7 +243,7 @@ public class BattleManager : MonoBehaviour
     }
 
     // Enables and disables tracking of things that happen when a card is resolved.
-    public void StartCardTracking(Card input)
+    public void StartCardTracking(CardInterface input)
     {
         cardResolveStack.ResetTracker();
         cardResolveStack.AddCardToTracker(input);
