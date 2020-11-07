@@ -193,19 +193,6 @@ public class BattleGrid : MonoBehaviour
         fogOfWar.Reinitialize();
     }
 
-    internal void ProcessEnemyTurn()
-    {
-        List<GenericEnemy> enemiesLeftToAct = new List<GenericEnemy>();
-        // Add all enemies to this list.
-        enemiesLeftToAct.AddRange(CurrentFloor.enemies);
-
-        while (enemiesLeftToAct.Count > 0)
-        {
-            enemiesLeftToAct[0].ProcessTurn();
-            enemiesLeftToAct.RemoveAt(0);
-        }
-    }
-
     // Moves the given object from wherever it is to the given location on the battlegrid.
     public void MoveObjectTo(Vector2Int tar, TileEntity obj)
     {
@@ -248,11 +235,11 @@ public class BattleGrid : MonoBehaviour
     }
 
     // Recalculates the LOS grid for looking in [size] squares in all directions.
-    public bool[,] RecalculateLOS(int size, out bool[,] simpleLoSGrid)
+    public bool[,] RecalculateLOS(int size, Vector3 playerTarget, out bool[,] simpleLoSGrid)
     {
         bool[,] LoSGrid = GenerateLOSGrid(size, out simpleLoSGrid);
         Debug.Log("Updating fog of war");
-        playerReveal.transform.position = BattleManager.player.moveTarget;
+        playerReveal.transform.position = playerTarget;
         fogOfWar.ManualUpdate(1f);
         return LoSGrid;
     }

@@ -65,7 +65,7 @@ public class Teleport : IEffect
     //Teleports player to target
     public void Activate(Vector2Int player, Vector2Int target)
     {
-        BattleManager.player.MoveTo(target, true);
+        BattleManager.player.MoveToPosition(target);
     }
 }
 
@@ -96,7 +96,7 @@ public class ApplyStatusEffect : IEffect
         {
             BattleGrid.instance.ApplyStatusEffectOnTile(target, StatusEffect, Power);
         }
-        
+
     }
 }
 

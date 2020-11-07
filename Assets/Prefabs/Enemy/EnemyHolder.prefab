@@ -109,7 +109,8 @@ GameObject:
   - component: {fileID: 7581217503168102080}
   - component: {fileID: 9205022632598371815}
   - component: {fileID: 2535026014540561121}
-  - component: {fileID: -366435032977034257}
+  - component: {fileID: 4349723802394164778}
+  - component: {fileID: 87843727430002129}
   m_Layer: 0
   m_Name: EnemyHolder
   m_TagString: Untagged
@@ -210,7 +211,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-366435032977034257
+--- !u!114 &4349723802394164778
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -225,7 +226,7 @@ MonoBehaviour:
   xPos: 0
   zPos: 0
   visionRange: 5
-  maxHealth: 50
+  maxHealth: 70
   damage: 10
   shoutRange: 10
   hearingRange: 8
@@ -237,3 +238,16 @@ MonoBehaviour:
   enemyCanvas: {fileID: 0}
   currentAIState: 0
   wanderTarget: {x: 0, y: 0}
+--- !u!114 &87843727430002129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4685347585978527987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: edd5a5bf8a410a74ab602a77c3068f17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TimeToMove: 1

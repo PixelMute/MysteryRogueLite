@@ -15,8 +15,6 @@ public class BattleManager : MonoBehaviour
 
     public static PlayerController player;
     public static Camera mainCamera;
-    [HideInInspector] public enum TurnPhase { player, enemy, waiting }; // Whose turn it currently is
-    public static TurnPhase currentTurn = TurnPhase.player;
 
     public enum StatusEffectEnum { defence, momentum, insight };
     // This should be set as an array of sprites that corresponds to each enum in order
@@ -60,14 +58,6 @@ public class BattleManager : MonoBehaviour
         map = FindObjectOfType<BattleGrid>();
 
         map.GenerateFirstLevel();
-    }
-
-    // Called when the player ends their turn
-    public void EndOfTurn()
-    {
-        currentTurn = TurnPhase.enemy;
-        map.ProcessEnemyTurn();
-        currentTurn = TurnPhase.player;
     }
 
     public Tile GetTileAtLocation(int xPos, int zPos)

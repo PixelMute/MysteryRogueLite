@@ -54,35 +54,11 @@ public abstract class GenericEnemy : TileCreature
         return 3f; // Other enemies could wait for this one to move.
     }
 
-    // Makes a Step towards
-    protected void MoveTowardsTarget()
-    {
-        // Lerp our position towards the target. If we've reached it, unset isMoving.
-        transform.position = Vector3.MoveTowards(transform.position, moveTarget, inverseMovementTime * Time.deltaTime);
-
-        // Now we check if we've hit the target.
-        if (Mathf.Abs(transform.position.x - moveTarget.x) < Mathf.Epsilon && Mathf.Abs(transform.position.z - moveTarget.z) < Mathf.Epsilon)
-        {
-            // We've hit the target.
-            isMoving = false;
-        }
-    }
-
-    protected void StartMovementTowards(Vector3 target, Vector2Int tar2)
-    {
-        // If we're still moving, just finish that movement.
-        if (isMoving)
-            transform.position = moveTarget;
-
-        isMoving = true;
-        moveTarget = target;
-        BattleGrid.instance.MoveObjectTo(tar2, this);
-        MoveTowardsTarget();
-    }
-
     protected void StartMovementTowards(Vector2Int target)
     {
-        StartMovementTowards(BattleManager.ConvertVector(target, transform.position.y), target);
+        MoveToPosition(target);
+        //Movement.MoveToPosition(target);
+        //StartMovementTowards(BattleManager.ConvertVector(target, transform.position.y), target);
     }
 
     // Enemy decides what they're going to do this turn

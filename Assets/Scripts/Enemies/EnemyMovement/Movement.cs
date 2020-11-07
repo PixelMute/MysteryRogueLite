@@ -2,23 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// A subclass of TileEntity that represents living, moving entities on the battlegrid.
-public abstract class TileCreature : TileEntity
+public class Movement : MonoBehaviour
 {
-    public int visionRange = 5;
-    protected Dictionary<BattleManager.StatusEffectEnum, StatusEffectDataHolder> statusEffects = null; // Dictionary that stores what status effects are currently on this entity.
-
-    public abstract override float GetPathfindingCost();
-    public abstract override bool GetPlayerWalkable();
-    public abstract override void TakeDamage(int amount);
-
-    public abstract int GetStatusEffectValue(BattleManager.StatusEffectEnum status);
-
-    public abstract void ApplyStatusEffect(BattleManager.StatusEffectEnum status, int amount);
-
-    public float TimeToMove = .25f;
-
-    public bool IsMoving { get; private set; } = false;
+    public float TimeToMove = 1f;
 
     /// <summary>
     /// Move the game object to the given x and z coordinates staying at the same y value
@@ -36,7 +22,6 @@ public abstract class TileCreature : TileEntity
     /// <param name="timeToMove">How long it takes to move in seconds</param>
     public void MoveToPosition(Vector2Int destination, float timeToMove)
     {
-        BattleGrid.instance.MoveObjectTo(destination, this);
         MoveToPosition(BattleManager.ConvertVector(destination, transform.position.y), timeToMove);
     }
 
@@ -45,9 +30,8 @@ public abstract class TileCreature : TileEntity
     /// </summary>
     /// <param name="destination">Destination we are moving to</param>
     /// <param name="timeToMove">How long it takes to move in seconds</param>
-    private void MoveToPosition(Vector3 destination, float timeToMove)
+    protected void MoveToPosition(Vector3 destination, float timeToMove)
     {
-        IsMoving = true;
         StartCoroutine(MoveToPositionCoRoutine(destination, timeToMove));
     }
 
@@ -64,13 +48,11 @@ public abstract class TileCreature : TileEntity
         while (t < 1)
         {
             t += Time.deltaTime / timeToMove;
-            if (t >= 1)
-            {
-                IsMoving = false;
-                t = 1;
-            }
             transform.position = Vector3.Lerp(currentPos, destination, t);
             yield return null;
         }
+        //Make sure to finish the movement
+        transform.position = Vector3.Lerp(currentPos, destination, 1);
+        yield return null;
     }
 }

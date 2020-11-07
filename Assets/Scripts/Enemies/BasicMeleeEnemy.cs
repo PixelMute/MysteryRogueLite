@@ -1,7 +1,7 @@
-﻿using System.Collections;
+﻿using NesScripts.Controls.PathFind;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using NesScripts.Controls.PathFind;
 
 public class BasicMeleeEnemy : GenericEnemy
 {
@@ -30,8 +30,7 @@ public class BasicMeleeEnemy : GenericEnemy
 
     private void Update()
     {
-        if (isMoving)
-            MoveTowardsTarget();
+
     }
 
     public override void ProcessTurn()
@@ -69,7 +68,7 @@ public class BasicMeleeEnemy : GenericEnemy
         {
             pathToCombatTarget = TakeStepInPath(pathToCombatTarget, false);
         }
-        
+
         if (inStrikingRange) // Strike the tile nearby
         {
             LaunchAttack(BattleManager.ConvertPoint(pathToCombatTarget[0]));

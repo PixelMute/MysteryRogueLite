@@ -693,7 +693,7 @@ public class PlayerUIManager : MonoBehaviour
                 ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardView);
             }
         }
-        
+
         if (whichCardsToInclude[1])
         {
             foreach (Card c in PlayerController.playerDeck.discardPile)

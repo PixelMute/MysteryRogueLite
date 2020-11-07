@@ -105,7 +105,7 @@ public class PlayerController : TileCreature
         CurrentEnergy = energyPerTurn;
         CurrentSpirit = maxSpirit;
 
-        LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
+        UpdateLOS();
 
         Health = maxHealth;
         engagedEnemies = new List<TileEntity>();
@@ -115,7 +115,12 @@ public class PlayerController : TileCreature
 
     public void UpdateLOS()
     {
-        LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
+        LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, transform.position, out SimpleLoSGrid);
+    }
+
+    public void UpdateLOS(Vector2Int target)
+    {
+        LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, BattleManager.ConvertVector(target, transform.position.y), out SimpleLoSGrid);
     }
 
     // Builds the player's starting deck
@@ -259,7 +264,7 @@ public class PlayerController : TileCreature
     public AttemptToPlayCardFailReasons AttemptToPlayCard(int index, Vector2Int target)
     {
         // Check if we can play card
-        if (BattleManager.currentTurn != BattleManager.TurnPhase.player)
+        if (!TurnManager.instance.CanPlayCard())
             return AttemptToPlayCardFailReasons.notPlayerTurn;
 
         Card cardToPlay = playerDeck.hand[index];
@@ -340,62 +345,22 @@ public class PlayerController : TileCreature
                 puim.MoveToState(PlayerUIManager.PlayerUIState.standardNoCardDrawer);
             else
                 puim.MoveToState(PlayerUIManager.PlayerUIState.controllingCamera);
-
-        HandleMovement();
     }
 
-    private void HandleMovement()
+    public void HandleMovement()
     {
+        bool movementLocked = puim.IsStateMovementLocked();
+        if (!movementLocked)
+        {
+            HandleMovementInput(); // Get input and pick somewhere to move.
+        }
+        else if (puim.IsStateControllingCamera())
+        {
+            Debug.Log("HandleCameraMovement");
+            puim.HandleCameraMovement();
+        }
 
 
-        if (isMoving) // If we are moving, keep going.
-        {
-            MoveTowardsTarget();
-        }
-        else if (Input.GetKeyDown(KeyCode.Return))
-        {
-            // Hitting enter ends turn.
-            EndOfTurn();
-            return;
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape))
-        {
-#if UNITY_EDITOR
-            // Application.Quit() does not work in the editor so
-            // UnityEditor.EditorApplication.isPlaying need to be set to false to end the game
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
-        }
-        else
-        {
-            bool movementLocked = puim.IsStateMovementLocked();
-            if (!movementLocked && BattleManager.currentTurn == BattleManager.TurnPhase.player)
-            {
-                HandleMovementInput(); // Get input and pick somewhere to move.
-            }
-            else if (puim.IsStateControllingCamera())
-            {
-                Debug.Log("HandleCameraMovement");
-                puim.HandleCameraMovement();
-            }
-
-        }
-    }
-
-    private void MoveTowardsTarget()
-    {
-        // Lerp our position towards the target. If we've reached it, unset isMoving.
-        transform.position = Vector3.MoveTowards(transform.position, moveTarget, inverseMovementTime * Time.deltaTime);
-        //Debug.Log("Moved to " + transform.position);
-
-        // Now we check if we've hit the target.
-        if (Math.Abs(transform.position.x - moveTarget.x) < Mathf.Epsilon && Math.Abs(transform.position.z - moveTarget.z) < Mathf.Epsilon)
-        {
-            // We've hit the target.
-            isMoving = false;
-        }
     }
 
     private void HandleMovementInput()
@@ -408,6 +373,12 @@ public class PlayerController : TileCreature
         // Check if we're moving anywhere
         if (xDir != 0 || zDir != 0)
         {
+            var speedOfMovement = TimeToMove;
+            if (xDir != 0 && zDir != 0)
+            {
+                //Adjust speed for the diagonals so we aren't moving faster then
+                speedOfMovement = (float)Math.Sqrt(2) * TimeToMove;
+            }
             // Check if we're holding L
             if (Input.GetKey(KeyCode.L))
             {
@@ -416,10 +387,19 @@ public class PlayerController : TileCreature
                     return;
             }
             Vector2Int movementVector = new Vector2Int(xDir + xPos, zDir + zPos);
+
+            var tile = BattleManager.instance.GetTileAtLocation(movementVector.x, movementVector.y);
+            if (tile.tileEntityType == Tile.TileEntityType.stairsDown)
+            {
+                BattleGrid.instance.GoDownFloor();
+                return;
+            }
+
             if (CheckCanMoveInDirection(xDir, zDir))
             {
-                MoveTo(movementVector, true);
-                EndOfTurn();
+                MoveToPosition(movementVector, speedOfMovement);
+                // Recalculate LOS
+                UpdateLOS(movementVector);
             }
 
         }
@@ -464,98 +444,6 @@ public class PlayerController : TileCreature
         }
     }
 
-    // Checks to see if we can move in that direction.
-    // Uses raycasting and collision detection
-    /*
-    private bool CheckCanMove(int xDir, int zDir)
-    {
-        Debug.Log("Checking collision");
-        // Disable own collider for a moment
-        boxCollider.enabled = false;
-        if (xDir * zDir == 0)
-        {
-            // This means that one of these two is 0. So we're not moving in a diagonal.
-            // Make a raycast to see if we hit anything in between where we are and where we want to go.
-            Debug.Log("Checking collision from " + transform.position + " to " + moveTarget);
-            bool tarHit = Physics.Linecast(transform.position, moveTarget, out RaycastHit hit, movementBlockingLayer);
-            ResolveMovementCheck(hit);
-            Debug.Log("Result = " + tarHit);
-            if (!tarHit)
-                return true; // We didn't hit anything, so we're good to go.
-            return false;
-        }
-        else
-        {
-            // Both xDir and zDir are non-zero. This means we're moving diagonal.
-            // Need to check both directions and the diagonal. We don't want to be able to cut corners.
-            Vector3 xTar = new Vector3(transform.position.x + xDir, transform.position.y, transform.position.z);
-            bool xDirHit = Physics.Linecast(transform.position, xTar, out RaycastHit hit, movementBlockingLayer);
-            if (xDirHit)
-            {
-                ResolveMovementCheck(hit);
-                return false;
-            }
-
-            // Now check zDir
-            Vector3 zTar = new Vector3(transform.position.x, transform.position.y, transform.position.z + zDir);
-            bool zDirHit = Physics.Linecast(transform.position, xTar, out hit, movementBlockingLayer);
-            if (zDirHit)
-            {
-                ResolveMovementCheck(hit);
-                return false;
-            }
-
-            // Finally, check the diagonal itself.
-            bool diagHit = Physics.Linecast(transform.position, moveTarget, out hit, movementBlockingLayer);
-            ResolveMovementCheck(hit);
-            if (diagHit)
-                return false;
-            return true;
-        }
-    }
-    */
-
-    // Updates the location of the player in the battlegrid. If movePhyisically, also
-    // moves the player holder in Unity space.
-    public void MoveTo(Vector2Int newMoveTarget, bool movePhysically, float yLevel = -1.123f)
-    {
-        if (yLevel == -1.123f)
-        {
-            yLevel = transform.position.y;
-        }
-
-        if (movePhysically)
-        {
-            // This may be in the middle of a movement. Force finish if so.
-            if (isMoving)
-            {
-                transform.position = moveTarget;
-            }
-            moveTarget = BattleManager.ConvertVector(newMoveTarget, yLevel);
-
-            // Set up our variables to start movement
-            isMoving = true;
-            MoveTowardsTarget();
-        }
-
-        //Check if target is stairs
-        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
-        if (tile.tileEntityType == Tile.TileEntityType.stairsDown)
-        {
-            BattleGrid.instance.GoDownFloor();
-            isMoving = false;
-            moveTarget = new Vector3(xPos, yLevel, zPos);
-        }
-        else
-        {
-            // Update position
-            BattleGrid.instance.MoveObjectTo(newMoveTarget, this);
-        }
-
-        // Recalculate LOS
-        LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
-    }
-
     // Applies incoming damage
     public override void TakeDamage(int damage)
     {
@@ -588,19 +476,15 @@ public class PlayerController : TileCreature
     }
 
     // Handles stuff that happens at the end of the player turn.
-    private void EndOfTurn()
+    public void EndOfTurn()
     {
         // Spirit decay
         LoseSpirit(1);
 
         puim.EndOfTurn();
-
-        BattleManager.instance.EndOfTurn();
-
-        StartOfTurn();
     }
 
-    private void StartOfTurn()
+    public void StartOfTurn()
     {
         // Status decay
         StartOfTurnStatusDecay();
