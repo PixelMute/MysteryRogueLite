@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using Roguelike;
 
 // A TileEntity is something that exists on the BattleGrid.
 // Includes walls, enemies, the player...

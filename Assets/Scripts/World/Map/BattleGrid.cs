@@ -37,6 +37,9 @@ public class BattleGrid : MonoBehaviour
     FogOfWarTeam fogOfWar;
     FogOfWarUnit playerReveal;
 
+    // Items
+    public GameObject moneyPrefab;
+
     public Floor CurrentFloor
     {
         get
@@ -124,6 +127,7 @@ public class BattleGrid : MonoBehaviour
         fogOfWar.ManualUpdate(1f);
         yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
         LoadingNewFloor = false;
+        BattleManager.currentTurn = BattleManager.TurnPhase.player;
     }
 
     public void GenerateFirstLevel()
@@ -131,6 +135,7 @@ public class BattleGrid : MonoBehaviour
         floorManager.GenerateNewFloor();
         InitFogOfWar();
     }
+
 
     private void InitFogOfWar()
     {
@@ -151,20 +156,29 @@ public class BattleGrid : MonoBehaviour
     }
 
     //Instantiates enemy
-    public GenericEnemy SpawnEnemy(Vector2Int spawnLoc)
+    public GenericEnemy CreateEnemy(Vector2Int spawnLoc)
     {
         GameObject enemyObj = Instantiate(enemyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), Quaternion.identity, transform);
         GenericEnemy newEnemy = enemyObj.GetComponent<GenericEnemy>();
         return newEnemy;
     }
 
-    public TileEntity SpawnStairsUp(Vector2Int spawnLoc)
+    //Instantiates money and tries to place it.
+    public void SpawnMoneyOnTile(Vector2Int spawnLoc, int amount)
+    {
+        GameObject moneyObj = Instantiate(moneyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.25f), Quaternion.identity, transform);
+        DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
+        newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
+        CurrentFloor.TryPlaceTileItemOn(spawnLoc, newMoneyBloodMoney, 2);
+    }
+
+    public TileTerrain SpawnStairsUp(Vector2Int spawnLoc)
     {
         var newObj = Instantiate(stairsUp, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), stairsUp.transform.rotation);
         return newObj.GetComponent<Stairs>();
     }
 
-    public TileEntity SpawnStairsDown(Vector2Int spawnLoc)
+    public TileTerrain SpawnStairsDown(Vector2Int spawnLoc)
     {
         var newObj = Instantiate(stairsDown, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), stairsDown.transform.rotation);
         return newObj.GetComponent<Stairs>();
@@ -197,8 +211,8 @@ public class BattleGrid : MonoBehaviour
     {
         List<GenericEnemy> enemiesLeftToAct = new List<GenericEnemy>();
         // Add all enemies to this list.
+        // This is so that if an enemy dies mid-turn, it doesn't break everything.
         enemiesLeftToAct.AddRange(CurrentFloor.enemies);
-
         while (enemiesLeftToAct.Count > 0)
         {
             enemiesLeftToAct[0].ProcessTurn();
@@ -211,11 +225,6 @@ public class BattleGrid : MonoBehaviour
     {
         CurrentFloor.MoveObjectTo(tar, obj);
     }
-
-    /*public void MoveObjectTo(Vector3 target, TileEntity obj)
-    {
-        MoveObjectTo((int)target.x, (int)target.z, obj);
-    }*/
 
     // Removes everything on given tile
     public void ClearTile(Vector2Int target)
@@ -336,7 +345,8 @@ public class BattleGrid : MonoBehaviour
                     // We want to disable the collider of the wall this tile is on.
                     if (CurrentFloor.map[realXPosition, realZPosition].tileEntityType == Roguelike.Tile.TileEntityType.wall)
                     {
-                        ((Wall)CurrentFloor.map[realXPosition, realZPosition].GetEntityOnTile()).gameObject.GetComponent<BoxCollider>().enabled = false;
+                        Wall wall = (Wall)CurrentFloor.map[realXPosition, realZPosition].GetEntityOnTile();
+                        (wall).gameObject.GetComponent<BoxCollider>().enabled = false;
                         disabledCollider = true;
                     }
 

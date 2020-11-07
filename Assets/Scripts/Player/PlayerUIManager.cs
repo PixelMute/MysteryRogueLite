@@ -27,7 +27,9 @@ public class PlayerUIManager : MonoBehaviour
     private Image massCardViewBackground;
     private Image cardRewardViewbackground;
     private HorizontalLayoutGroup cardRewardHorizontalLayout;
-    //private bool massCardViewOpen = false;
+
+    // Ones that should be assigned in the editor.
+    [SerializeField] private TextMeshProUGUI moneyDisplayLabel;
 
     // Player UI FSM.
     // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
@@ -59,13 +61,11 @@ public class PlayerUIManager : MonoBehaviour
     private float initialClickTime = 0f; // Time when the player clicked on a card
     private float doubleClickTime = 0.3f; // How fast the player has to click to register as a double click.
 
-    public int selectedCard { get; set; }
+    public CardInterface selectedCard { get; set; }
     public bool[,] selectedCardRange;
 
     // Camera
     private CinemachineVirtualCamera vcam;
-
-
 
     public void Awake()
     {
@@ -99,7 +99,7 @@ public class PlayerUIManager : MonoBehaviour
         spawnedTileSelectionPrefab = Instantiate(tileSelectionPrefab);
         spawnedTileSelectionPrefab.SetActive(false);
 
-        selectedCard = -1;
+        selectedCard = null;
 
         spawnedTileHighlightPrefabs = new List<GameObject>();
 
@@ -115,11 +115,9 @@ public class PlayerUIManager : MonoBehaviour
         // Has the player clicked?
         if (Input.GetMouseButtonDown(0))
         {
-
             if (EventSystem.current.IsPointerOverGameObject())
             {
-                // Let Doozy handle the UI.
-                //HandleUIClick(results);
+                // UI objects should be buttons
             }
             else
             {
@@ -195,12 +193,13 @@ public class PlayerUIManager : MonoBehaviour
         graphicalHand.Add(ci);
         ci.OnCardSpawned(CardInterface.CardInterfaceLocations.hand);
 
-        selectedCard = -1;
+        selectedCard = null;
     }
 
-    internal void DiscardCardAtIndex(int index)
+    // Note that this destroys the card graphically. It does not alter anything about the data.
+    internal void DestroyCardAtIndex(int index)
     {
-        if (selectedCard == index)
+        if (selectedCard && selectedCard.cardHandIndex == index)
         {
             // If we're discarding the selected card, deselect it.
             DeselectCard();
@@ -219,12 +218,13 @@ public class PlayerUIManager : MonoBehaviour
         graphicalHand.RemoveAt(index);
     }
 
+
     // Called when a card in the hand is clicked.
     internal void CardInHandClicked(int index)
     {
         Debug.Log("Card clicked: " + index + ", selectedCard = " + selectedCard);
         // Is this a double click?
-        if (Time.time - initialClickTime < doubleClickTime)
+        if (selectedCard && Time.time - initialClickTime < doubleClickTime && selectedCard.cardHandIndex == index)
         {
             // Yes. Double click
             Debug.Log("Double click on card " + index);
@@ -237,7 +237,7 @@ public class PlayerUIManager : MonoBehaviour
             initialClickTime = Time.time;
 
         // If player has clicked on highlighted card, unhighlight it
-        if (index == selectedCard)
+        if (selectedCard != null && index == selectedCard.cardHandIndex)
         {
             DeselectCard();
         }
@@ -252,7 +252,7 @@ public class PlayerUIManager : MonoBehaviour
     internal void SelectCard(int index)
     {
         graphicalHand[index].Highlight();
-        selectedCard = index;
+        selectedCard = graphicalHand[index];
 
         // Now we need to highlight all the squares where this can be played.
 
@@ -262,15 +262,14 @@ public class PlayerUIManager : MonoBehaviour
 
     // Deselects whatever card we have selected
     private void DeselectCard()
-    {
-        if (selectedCard != -1)
+    { 
+        if (selectedCard != null)
         {
-            Debug.Log("Card = " + selectedCard);
-            if (selectedCard < graphicalHand.Count)
+            if (selectedCard.cardHandIndex < graphicalHand.Count)
             {
-                graphicalHand[selectedCard].DisableHighlight();
+                selectedCard.DisableHighlight();
             }
-            selectedCard = -1;
+            selectedCard = null;
             DestroyHighlightTiles();
         }
     }
@@ -281,7 +280,6 @@ public class PlayerUIManager : MonoBehaviour
     public void DeselectTile()
     {
         // If we've selected an enemy, hide its canvas
-        Debug.Log(selectedTileGridCoords);
         if (BattleManager.IsVectorNonNeg(selectedTileGridCoords) && BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType == Tile.TileEntityType.enemy)
             ((GenericEnemy)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).HideHealthBar(0.3f, 1f);
         selectedTileGridCoords = Vector2Int.one * -1;
@@ -293,7 +291,7 @@ public class PlayerUIManager : MonoBehaviour
     {
         Vector2Int tile = BattleManager.ConvertVector(target);
         // If we have a card selected, try to play that card
-        if (selectedCard != -1)
+        if (selectedCard != null)
         {
             // Convert this vector3 into an offset from the player.
             int xLength = selectedCardRange.GetLength(0);
@@ -305,7 +303,7 @@ public class PlayerUIManager : MonoBehaviour
             if ((xArrayIndex >= 0 && xArrayIndex < xLength && zArrayIndex >= 0 && zArrayIndex < zLength) && selectedCardRange[xArrayIndex, zArrayIndex])
             {
                 Debug.Log("Attempting to play card on " + tile.x + "," + tile.y);
-                AttemptToPlayCardOnTile(selectedCard, tile);
+                CheckTilePlayConditions(selectedCard, tile);
             }
             else
             {
@@ -439,11 +437,11 @@ public class PlayerUIManager : MonoBehaviour
         return range;
     }
 
-    // Attempts to play the card numbered cardIndex
-    private void AttemptToPlayCardOnTile(int cardIndex, Vector2Int target)
+    // Attempts to play the card on the given tile
+    private void CheckTilePlayConditions(CardInterface cardToPlay, Vector2Int target)
     {
         // Is this tile an acceptable target?
-        BattleGrid.AcceptableTileTargetFailReasons failReason = BattleGrid.instance.AcceptableTileTarget(target, graphicalHand[cardIndex].cardData);
+        BattleGrid.AcceptableTileTargetFailReasons failReason = BattleGrid.instance.AcceptableTileTarget(target, cardToPlay.cardData);
 
         if (failReason == BattleGrid.AcceptableTileTargetFailReasons.mustTargetCreature)
         {
@@ -453,7 +451,7 @@ public class PlayerUIManager : MonoBehaviour
         else
         {
             // Can hit this square. Inform the pc.
-            PlayerController.AttemptToPlayCardFailReasons reason = pc.AttemptToPlayCard(cardIndex, target);
+            PlayerController.AttemptToPlayCardFailReasons reason = pc.AttemptToPlayCard(cardToPlay, target);
             switch (reason)
             {
                 case PlayerController.AttemptToPlayCardFailReasons.notEnoughEnergy:
@@ -463,9 +461,9 @@ public class PlayerUIManager : MonoBehaviour
                     ShowAlert("It's not currently your turn");
                     break;
                 case PlayerController.AttemptToPlayCardFailReasons.success:
-                    DiscardCardAtIndex(cardIndex);
+                    // Discarding is handled by ResolveCard() in the pc.
                     DestroyHighlightTiles();
-                    if (cardIndex == selectedCard)
+                    if (cardToPlay == selectedCard)
                         DeselectCard();
                     break;
             }
@@ -506,6 +504,12 @@ public class PlayerUIManager : MonoBehaviour
         healthFillImage.fillAmount = Mathf.Clamp((1.0f * amount) / maxHealth, 0, 1f);
         healthTextComponent.SetText(amount + "");
     }
+
+    public void SetCurrentMoney(int amount)
+    {
+        moneyDisplayLabel.SetText("Coins: " + amount);
+    }
+
     #endregion
 
     public void ShowAlert(string text)
@@ -719,7 +723,7 @@ public class PlayerUIManager : MonoBehaviour
 
         if (whichCardsToInclude[3])
         {
-            foreach (Card c in PlayerController.playerDeck.banishPile)
+            foreach ((Card c, int i) in PlayerController.playerDeck.banishPile)
             {
                 GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
                 CardInterface ci = newCard.GetComponent<CardInterface>();
@@ -788,10 +792,11 @@ public class PlayerUIManager : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             // For now, just pick a random number from 1-23
-            int pickedCard = UnityEngine.Random.Range(1, 23);
+            int pickedCard = UnityEngine.Random.Range(1, 24);
             GameObject newCard = GameObject.Instantiate(cardPrefab, cardRewardHorizontalLayout.transform);
             CardInterface ci = newCard.GetComponent<CardInterface>();
             ci.cardData = CardFactory.GetCardByID(pickedCard);
+            Debug.Log("Picked card number " + pickedCard);
             Debug.Log("Picked number " + pickedCard + ", which is card " + ci.cardData.CardInfo.Name);
             ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardReward);
         }
@@ -804,7 +809,7 @@ public class PlayerUIManager : MonoBehaviour
     public void LeaveCardRewardScreen(bool pickedSomething)
     {
         if (!pickedSomething)
-            BattleManager.player.TakeDamage(-10); // Heal player for 10
+            BattleManager.player.TakeDamage(-20); // Heal player for 10
 
         // Clear it out
         foreach (Transform t in cardRewardHorizontalLayout.transform)

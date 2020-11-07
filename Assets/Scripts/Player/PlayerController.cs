@@ -18,13 +18,10 @@ public class PlayerController : TileCreature
     public Vector3 moveTarget;
     public float movementTime = 1f; // Time we want it to take one tile of movement.
     private float inverseMovementTime;
-    //private bool controllingCamera = false;
-    //private bool movementLocked = false; // If this is true, cannot move.
 
 
     // Card Management
     public static Deck playerDeck;
-    // The gameobject that exists on the canvas. Make the card templates children of this.
     public PlayerUIManager puim; // This class manages the player's ui graphically.
 
     private int cardRedrawAmount = 8; // Redraw up to this number of cards.
@@ -42,6 +39,8 @@ public class PlayerController : TileCreature
     private int health;
     private int maxHealth = 100;
 
+    private int money;
+
     // LOS
     public bool[,] LoSGrid; // A grid that shows which tiles the player has LOS to relative to themselves. Used for un-obscuring the camera.
     public bool[,] SimpleLoSGrid; // Uses simple middle-to-middle LoS. Used for non-corner cutting attacks.
@@ -49,21 +48,25 @@ public class PlayerController : TileCreature
     // Status effects
 
     private List<TileEntity> engagedEnemies;
-
     public float CurrentSpirit
     {
         get { return currentSpirit; }
-        set { currentSpirit = value; puim.SetSpiritPercentage(currentSpirit / maxSpirit); } // Automatically update the display whenever spirit changes
+        private set { currentSpirit = value; puim.SetSpiritPercentage(currentSpirit / maxSpirit); } // Automatically update the display whenever spirit changes
     }
     public int CurrentEnergy
     {
         get { return currentEnergy; }
-        set { currentEnergy = value; puim.SetCurrentEnergy(currentEnergy); }
+        private set { currentEnergy = value; puim.SetCurrentEnergy(currentEnergy); }
     }
     public int Health
     {
         get { return health; }
-        set { health = value; puim.SetCurrentHealth(health, maxHealth); }
+        private set { health = value; puim.SetCurrentHealth(health, maxHealth); }
+    }
+    public int Money
+    {
+        get { return money; }
+        private set { money = value; puim.SetCurrentMoney(money); }
     }
 
     void Awake()
@@ -102,12 +105,15 @@ public class PlayerController : TileCreature
         // Cards
         AssignInitialDeck();
 
+        // Resources
         CurrentEnergy = energyPerTurn;
         CurrentSpirit = maxSpirit;
+        Health = maxHealth;
+        Money = 0;
 
         LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
 
-        Health = maxHealth;
+        
         engagedEnemies = new List<TileEntity>();
 
         statusEffects = new Dictionary<BattleManager.StatusEffectEnum, StatusEffectDataHolder>();
@@ -159,6 +165,13 @@ public class PlayerController : TileCreature
     {
         cardData.Owner = this;
         playerDeck.discardPile.Add(cardData);
+    }
+
+    public void TriggerCardReward(Card cardData)
+    {
+        // Gain a card reward from the card reward screen.
+        GainCard(cardData);
+        puim.LeaveCardRewardScreen(true);
     }
 
     // Every X turns, we draw one card if we're below max.
@@ -236,44 +249,43 @@ public class PlayerController : TileCreature
 
     public enum AttemptToPlayCardFailReasons { success, notPlayerTurn, notEnoughEnergy };
     // Attempts to play that card index on given tile.
-    public AttemptToPlayCardFailReasons AttemptToPlayCard(int index, Vector2Int target)
+    public AttemptToPlayCardFailReasons AttemptToPlayCard(CardInterface cardToPlay, Vector2Int target)
     {
         // Check if we can play card
         if (BattleManager.currentTurn != BattleManager.TurnPhase.player)
             return AttemptToPlayCardFailReasons.notPlayerTurn;
 
-        Card cardToPlay = playerDeck.hand[index];
-
         // Do we have the energy for it?
-        if (cardToPlay.CardInfo.EnergyCost > CurrentEnergy)
+        if (cardToPlay.cardData.CardInfo.EnergyCost > CurrentEnergy)
         {
             return AttemptToPlayCardFailReasons.notEnoughEnergy;
         }
 
         // Play the card
         TriggerCardPlay(cardToPlay, target);
-        // Discard it.
-        playerDeck.DiscardCardAtIndex(index);
+        // Discarding/banishing is handled in ResolveCardPlayed()
+        //playerDeck.DiscardCardAtIndex(index);
         return AttemptToPlayCardFailReasons.success;
     }
 
     // Plays the relevant card. Does not discard it afterwards.
-    private void TriggerCardPlay(Card cardToPlay, Vector2Int target, bool resetTrackerWhenDone = true)
+    private void TriggerCardPlay(CardInterface cardToPlay, Vector2Int target, bool resetTrackerWhenDone = true)
     {
         // Start card tracking
         BattleManager.instance.StartCardTracking(cardToPlay);
 
         // Pay the cost of the card
-        PayCardCost(cardToPlay);
+        PayCardCost(cardToPlay.cardData);
 
         // Activate its effects.
-        cardToPlay.Activate(BattleManager.ConvertVector(transform.position), target);
+        cardToPlay.cardData.Activate(BattleManager.ConvertVector(transform.position), target);
 
         if (resetTrackerWhenDone)
             ResolveCardPlayed();
     }
 
     // Called at the end of a stack of card effects.
+    // Determines where the card goes afterwards as well.
     private void ResolveCardPlayed()
     {
         // If we used momentium, clear all our momentium.
@@ -284,6 +296,18 @@ public class PlayerController : TileCreature
             {
                 ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1 * momentumUsed); // Removes momentium
             }
+        }
+
+        // Determine where the card should go.
+        switch (BattleManager.cardResolveStack.resolveBehavior)
+        {
+            case CardStackTracker.ResolveBehaviorEnum.discard:
+                // Discard the resolved card
+                DiscardCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex);
+                break;
+            case CardStackTracker.ResolveBehaviorEnum.banish:
+                BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex, BattleManager.cardResolveStack.banishAmount);
+                break;
         }
 
         BattleManager.instance.StopCardTracking();
@@ -297,18 +321,24 @@ public class PlayerController : TileCreature
     }
 
     // Discards this card and fixes the indexes for the others.
-    private void DiscardCardIndex(int index)
+    private void DiscardCardIndex(int index, bool fromEffect = false)
     {
         // Discard card data
-        playerDeck.DiscardCardAtIndex(index);
-        puim.DiscardCardAtIndex(index);
+        playerDeck.DiscardCardAtIndex(index, fromEffect);
+        puim.DestroyCardAtIndex(index);
+    }
+
+    private void BanishCardIndex(int index, int amount)
+    {
+        playerDeck.BanishCardAtIndex(index, amount);
+        puim.DestroyCardAtIndex(index);
     }
 
     // Called by the puim when the player forcibly tries to discard a card
     public void ManuallyDiscardCardAtIndex(int index)
     {
         playerDeck.DiscardCardAtIndex(index);
-        puim.DiscardCardAtIndex(index);
+        puim.DestroyCardAtIndex(index);
         LoseSpirit(spiritCostPerDiscard);
     }
 
@@ -327,8 +357,6 @@ public class PlayerController : TileCreature
 
     private void HandleMovement()
     {
-
-
         if (isMoving) // If we are moving, keep going.
         {
             MoveTowardsTarget();
@@ -336,6 +364,7 @@ public class PlayerController : TileCreature
         else if (Input.GetKeyDown(KeyCode.Return))
         {
             // Hitting enter ends turn.
+            Debug.Log("Enter pressed");
             EndOfTurn();
             return;
         }
@@ -400,6 +429,7 @@ public class PlayerController : TileCreature
             if (CheckCanMoveInDirection(xDir, zDir))
             {
                 MoveTo(movementVector, true);
+                Debug.Log("Movement made. Turn phase = " + BattleManager.currentTurn.ToString()) ;
                 EndOfTurn();
             }
 
@@ -520,14 +550,16 @@ public class PlayerController : TileCreature
         }
 
         //Check if target is stairs
-        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
-        if (tile.tileEntityType == Tile.TileEntityType.stairsDown)
+        /*var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
+        if (tile.tileTerrainType == Tile.TileTerrainType.stairsDown)
         {
+            BattleManager.currentTurn = BattleManager.TurnPhase.waiting;
             BattleGrid.instance.GoDownFloor();
             isMoving = false;
             moveTarget = new Vector3(xPos, yLevel, zPos);
-        }
-        else
+        }*/
+
+        if (ActivateMoveOntoEffects(newMoveTarget))
         {
             // Update position
             BattleGrid.instance.MoveObjectTo(newMoveTarget, this);
@@ -535,6 +567,36 @@ public class PlayerController : TileCreature
 
         // Recalculate LOS
         LoSGrid = BattleGrid.instance.RecalculateLOS(visionRange, out SimpleLoSGrid);
+    }
+
+    // Checks the target tile for anything that activates when you move onto it. EG: items, terrain
+    // Returns true if we should still move.
+    private bool ActivateMoveOntoEffects(Vector2Int newMoveTarget)
+    {
+        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
+        // First, check things that will not end your turn.
+
+        if (tile.ItemOnTile != null)
+        {
+            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
+            if (moneyobj != null)
+            {
+                Debug.Log("Picked up money");
+                Money += moneyobj.Value;
+                moneyobj.Pickup();
+            }
+        }
+
+        if (tile.tileTerrainType == Tile.TileTerrainType.stairsDown)
+        {
+            BattleManager.currentTurn = BattleManager.TurnPhase.waiting;
+            BattleGrid.instance.GoDownFloor();
+            isMoving = false;
+            moveTarget = new Vector3(xPos, transform.position.y, zPos);
+            return false;
+        }
+
+        return true;
     }
 
     // Applies incoming damage
@@ -571,6 +633,7 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     private void EndOfTurn()
     {
+        Debug.Log("Player Controller end of turn");
         // Spirit decay
         LoseSpirit(1);
 
@@ -680,7 +743,14 @@ public class PlayerController : TileCreature
     // Right now, this is called by a button.
     public void GetCardReward()
     {
-        puim.OpenCardRewardView();
+        if (Money < 20)
+            puim.ShowAlert("Need 20 coins for a card.");
+        else
+        {
+            puim.OpenCardRewardView();
+            Money -= 20;
+        }
+            
     }
 
     // Returns the damage bonus from momentum

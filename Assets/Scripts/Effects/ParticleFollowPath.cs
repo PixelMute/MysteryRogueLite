@@ -6,7 +6,7 @@ using UnityEngine;
 public class ParticleFollowPath : MonoBehaviour
 {
     public string pathName;
-    [SerializeField] private float unitsPerSecond; // Time it takes
+    [SerializeField] private float unitsPerSecond = 0; // Time it takes
     [SerializeField] public Vector3[] waypoints;
     [SerializeField] private bool skipLoop = false;
     public iTween.EaseType easeType = iTween.EaseType.linear;
