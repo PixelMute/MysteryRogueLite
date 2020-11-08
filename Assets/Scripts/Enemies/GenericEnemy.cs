@@ -6,8 +6,18 @@ using UnityEditor;
 using UnityEngine;
 
 // This script handles generic enemy behavior.
+[RequireComponent(typeof(EnemyUI))]
 public abstract class GenericEnemy : TileCreature
 {
+    public EnemyUI EnemyUI { get; private set; }
+
+    public void Start()
+    {
+        EnemyUI = GetComponent<EnemyUI>();
+        EnemyUI.Initialize();
+        EnemyUI.UpdateHealthBar(health, maxHealth);
+    }
+
     // Variables
     [HideInInspector] private int health;
     public int maxHealth = 70;
@@ -20,13 +30,6 @@ public abstract class GenericEnemy : TileCreature
     protected const bool DEBUGPATHFINDINGMODE = true;
     [HideInInspector] public Color enemyColor;
     [HideInInspector] public float enemyLineY; // so that all the lines are on different y levels.
-
-    // Display
-    public GameObject enemyCanvasPrefab;
-    public GameObject enemyCanvas; // The actual object, not the prefab
-    protected HealthBarScript healthBar;
-    protected FadeObjectScript healthBarFade;
-    protected FadeObjectScript exclamationPointFade;
 
     // AI
     public enum EnemyAIState { standing, inCombat, movingToWanderTarget, milling, alerted } // Describes what the enemy is doing right now
@@ -46,7 +49,7 @@ public abstract class GenericEnemy : TileCreature
     public int Health
     {
         get { return health; }
-        set { health = value; if (healthBar != null) healthBar.UpdateHealthDisplay(health, maxHealth); }
+        set { health = value; EnemyUI.UpdateHealthBar(health, maxHealth); }
     }
 
     public override float GetPathfindingCost()
@@ -87,7 +90,7 @@ public abstract class GenericEnemy : TileCreature
             {
                 // Go to alerted, take no action. But do shout for help.
                 currentAIState = EnemyAIState.alerted;
-                exclamationPointFade.StartFadeCycle(1, 1.25f);
+                EnemyUI.FadeExclaimationPoint();
                 InitCombat();
                 ShoutForHelp();
             }
@@ -327,43 +330,9 @@ public abstract class GenericEnemy : TileCreature
         }
     }
 
-    // Initializes the healthbar
-    protected HealthBarScript SetUpHealthBar(float yOffset)
-    {
-        enemyCanvas = Instantiate(enemyCanvasPrefab, transform);
-        enemyCanvas.transform.position += new Vector3(0, yOffset, 0);
-        return enemyCanvas.GetComponentInChildren<HealthBarScript>();
-    }
-
-    // Makes the canvas visible
-    public void DisplayHealthBar()
-    {
-        healthBarFade.StopFade(1f);
-        enemyCanvas.SetActive(true);
-    }
-
-    // Set speedMult to <= 0 for instant
-    public void HideHealthBar(float buffer, float speedMult)
-    {
-        if (speedMult > 0)
-        {
-            healthBarFade.StartFadeCycle(buffer, speedMult);
-        }
-        else
-        {
-            healthBarFade.StopFade(0f);
-            enemyCanvas.SetActive(false);
-        }
-    }
-
     protected abstract void DetermineIntent();
 
     protected abstract void TakeIntent();
-
-    public void HideHealthBar()
-    {
-        HideHealthBar(-1, -1);
-    }
 
     public override bool GetPlayerWalkable()
     {
@@ -378,7 +347,7 @@ public abstract class GenericEnemy : TileCreature
             Eliminate(); // KO'd
         else
         {
-            healthBarFade.StartFadeCycle(.3f, 1.2f);
+            EnemyUI.FadeHealthBar();
         }
     }
 

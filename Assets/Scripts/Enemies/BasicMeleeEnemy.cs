@@ -1,28 +1,22 @@
 ﻿using NesScripts.Controls.PathFind;
+using NesScripts.Controls.PathFind;
+using Roguelike;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using NesScripts.Controls.PathFind;
-using Roguelike;
 
 public class BasicMeleeEnemy : GenericEnemy
 {
     private bool inStrikingRange = false;
 
-    private void Awake()
+    public new void Start()
     {
+        base.Start();
         if (true)
         {
             enemyColor = new Color(Random.Range(0f, 1f), Random.Range(0f, 1f), Random.Range(0f, 1f));
             enemyLineY = Random.Range(0.05f, 0.8f);
         }
-
-        // Set up health bar.
-        healthBar = SetUpHealthBar(1f);
-        healthBarFade = healthBar.GetComponentsInParent<FadeObjectScript>(true)[0];
-
-        // Set up exclamation fade
-        exclamationPointFade = enemyCanvas.GetComponentsInChildren<FadeObjectScript>(true)[0];
 
         moveTarget = transform.position;
         maxHealth = 40;
@@ -99,6 +93,6 @@ public class BasicMeleeEnemy : GenericEnemy
     {
         // Spawn some money
         Debug.Log("Spawning monies");
-        BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int (xPos, zPos), Random.Range(10, 22));
+        BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int(xPos, zPos), Random.Range(10, 22));
     }
 }
