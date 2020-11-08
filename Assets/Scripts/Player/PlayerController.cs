@@ -113,7 +113,7 @@ public class PlayerController : TileCreature
 
         UpdateLOS();
 
-        
+
         engagedEnemies = new List<TileEntity>();
 
         statusEffects = new Dictionary<BattleManager.StatusEffectEnum, StatusEffectDataHolder>();
@@ -400,7 +400,7 @@ public class PlayerController : TileCreature
             Vector2Int movementVector = new Vector2Int(xDir + xPos, zDir + zPos);
 
             var tile = BattleManager.instance.GetTileAtLocation(movementVector.x, movementVector.y);
-            if (tile.tileEntityType == Tile.TileEntityType.stairsDown)
+            if (tile.tileTerrainType == Tile.TileTerrainType.stairsDown)
             {
                 BattleGrid.instance.GoDownFloor();
                 return;
@@ -602,7 +602,7 @@ public class PlayerController : TileCreature
             puim.OpenCardRewardView();
             Money -= 20;
         }
-            
+
     }
 
     // Returns the damage bonus from momentum

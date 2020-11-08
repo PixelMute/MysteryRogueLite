@@ -127,7 +127,6 @@ public class BattleGrid : MonoBehaviour
         fogOfWar.ManualUpdate(1f);
         yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
         LoadingNewFloor = false;
-        BattleManager.currentTurn = BattleManager.TurnPhase.player;
     }
 
     public void GenerateFirstLevel()

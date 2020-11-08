@@ -67,7 +67,7 @@ namespace Roguelike
         //Teleports player to target
         public void Activate(Vector2Int player, Vector2Int target)
         {
-            BattleManager.player.MoveTo(target, true);
+            BattleManager.player.MoveToPosition(target);
         }
     }
 
@@ -274,7 +274,7 @@ namespace Roguelike
                                 Debug.Log("AOE effect triggered. Offset = " + xOffset + ", " + yOffset + ". Hitmiddle: " + hitMiddle);
                                 appliedEffect.Activate(player, new Vector2Int(center.x + xOffset, center.y + yOffset));
                             }
-                                
+
                         }
                         catch (Exception)
                         {
