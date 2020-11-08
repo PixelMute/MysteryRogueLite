@@ -4,12 +4,18 @@ public class CardStackTracker
 {
     private bool active; // Are we currently tracking stuff?
     private int damageDealt = 0; // How much damage has been dealt over this tracking session
-    private Card currentlyResolvingCard; // If needed, we can make this an actual stack.
-    private bool usedMomentum = false;
+    private CardInterface currentlyResolvingCard; // If needed, we can make this an actual stack.
+    private int usedMomentum = 0; // the amount of momentium this card stack has taken.
 
-    public void AddCardToTracker(Card input)
+    public enum ResolveBehaviorEnum { discard, banish};
+    public ResolveBehaviorEnum resolveBehavior = ResolveBehaviorEnum.discard;
+    public int banishAmount = 0;
+
+    public CardInterface CurrentlyResolvingCard { get => currentlyResolvingCard; private set => currentlyResolvingCard = value; }
+
+    public void AddCardToTracker(CardInterface input)
     {
-        currentlyResolvingCard = input;
+        CurrentlyResolvingCard = input;
         active = true;
     }
 
@@ -21,8 +27,8 @@ public class CardStackTracker
 
         active = false;
         damageDealt = 0;
-        currentlyResolvingCard = null;
-        usedMomentum = false;
+        CurrentlyResolvingCard = null;
+        usedMomentum = 0;
     }
 
     // Have we dealt at least this much?
@@ -44,8 +50,9 @@ public class CardStackTracker
 
     public int GetMomentumBonus()
     {
-        usedMomentum = true;
-        return BattleManager.player.GetMomentumBonus();
+        int momun = BattleManager.player.GetMomentumBonus();
+        usedMomentum = UnityEngine.Mathf.Max(usedMomentum, momun);
+        return momun;
     }
 
     public float GetInsightBonus()
@@ -53,13 +60,18 @@ public class CardStackTracker
         return BattleManager.player.GetInsightBonus();
     }
 
-    public void SetUsedMomentum(bool mo)
+    public void SetUsedMomentum(int mo)
     {
         usedMomentum = mo;
     }
 
-    public bool QueryUsedMomentum()
+    public int QueryUsedMomentum()
     {
         return usedMomentum;
+    }
+
+    public CardInterface GetCurrentlyResolvingCard()
+    {
+        return CurrentlyResolvingCard;
     }
 }

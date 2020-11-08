@@ -51,7 +51,7 @@ public abstract class GenericEnemy : TileCreature
 
     public override float GetPathfindingCost()
     {
-        return 3f; // Other enemies could wait for this one to move.
+        return 4f; // Other enemies could wait for this one to move.
     }
 
     protected void StartMovementTowards(Vector2Int target)
@@ -64,6 +64,9 @@ public abstract class GenericEnemy : TileCreature
     // Enemy decides what they're going to do this turn
     public virtual void ProcessTurn()
     {
+        if (isDead)
+            return; // The dead don't act.
+
         StandardEnemyTurn();
     }
 
@@ -267,7 +270,7 @@ public abstract class GenericEnemy : TileCreature
         }
     }
 
-    // Picks a new target to wander towards. If given true, also takes one step towards it.
+    // Picks a new target to wander towards.
     protected void PickNewWanderTarget()
     {
         int tryNum = 0;
@@ -394,15 +397,22 @@ public abstract class GenericEnemy : TileCreature
     // Destroys this gameobject and its children. Also removes it from the battlegrid.
     public void Eliminate()
     {
-        // First, remove self from the battlegrid
+        isDead = true;
+
+        // Trigger on death effects
+        OnDeath();
+
+        // Remove self from the battlegrid
         BattleGrid.instance.ClearTile(new Vector2Int(xPos, zPos));
 
         // Disengage
         DisengageTarget();
 
-        // If it's not the player's turn, mark self as dead to be destroyed later.
+        // Destroy self
         BattleManager.RecursivelyEliminateObject(transform);
     }
+
+    public abstract void OnDeath();
 
     public override void ApplyStatusEffect(BattleManager.StatusEffectEnum status, int amount)
     {

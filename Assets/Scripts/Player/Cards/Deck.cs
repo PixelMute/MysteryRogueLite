@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 // This is the data class that stores information regarding the deck of cards.
@@ -7,7 +8,7 @@ public class Deck
     public List<Card> drawPile;
     public List<Card> discardPile;
     public List<Card> hand;
-    public List<Card> banishPile;
+    public List<(Card, int)> banishPile; // Tuples of the card and how many levels it is banished for.
 
     public static Deck instance; // Singleton
 
@@ -46,6 +47,7 @@ public class Deck
         Card drawnCard = drawPile[0];
         drawPile.RemoveAt(0);
         hand.Add(drawnCard);
+        drawnCard.OnDraw();
         return drawnCard;
     }
 
@@ -60,7 +62,6 @@ public class Deck
     // Shuffles the deck to make it random
     public void ShuffleDeck()
     {
-        Debug.Log("Deck--ShuffleDeck()::Every day I'm shufflin");
         int n = drawPile.Count;
         while (n > 1)
         {
@@ -74,9 +75,10 @@ public class Deck
     }
 
     // Discards card[index] in the hand
-    public void DiscardCardAtIndex(int index)
+    public void DiscardCardAtIndex(int index, bool fromEffect = false)
     {
         Card discarded = hand[index];
+        discarded.OnDiscard(fromEffect);
         hand.RemoveAt(index);
         discardPile.Add(discarded);
     }
@@ -93,4 +95,12 @@ public class Deck
         return drawPile.Count;
     }
 
+    // Send it to the shadow realm.
+    internal void BanishCardAtIndex(int index, int amount)
+    {
+        Card discarded = hand[index];
+        discarded.OnBanish();
+        hand.RemoveAt(index);
+        banishPile.Add((discarded, amount));
+    }
 }

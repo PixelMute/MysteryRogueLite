@@ -40,17 +40,18 @@ public class FloorManager
     }
 
     //Generates a floor. Can be modified to see certain floors to have different types
-    public Floor GenerateRandomFloor(int floorNumber, int x = 60, int y = 60, int seed = 0)
+    public Floor GenerateRandomFloor(int floorNumber, int x = 40, int y = 40, int seed = 0)
     {
         //Allows us to create the exact same floor if we know the seed
         if (seed == 0)
         {
-            seed = UnityEngine.Random.Range(-10000, 100000);
+            seed = UnityEngine.Random.Range(-100000, 100000);
         }
-        var dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.DENSE,
-            DungeonGenerator.gen.hints.GenRoomShape.SPLATTER, DungeonGenerator.gen.hints.GenRoomSize.MEDIUM,
-            DungeonGenerator.gen.hints.GenMazeType.DEPTH_FIRST, DungeonGenerator.gen.hints.GenPathing.TRUNCATE,
-            DungeonGenerator.gen.hints.GenEgress.RANDOM_PLACEMENT, 3, 1);
+
+        var dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.NORMAL,
+            DungeonGenerator.gen.hints.GenRoomShape.BOX_AMALGAM, DungeonGenerator.gen.hints.GenRoomSize.HUGE,
+            DungeonGenerator.gen.hints.GenMazeType.WILSON, DungeonGenerator.gen.hints.GenPathing.ROOM_TO_ROOM,
+            DungeonGenerator.gen.hints.GenEgress.RANDOM_PLACEMENT, 0, 1);
         return new Floor(dungeonData, floorNumber, seed);
     }
 }
@@ -107,7 +108,7 @@ public class Floor
             }
         }
 
-        int numEnemies = FloorNumber + 1 == 5 ? 50 : 5 + (FloorNumber * 2);
+        int numEnemies = FloorNumber + 1 == 5 ? 25 : 5 + (FloorNumber * 3);
         // Set the enemies locations
         for (int i = 0; i < numEnemies; i++)
         {
@@ -141,12 +142,10 @@ public class Floor
                     //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
                     //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
                     //    break;
-                    case Roguelike.Tile.TileEntityType.stairsDown:
-                        var spawnLoc = new Vector2Int(i, j);
-                        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
-                        PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsDown);
-                        break;
+                        
                 }
+
+                // Determine terrain
                 if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.wall)
                 {
                     Tile tile;
@@ -158,6 +157,14 @@ public class Floor
                     {
                         tile = j % 2 == 0 ? bottomLeft : bottomRight;
                     }
+
+                    if (map[i,j].tileTerrainType == Roguelike.Tile.TileTerrainType.stairsDown)
+                    {
+                        var spawnLoc = new Vector2Int(i, j);
+                        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
+                        PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
+                    }
+
                     tileMap.SetTile(new Vector3Int(i, j, 0), tile);
                 }
             }
@@ -191,9 +198,13 @@ public class Floor
 
     private void SetStairsLocation()
     {
-        Vector2Int spawnLoc = PickRandomEmptyTile();
-        map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.stairsDown;
-        stairsDownLocation = spawnLoc;
+        for (int i = 0; i < 6; i++)
+        {
+            Vector2Int spawnLoc = PickRandomEmptyTile();
+            map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
+        }
+        
+        //stairsDownLocation = spawnLoc;
         //if (FloorNumber != 0)
         //{
         //    spawnLoc = PickRandomEmptyTile();
@@ -217,14 +228,14 @@ public class Floor
         //var spawnLoc = new Vector2Int(rooms.Last().bottomRight().x(), rooms.Last().bottomRight().y());
         var spawnLoc = PickRandomEmptyTile();
         var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
-        PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsDown);
+        PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
         stairsDownLocation = spawnLoc;
         if (FloorNumber != 0)
         {
             //spawnLoc = new Vector2Int(rooms[0].bottomRight().x(), rooms[0].bottomRight().y());
             spawnLoc = PickRandomEmptyTile();
             var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
-            PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
+            PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsUp);
             stairsUpLocation = spawnLoc;
         }
     }
@@ -273,16 +284,10 @@ public class Floor
         return Vector2Int.one;
     }
 
-    public void SpawnEnemy()
-    {
-        Vector2Int spawnLoc = PickRandomEmptyTile();
-        SpawnEnemyAt(spawnLoc.x, spawnLoc.y);
-    }
-
     private void SpawnEnemyAt(int x, int z)
     {
         var spawnLoc = new Vector2Int(x, z);
-        var newEnemy = BattleGrid.instance.SpawnEnemy(spawnLoc);
+        var newEnemy = BattleGrid.instance.CreateEnemy(spawnLoc);
         enemies.Add(newEnemy);
         newEnemy.name = "EnemyID: " + enemies.Count;
         PlaceObjectOn(spawnLoc.x, spawnLoc.y, newEnemy);
@@ -314,27 +319,80 @@ public class Floor
         PlaceObjectOn(x, z, entityTile);
     }
 
+    /// <summary>
+    /// Spawns an item on or around the given tile. Does the backend style stuff, not spawning the gameobject.
+    /// This also does not prevent you from spawningan item in a wall. Returns true if placed.
+    /// </summary>
+    /// <param name="target">Where to try and place the item</param>
+    /// <param name="item">What item to place</param>
+    /// <param name="bounceBehavior">Use -1 to force place the item on this tile. Otherwise, this is the number of random bounces this item can take before not being placed.
+    /// An item will bounce if the targetted tile is taken.</param>
+    public bool TryPlaceTileItemOn(Vector2Int target, TileItem item, int bounceBehavior)
+    {
+        // Make sure we're inside the map.
+        if (target.x >= BattleGrid.instance.map.GetLength(0) || target.x < 0 || target.y >= BattleGrid.instance.map.GetLength(1) || target.y < 0)
+            return false; // Lost to the either.
+
+        item.xPos = target.x;
+        item.zPos = target.y;
+
+        if (map[target.x, target.y].ItemOnTile == null || bounceBehavior <= -1)
+        {
+            // Target tile is empty, or we need to force spawn item. Spawn the item on it.
+            map[target.x, target.y].SetItemOnTile(item);
+            return true;
+        }
+        else if (bounceBehavior == 0)
+        { // This item is lost to the ether.
+            return false;
+        }
+        else
+        { // Bounce and reduce bounce behavior by 1.
+            for (int i = 1; i >= -1; i--) // Up, and to the Right!
+            {
+                for (int j = 1; j >= -1; j--)
+                {
+                    if (TryPlaceTileItemOn(new Vector2Int(target.x + i, target.y + j), item, bounceBehavior - 1))
+                    {
+                        return true; // Found a place for this item.
+                    }
+                }
+            }
+            // Didn't find a place.
+            return false;
+        }
+    }
+
     // Sets obj's internal tracking of position, as well as updates the battlegrid.
     public void PlaceObjectOn(int x, int z, TileEntity obj)
     {
-
-        float oldCost;
+        float oldCost = 0f;
         if (walkCostsMap != null) // Might have to recalculate now that something has moved.
         {
-            if (map[x, z].tileEntityType == Roguelike.Tile.TileEntityType.empty)
-                oldCost = 0f;
-            else
-                oldCost = map[x, z].GetEntityOnTile().GetPathfindingCost();
-            if (oldCost != obj.GetPathfindingCost()) // Need to update
-            {
-                walkCostsMap[x, z] = obj.GetPathfindingCost();
-                walkGrid.UpdateGrid(walkCostsMap);
-            }
+            oldCost = map[x, z].GetPathfindingCost();
         }
 
         obj.xPos = x;
         obj.zPos = z;
         map[x, z].SetEntityOnTile(obj);
+
+
+        if (walkCostsMap != null && oldCost != map[x, z].GetPathfindingCost()) // Need to update
+        {
+            walkCostsMap[x, z] = map[x, z].GetPathfindingCost();
+            walkGrid.UpdateGrid(walkCostsMap);
+        }
+    }
+
+    public void PlaceTerrainOn(int x, int z, TileTerrain ter)
+    {
+        if (walkCostsMap != null && ter.GetPathfindingCost() != 1f) // Might have to recalculate now that something has moved.
+        {
+            walkCostsMap[x, z] = map[x,z].GetPathfindingCost();
+            walkGrid.UpdateGrid(walkCostsMap);
+        }
+
+        map[x, z].SetTerrainOnTile(ter);
 
     }
 

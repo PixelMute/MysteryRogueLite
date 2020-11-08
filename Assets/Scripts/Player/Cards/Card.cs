@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Roguelike;
 
 
 public enum PlayCondition { needsLOS, straightLine, emptyTile, cornerCutting, mustHitCreature };
@@ -34,6 +35,21 @@ public class Card
         Effects.Add(effect);
     }
 
+    internal void OnDraw()
+    {
+        return; // If we want to have effects that activate when the card is drawn
+    }
+
+    internal void OnDiscard(bool fromEffect)
+    {
+        return; // If we want to have any effects that activate when the card is discarded
+    }
+
+    internal void OnBanish()
+    {
+        return;
+    }
+
     /// <summary>
     /// Activate the cards effect
     /// </summary>
@@ -47,6 +63,8 @@ public class Card
         }
         //TODO: Add animation to this 
     }
+
+
 }
 
 //Contains all the basic card info
@@ -57,5 +75,6 @@ public class CardInfo
     public string Name { get; set; }
     public string Description { get; set; }
     public int ID { get; set; }
+    public string ThemeName { get; set; } // Which theme it is a part of
 }
 

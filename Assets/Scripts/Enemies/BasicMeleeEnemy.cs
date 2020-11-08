@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using NesScripts.Controls.PathFind;
+using Roguelike;
 
 public class BasicMeleeEnemy : GenericEnemy
 {
@@ -91,5 +93,12 @@ public class BasicMeleeEnemy : GenericEnemy
     public override void ApplyStatusEffect(BattleManager.StatusEffectEnum status, int amount)
     {
         Debug.LogError("Generic Enemy -- I was asked to apply a status effect, but that's not implemented.");
+    }
+
+    public override void OnDeath()
+    {
+        // Spawn some money
+        Debug.Log("Spawning monies");
+        BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int (xPos, zPos), Random.Range(10, 22));
     }
 }

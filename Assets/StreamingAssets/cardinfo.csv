@@ -12,12 +12,12 @@ ID,SpiritCost,EnergyCost,Name,Description,Effects,MinRange,MaxRange,PlayConditio
 11, 5, 2, Sagacity, "Draw one card. Gain Insight 1.", drawcards:1;applyStatusEffectToSelf:1:insight,0,0,
 12, 15, 3, Crusading Savagery, "Deal 80 damage.<br>Range 1-1.", strike:80, 1, 1, needsLOS:mustHitCreature
 13, 5, 1, Needles, "Deal 4 damage five times.<br>Range 3-5. Line.", strike:7;strike:7;strike:7;strike:7;strike:7,3,5,mustHitCreature:needsLOS:straightLine
-14, 5, 1, Fallback, "Gain 8 defense. Move to the targeted tile.<br>Range 1-2", applyStatusEffectToSelf:8:defence,1,2,needsLOS
+14, 5, 1, Fallback, "Gain 8 defense. Move to the targeted tile.<br>Range 1-2", applyStatusEffectToSelf:8:defence;teleport,1,2,needsLOS:emptyTile
 15, 8, 2, Blue Bolt, "Deal 40 damage.<br>Range 2-2.", strike:40,2,2,needsLOS,mustHitCreature
 16, 1, 3, Serenity, "Gain Insight 2.", applyStatusEffectToSelf:2:insight,0,0,
-17, 6, 1, Overwhelm, "Deal 10 damage twice. Gain Momentum 4.<br>Range 1-1.", strike:10;strike:10;applyStatusEffectToSelf:4:momentum,1,1,mustHitCreature:needsLOS
+17, 7, 1, Overwhelm, "Deal 10 damage twice. Gain Momentum 4.<br>Range 1-1.", strike:10;strike:10;applyStatusEffectToSelf:4:momentum,1,1,mustHitCreature:needsLOS
 18, 5, 2, AquaLance, "Deal 30 damage. Gain Momentum 5.<br>Range 1-4. Cuts corners. Line.", strike:30;applyStatusEffectToSelf:5:momentum,1,4,mustHitCreature:needsLOS:cornerCutting:straightLine
 19, 12, 3, Shockwave, "Deal 15, 10, and 5 damage to all enemies in range 1, 2, and 3 respectively.", aoedamage:15:1:false;aoedamage:10:2:false;aoedamage:5:3:false,0,0,
 20, 6, 2, Firestorm, "Deal 10 damage to target, and 10 damage to everything in range 0-1 of target.<br>Range 1-3.", strike:10;aoedamage:10:1:true,1,3,mustHitCreature:needsLOS
 21, 1, 0, Kindle, "Gain 1 energy.", gainenergy:1,0,0,
-22, 4, 2, Wardance, "Deal 5 damage. Gain insight 1. Draw 2 cards.<br>Range 1-1. Cuts corners.", strike:5;applyStatusEffectToSelf:1:insight;drawcards:2,1,1,mustHitCreature:needsLOS:cornerCutting
+22, 6, 2, Wardance, "Deal 5 damage. Gain insight 1. Draw 2 cards.<br>Range 1-1. Cuts corners.", strike:5;applyStatusEffectToSelf:1:insight;drawcards:2,1,1,mustHitCreature:needsLOS:cornerCutting

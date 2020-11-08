@@ -87,8 +87,7 @@ public class CardInterface : MonoBehaviour
                 BattleManager.player.puim.CardInHandClicked(cardHandIndex);
                 break;
             case CardInterfaceLocations.cardReward:
-                BattleManager.player.GainCard(cardData);
-                BattleManager.player.puim.LeaveCardRewardScreen(true);
+                BattleManager.player.TriggerCardReward(cardData);
                 break;
         }
 

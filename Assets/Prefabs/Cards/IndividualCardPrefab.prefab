@@ -1002,11 +1002,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7062360243508157667}
     m_Modifications:
-    - target: {fileID: 28776930902451567, guid: 730cf097f8e773043a398f580260e26b,
-        type: 3}
-      propertyPath: playOnAwake
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1584367901697623476, guid: 730cf097f8e773043a398f580260e26b,
         type: 3}
       propertyPath: m_Name
@@ -1117,11 +1112,6 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 4352194233126946513, guid: 730cf097f8e773043a398f580260e26b,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: -1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 730cf097f8e773043a398f580260e26b, type: 3}
 --- !u!224 &3695278317129192655 stripped
@@ -1137,25 +1127,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7062360243508157667}
     m_Modifications:
-    - target: {fileID: 28776930902451567, guid: 730cf097f8e773043a398f580260e26b,
-        type: 3}
-      propertyPath: playOnAwake
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 1584367901697623476, guid: 730cf097f8e773043a398f580260e26b,
         type: 3}
       propertyPath: m_Name
       value: HighlightParticleSystemLeft
-      objectReference: {fileID: 0}
-    - target: {fileID: 1978816305027654004, guid: 730cf097f8e773043a398f580260e26b,
-        type: 3}
-      propertyPath: waypoints.Array.data[1].x
-      value: -70
-      objectReference: {fileID: 0}
-    - target: {fileID: 1978816305027654004, guid: 730cf097f8e773043a398f580260e26b,
-        type: 3}
-      propertyPath: waypoints.Array.data[2].x
-      value: -70
       objectReference: {fileID: 0}
     - target: {fileID: 4296585348290967608, guid: 730cf097f8e773043a398f580260e26b,
         type: 3}
@@ -1261,11 +1236,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 4352194233126946513, guid: 730cf097f8e773043a398f580260e26b,
-        type: 3}
-      propertyPath: m_SortingOrder
-      value: -1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 730cf097f8e773043a398f580260e26b, type: 3}
