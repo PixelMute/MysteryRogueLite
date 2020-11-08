@@ -114,7 +114,7 @@ public class BattleGrid : MonoBehaviour
         }
     }
 
-    private bool LoadingNewFloor = false;
+    public bool LoadingNewFloor { get; private set; } = false;
     private IEnumerator LoadNewFloorCoroutine()
     {
         var fader = FindObjectOfType<SceneFader>();

@@ -10,15 +10,8 @@ using UnityEngine.XR;
 public class PlayerController : TileCreature
 {
     private const int movementEnergyCost = 1;
-    public bool isMoving = false;
     public Rigidbody rb;
     public BoxCollider boxCollider;
-
-    // Movement Variables
-    public Vector3 moveTarget;
-    public float movementTime = 1f; // Time we want it to take one tile of movement.
-    private float inverseMovementTime;
-
 
     // Card Management
     public static Deck playerDeck;
@@ -96,11 +89,9 @@ public class PlayerController : TileCreature
     private void AssignVariables()
     {
         // Movement / physics
-        inverseMovementTime = 1f / movementTime;
         boxCollider = GetComponent<BoxCollider>();
         rb = GetComponent<Rigidbody>();
         puim = GetComponent<PlayerUIManager>();
-        moveTarget = transform.position;
 
         // Cards
         AssignInitialDeck();
@@ -398,13 +389,6 @@ public class PlayerController : TileCreature
                     return;
             }
             Vector2Int movementVector = new Vector2Int(xDir + xPos, zDir + zPos);
-
-            var tile = BattleManager.instance.GetTileAtLocation(movementVector.x, movementVector.y);
-            if (tile.tileTerrainType == Tile.TileTerrainType.stairsDown)
-            {
-                BattleGrid.instance.GoDownFloor();
-                return;
-            }
 
             if (CheckCanMoveInDirection(xDir, zDir))
             {

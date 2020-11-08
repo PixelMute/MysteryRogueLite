@@ -65,6 +65,11 @@ public class BattleManager : MonoBehaviour
         return map.map[xPos, zPos];
     }
 
+    public Tile GetTileAtLocation(Vector2Int position)
+    {
+        return GetTileAtLocation(position.x, position.y);
+    }
+
     // ANDs the values of two bool arrays together.
     // Returns an array the size of the smaller array.
     public static bool[,] ANDArray(bool[,] array1, bool[,] array2)

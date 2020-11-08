@@ -137,12 +137,12 @@ public class Floor
                     case Roguelike.Tile.TileEntityType.enemy:
                         SpawnEnemyAt(i, j);
                         break;
-                    //case Roguelike.Tile.TileEntityType.stairsUp:
-                    //    var spawnLoc = new Vector2Int(i, j);
-                    //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
-                    //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
-                    //    break;
-                        
+                        //case Roguelike.Tile.TileEntityType.stairsUp:
+                        //    var spawnLoc = new Vector2Int(i, j);
+                        //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
+                        //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
+                        //    break;
+
                 }
 
                 // Determine terrain
@@ -158,7 +158,7 @@ public class Floor
                         tile = j % 2 == 0 ? bottomLeft : bottomRight;
                     }
 
-                    if (map[i,j].tileTerrainType == Roguelike.Tile.TileTerrainType.stairsDown)
+                    if (map[i, j].tileTerrainType == Roguelike.Tile.TileTerrainType.stairsDown)
                     {
                         var spawnLoc = new Vector2Int(i, j);
                         var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
@@ -203,7 +203,7 @@ public class Floor
             Vector2Int spawnLoc = PickRandomEmptyTile();
             map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
         }
-        
+
         //stairsDownLocation = spawnLoc;
         //if (FloorNumber != 0)
         //{
@@ -218,8 +218,6 @@ public class Floor
         var spawnLocation = PickRandomEmptyTile();
         BattleManager.player.EstablishSelf(spawnLocation.x, spawnLocation.y);
         BattleManager.player.transform.position = new Vector3(spawnLocation.x, 0.05f, spawnLocation.y);
-        BattleManager.player.moveTarget = new Vector3(spawnLocation.x, BattleManager.player.transform.position.y, spawnLocation.y);
-        BattleManager.player.isMoving = false;
     }
 
     private void SpawnStairs()
@@ -388,7 +386,7 @@ public class Floor
     {
         if (walkCostsMap != null && ter.GetPathfindingCost() != 1f) // Might have to recalculate now that something has moved.
         {
-            walkCostsMap[x, z] = map[x,z].GetPathfindingCost();
+            walkCostsMap[x, z] = map[x, z].GetPathfindingCost();
             walkGrid.UpdateGrid(walkCostsMap);
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Roguelike;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -41,13 +42,16 @@ class TurnManager : MonoBehaviour
 #endif
         }
 
-        if (CurrentTurn == WhoseTurn.player)
+        if (!BattleGrid.instance.LoadingNewFloor)
         {
-            HandlePlayerTurn();
-        }
-        if (CurrentTurn == WhoseTurn.enemy)
-        {
-            HandleEnemyTurn();
+            if (CurrentTurn == WhoseTurn.player)
+            {
+                HandlePlayerTurn();
+            }
+            if (CurrentTurn == WhoseTurn.enemy)
+            {
+                HandleEnemyTurn();
+            }
         }
     }
 
@@ -87,6 +91,14 @@ class TurnManager : MonoBehaviour
         if (CurrentPhase == TurnPhase.end && !Player.IsMoving)
         {
             Player.EndOfTurn();
+
+            //If player ends their turn on the stairs, go down to next floor
+            if (IsPlayerOnStairs())
+            {
+                BattleGrid.instance.GoDownFloor();
+                CurrentPhase = TurnPhase.start;
+            }
+
             CurrentPhase = TurnPhase.start;
             CurrentTurn = WhoseTurn.enemy;
         }
@@ -101,6 +113,13 @@ class TurnManager : MonoBehaviour
         }
         CurrentTurn = WhoseTurn.player;
         HandlePlayerTurn();
+    }
+
+    private bool IsPlayerOnStairs()
+    {
+        var playerLocation = BattleManager.ConvertVector(Player.transform.position);
+        var tile = BattleManager.instance.GetTileAtLocation(playerLocation);
+        return tile.tileTerrainType == Tile.TileTerrainType.stairsDown;
     }
 
 }
