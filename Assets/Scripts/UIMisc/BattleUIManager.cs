@@ -29,6 +29,11 @@ public class BattleUIManager : MonoBehaviour
         BattleManager.player.GetCardReward();
     }
 
+    public void ToggleCardDrawerPositionButtonClicked()
+    {
+        BattleManager.player.puim.ToggleCardDrawerPosition();
+    }
+
     public void SkipCardRewardButtonClicked()
     {
         BattleManager.player.puim.LeaveCardRewardScreen(false);

@@ -33,7 +33,7 @@ public class PlayerUIManager : MonoBehaviour
 
     // Player UI FSM.
     // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
-    public enum PlayerUIState { standardCardDrawer, standardNoCardDrawer, controllingCamera, massCardView, cardRewardView }
+    public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView }
     private PlayerUIState playerUIState = PlayerUIState.standardCardDrawer;
 
     private PlayerController pc;
@@ -223,6 +223,12 @@ public class PlayerUIManager : MonoBehaviour
     internal void CardInHandClicked(int index)
     {
         Debug.Log("Card clicked: " + index + ", selectedCard = " + selectedCard);
+        // We're only allowed to click cards in standard UI state.
+        if (IsStateMovementLocked())
+        {
+            return;
+        }
+
         // Is this a double click?
         if (selectedCard && Time.time - initialClickTime < doubleClickTime && selectedCard.cardHandIndex == index)
         {
@@ -512,10 +518,51 @@ public class PlayerUIManager : MonoBehaviour
 
     #endregion
 
+    #region UIManipulation
+
+    bool cardDrawerAtTop = true;
+    /// <summary>
+    /// Toggles the card drawer's position and makes it go either to the top or bottom.
+    /// </summary>
+    public void ToggleCardDrawerPosition()
+    {
+        GameObject hand = handLayout.transform.parent.gameObject;
+        GameObject arrowImage = GameObject.Find("MoveCardViewButtonImage");
+        GameObject arrowButton = arrowImage.transform.parent.gameObject;
+        arrowButton.GetComponent<Button>().enabled = false;
+        if (cardDrawerAtTop)
+        {
+            iTween.MoveBy(hand, iTween.Hash("y", -5.25, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.0f));
+            iTween.MoveBy(arrowButton, iTween.Hash("y", 1.35, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.05f));
+            iTween.RotateTo(arrowImage, iTween.Hash("rotation", new Vector3(0, 0, 0), "easeType", "easeInOutSine", "loopType", "none", "time", 1.2f, "isLocal", true,
+                "onComplete", "ReenableMoveCardDrawerButton", "onCompleteTarget", gameObject));
+        }
+        else
+        {
+            iTween.MoveBy(hand, iTween.Hash("y", 5.25, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.0f));
+            iTween.MoveBy(arrowButton, iTween.Hash("y", -1.35, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.05f));
+            iTween.RotateTo(arrowImage, iTween.Hash("rotation", new Vector3(0, 0, 180), "easeType", "easeInOutSine", "loopType", "none", "time", 1.2f, "isLocal", true,
+                "onComplete", "ReenableMoveCardDrawerButton", "onCompleteTarget", gameObject));
+        }
+
+        cardDrawerAtTop = !cardDrawerAtTop;
+    }
+
+    /// <summary>
+    /// ToggleCardDrawerPosition() disables the button. This is called by iTween and reenables it.
+    /// </summary>
+    public void ReenableMoveCardDrawerButton()
+    {
+        GameObject arrowImage = GameObject.Find("MoveCardViewButtonImage");
+        GameObject arrowButton = arrowImage.transform.parent.gameObject;
+        arrowButton.GetComponent<Button>().enabled = true;
+    }
+
     public void ShowAlert(string text)
     {
         notificationBarFade.StartFadeCycle(text, 0.75f, 1f);
     }
+    #endregion
 
     #region Status Effects
     // Destroys the icon for a status effect 
@@ -580,6 +627,9 @@ public class PlayerUIManager : MonoBehaviour
     {
         switch (playerUIState)
         {
+            case PlayerUIState.standardCardDrawer:
+                DeselectCard();
+                break;
             case PlayerUIState.controllingCamera:
                 vcam.Follow = transform; // Lock camera
                 vcam.LookAt = transform;
@@ -600,6 +650,7 @@ public class PlayerUIManager : MonoBehaviour
             case PlayerUIState.controllingCamera:
                 vcam.Follow = null; // Unlock camera
                 vcam.LookAt = null;
+                ShowAlert("Press P again to disable camera panning.");
                 break;
             case PlayerUIState.massCardView: // Open mass card view
                 massCardViewBackground.gameObject.SetActive(true);
@@ -620,7 +671,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public bool IsStateMovementLocked()
     {
-        if (playerUIState == PlayerUIState.standardCardDrawer || playerUIState == PlayerUIState.standardNoCardDrawer)
+        if (playerUIState == PlayerUIState.standardCardDrawer)
         {
             return false;
         }
@@ -658,8 +709,7 @@ public class PlayerUIManager : MonoBehaviour
         PlayerUIState state = GetState();
         switch (state)
         {
-            case PlayerUIState.standardCardDrawer:
-            case PlayerUIState.standardNoCardDrawer: // Open window
+            case PlayerUIState.standardCardDrawer: // Open window
                 MoveToState(PlayerUIState.massCardView);
                 break;
             case PlayerUIState.massCardView: // Close window

@@ -348,7 +348,7 @@ public class PlayerController : TileCreature
         // Hitting P will toggle control camera
         if (Input.GetKeyDown(KeyCode.P))
             if (puim.IsStateControllingCamera())
-                puim.MoveToState(PlayerUIManager.PlayerUIState.standardNoCardDrawer);
+                puim.MoveToState(PlayerUIManager.PlayerUIState.standardCardDrawer);
             else
                 puim.MoveToState(PlayerUIManager.PlayerUIState.controllingCamera);
 
@@ -387,7 +387,6 @@ public class PlayerController : TileCreature
             }
             else if (puim.IsStateControllingCamera())
             {
-                Debug.Log("HandleCameraMovement");
                 puim.HandleCameraMovement();
             }
 
