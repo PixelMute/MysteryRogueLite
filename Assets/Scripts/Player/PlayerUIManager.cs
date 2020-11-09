@@ -30,6 +30,7 @@ public class PlayerUIManager : MonoBehaviour
 
     // Ones that should be assigned in the editor.
     [SerializeField] private TextMeshProUGUI moneyDisplayLabel;
+    [SerializeField] private GameObject BackShading;
 
     // Player UI FSM.
     // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
@@ -636,9 +637,11 @@ public class PlayerUIManager : MonoBehaviour
                 break;
             case PlayerUIState.massCardView:
                 massCardViewBackground.gameObject.SetActive(false);
+                BackShading.SetActive(false);
                 break;
             case PlayerUIState.cardRewardView:
                 cardRewardViewbackground.gameObject.SetActive(false);
+                BackShading.SetActive(false);
                 break;
         }
     }
@@ -654,10 +657,12 @@ public class PlayerUIManager : MonoBehaviour
                 break;
             case PlayerUIState.massCardView: // Open mass card view
                 massCardViewBackground.gameObject.SetActive(true);
+                BackShading.SetActive(true);
                 PopulateMassCardView();
                 break;
             case PlayerUIState.cardRewardView: // Open card reward view
                 cardRewardViewbackground.gameObject.SetActive(true);
+                BackShading.SetActive(true);
                 PopulateCardRewardView();
                 break;
         }
@@ -687,6 +692,22 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
             return false;
+    }
+
+    /// <summary>
+    /// This is called when the backshading is clicked.
+    /// </summary>
+    public void CloseOutOfWindows()
+    {
+        if (playerUIState == PlayerUIState.cardRewardView)
+        {
+            ShowAlert("Pick a card or pick skip.");
+            return;
+        }
+        else
+        {
+            MoveToState(PlayerUIState.standardCardDrawer);
+        }
     }
 
     #endregion

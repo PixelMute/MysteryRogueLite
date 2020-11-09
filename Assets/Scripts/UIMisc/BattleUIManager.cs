@@ -45,4 +45,12 @@ public class BattleUIManager : MonoBehaviour
     {
         BattleManager.player.puim.ToggleMassCardViewOption(index);
     }
+
+    /// <summary>
+    /// Close out of windows
+    /// </summary>
+    public void BackShadingClicked()
+    {
+        BattleManager.player.puim.CloseOutOfWindows();
+    }
 }

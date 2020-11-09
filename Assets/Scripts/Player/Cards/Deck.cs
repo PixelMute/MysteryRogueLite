@@ -20,6 +20,7 @@ public class Deck
         drawPile = new List<Card>();
         discardPile = new List<Card>();
         hand = new List<Card>();
+        banishPile = new List<(Card, int)>();
     }
 
     public void InsertCardAtEndOfDrawPile(Card cardToInsert)
