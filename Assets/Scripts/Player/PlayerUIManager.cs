@@ -29,8 +29,9 @@ public class PlayerUIManager : MonoBehaviour
     private HorizontalLayoutGroup cardRewardHorizontalLayout;
 
     // Ones that should be assigned in the editor.
-    [SerializeField] private TextMeshProUGUI moneyDisplayLabel;
-    [SerializeField] private GameObject BackShading;
+    [SerializeField] private TextMeshProUGUI moneyDisplayLabel = null;
+    [SerializeField] private GameObject backShading = null;
+    [SerializeField] private GameObject banishCounter = null;
 
     // Player UI FSM.
     // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
@@ -637,11 +638,11 @@ public class PlayerUIManager : MonoBehaviour
                 break;
             case PlayerUIState.massCardView:
                 massCardViewBackground.gameObject.SetActive(false);
-                BackShading.SetActive(false);
+                backShading.SetActive(false);
                 break;
             case PlayerUIState.cardRewardView:
                 cardRewardViewbackground.gameObject.SetActive(false);
-                BackShading.SetActive(false);
+                backShading.SetActive(false);
                 break;
         }
     }
@@ -657,12 +658,12 @@ public class PlayerUIManager : MonoBehaviour
                 break;
             case PlayerUIState.massCardView: // Open mass card view
                 massCardViewBackground.gameObject.SetActive(true);
-                BackShading.SetActive(true);
+                backShading.SetActive(true);
                 PopulateMassCardView();
                 break;
             case PlayerUIState.cardRewardView: // Open card reward view
                 cardRewardViewbackground.gameObject.SetActive(true);
-                BackShading.SetActive(true);
+                backShading.SetActive(true);
                 PopulateCardRewardView();
                 break;
         }
@@ -797,6 +798,9 @@ public class PlayerUIManager : MonoBehaviour
             foreach ((Card c, int i) in PlayerController.playerDeck.banishPile)
             {
                 GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
+                // Now we need to stick a banish counter on it.
+                GameObject bc = GameObject.Instantiate(banishCounter, newCard.transform);
+                bc.GetComponent<TextMeshProUGUI>().SetText(i.ToString());
                 CardInterface ci = newCard.GetComponent<CardInterface>();
                 ci.cardData = c;
                 ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardView);

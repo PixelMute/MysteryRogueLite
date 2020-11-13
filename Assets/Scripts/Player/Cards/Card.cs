@@ -70,11 +70,16 @@ public class Card
 //Contains all the basic card info
 public class CardInfo
 {
+    public enum ResolveBehaviorEnum { discard, banish };
+
     public int SpiritCost { get; set; }
     public int EnergyCost { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
     public int ID { get; set; }
     public string ThemeName { get; set; } // Which theme it is a part of
+
+    public ResolveBehaviorEnum ResolveBehavior { get; set; } = ResolveBehaviorEnum.discard;
+    public int BanishAmount { get; set; } = 0;
 }
 

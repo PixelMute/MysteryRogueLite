@@ -77,10 +77,6 @@ public class PlayerController : TileCreature
     private void Start()
     {
         AssignVariables();
-        //ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 4);
-        //ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 5);
-        //ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, 2);
-        //ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, 5);
     }
 
     // 0 means cannot be moved through
@@ -142,6 +138,9 @@ public class PlayerController : TileCreature
         footwork.Owner = this;
         Card dragonheart = CardFactory.GetCard("dragonheart");
         dragonheart.Owner = this;
+
+        Card bloodStrike = CardFactory.GetCard("blood strike");
+
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
         playerDeck.InsertCardAtEndOfDrawPile(claws);
@@ -152,6 +151,9 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
+
+        playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
+        playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -299,16 +301,20 @@ public class PlayerController : TileCreature
         }
 
         // Determine where the card should go.
-        switch (BattleManager.cardResolveStack.resolveBehavior)
+        //while (BattleManager.cardResolveStack.GetCurrentlyResolvingCard() != null)
+        // {
+        switch (BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.ResolveBehavior)
         {
-            case CardStackTracker.ResolveBehaviorEnum.discard:
+            case CardInfo.ResolveBehaviorEnum.discard:
                 // Discard the resolved card
                 DiscardCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex);
                 break;
-            case CardStackTracker.ResolveBehaviorEnum.banish:
-                BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex, BattleManager.cardResolveStack.banishAmount);
+            case CardInfo.ResolveBehaviorEnum.banish:
+                BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex, BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.BanishAmount);
                 break;
         }
+        // cardResolveStack.PopCard(); }
+        // These comments are here for a guideline of what to do if we ever switch over to a proper card stack.
 
         BattleManager.instance.StopCardTracking();
     }
@@ -588,14 +594,22 @@ public class PlayerController : TileCreature
 
         if (tile.tileTerrainType == Tile.TileTerrainType.stairsDown)
         {
-            BattleManager.currentTurn = BattleManager.TurnPhase.waiting;
-            BattleGrid.instance.GoDownFloor();
-            isMoving = false;
-            moveTarget = new Vector3(xPos, transform.position.y, zPos);
+            ActivateStairs();
             return false;
         }
 
         return true;
+    }
+
+    private void ActivateStairs()
+    {
+        // Decrement banished cards.
+        playerDeck.TickDownBanishedCards(0);
+
+        BattleManager.currentTurn = BattleManager.TurnPhase.waiting;
+        BattleGrid.instance.GoDownFloor();
+        isMoving = false;
+        moveTarget = new Vector3(xPos, transform.position.y, zPos);
     }
 
     // Applies incoming damage

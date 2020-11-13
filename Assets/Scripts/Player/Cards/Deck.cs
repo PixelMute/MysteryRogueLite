@@ -104,4 +104,29 @@ public class Deck
         hand.RemoveAt(index);
         banishPile.Add((discarded, amount));
     }
+
+    /// <summary>
+    /// Reduces the banish amount of all banished cards by 1. If any hit 0, adds it to the discard.
+    /// </summary>
+    /// <param name="limit">Do not reduce cards to below this value.</param>
+    internal void TickDownBanishedCards(int limit)
+    {
+        int size = banishPile.Count;
+        for (int i = size - 1; i >= 0; i--)
+        {
+            Debug.Log("i = " + i);
+            (Card c, int j) = banishPile[i];
+            if (j > limit)
+            {
+                Debug.Log("Reducing banish count of card " + c.CardInfo.Name + ", which was " + j);
+                banishPile[i] = (c, --j);
+            }
+
+            if (j == 0)
+            {
+                discardPile.Add(c);
+                banishPile.RemoveAt(i);
+            }
+        }
+    }
 }

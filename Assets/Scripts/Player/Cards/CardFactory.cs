@@ -172,6 +172,16 @@ public class CardFactory
                 case "theme":
                     cardInfo.ThemeName = subnode.InnerText;
                     break;
+                case "banishafterplay":
+                    cardInfo.ResolveBehavior = CardInfo.ResolveBehaviorEnum.banish;
+                    if (int.TryParse(subnode.Attributes["val"]?.Value, out int f))
+                        cardInfo.BanishAmount = f;
+                    else
+                        throw new Exception("Cannot parse BanishAfterPlay");
+                    break;
+                default:
+                    Debug.LogWarning("CardFactory::ParseCardXML() -- Unknown node: " + subnode.Name);
+                    break;
             }
         }
 
