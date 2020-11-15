@@ -32,7 +32,7 @@ namespace Roguelike
                 tileEntityType = TileEntityType.empty;
             else if (entityOnTile is Wall)
                 tileEntityType = TileEntityType.wall;
-            else if (entityOnTile is GenericEnemy)
+            else if (entityOnTile is EnemyBody)
                 tileEntityType = TileEntityType.enemy;
             else if (entityOnTile is PlayerController)
                 tileEntityType = TileEntityType.player;

@@ -38,6 +38,11 @@ public class EnemyUI : MonoBehaviour
         healthBar.UpdateHealthDisplay(health, maxHealth);
     }
 
+    public void UpdateHealthBar(Health health)
+    {
+        UpdateHealthBar(health.CurrentHealth, health.MaxHealth);
+    }
+
     /// <summary>
     /// Fades the enemy's health bar
     /// </summary>

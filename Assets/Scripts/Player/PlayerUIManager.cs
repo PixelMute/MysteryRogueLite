@@ -281,7 +281,7 @@ public class PlayerUIManager : MonoBehaviour
     {
         // If we've selected an enemy, hide its canvas
         if (BattleManager.IsVectorNonNeg(selectedTileGridCoords) && BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType == Tile.TileEntityType.enemy)
-            ((GenericEnemy)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).EnemyUI.HideHealthBar(0.3f, 1f);
+            ((EnemyBody)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).EnemyUI.HideHealthBar(0.3f, 1f);
         selectedTileGridCoords = Vector2Int.one * -1;
         tileCurrentlySelected = false;
         spawnedTileSelectionPrefab.SetActive(false);
@@ -327,7 +327,7 @@ public class PlayerUIManager : MonoBehaviour
                 if (BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType == Tile.TileEntityType.enemy)
                 {
                     Debug.Log("Enemy Selected");
-                    ((GenericEnemy)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).EnemyUI.DisplayHealthBar();
+                    ((EnemyBody)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).EnemyUI.DisplayHealthBar();
                 }
             }
 

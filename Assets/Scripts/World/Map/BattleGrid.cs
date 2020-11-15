@@ -155,10 +155,10 @@ public class BattleGrid : MonoBehaviour
     }
 
     //Instantiates enemy
-    public GenericEnemy CreateEnemy(Vector2Int spawnLoc)
+    public EnemyBody CreateEnemy(Vector2Int spawnLoc)
     {
         GameObject enemyObj = Instantiate(enemyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), Quaternion.identity, transform);
-        GenericEnemy newEnemy = enemyObj.GetComponent<GenericEnemy>();
+        EnemyBody newEnemy = enemyObj.GetComponent<EnemyBody>();
         return newEnemy;
     }
 
@@ -218,7 +218,7 @@ public class BattleGrid : MonoBehaviour
         if (CurrentFloor.map[target.x, target.y].tileEntityType == Roguelike.Tile.TileEntityType.enemy)
         {
             // Remove this from the list of enemies.
-            CurrentFloor.enemies.Remove((GenericEnemy)CurrentFloor.map[target.x, target.y].GetEntityOnTile());
+            CurrentFloor.enemies.Remove((EnemyBody)CurrentFloor.map[target.x, target.y].GetEntityOnTile());
         }
         CurrentFloor.map[target.x, target.y].SetEntityOnTile(null);
     }

@@ -66,7 +66,7 @@ public class Floor
     public int sizeZ { get; private set; }
     public int seed { get; private set; }
     public int FloorNumber { get; private set; }
-    public List<GenericEnemy> enemies { get; private set; } = new List<GenericEnemy>();
+    public List<EnemyBody> enemies { get; private set; } = new List<EnemyBody>();
 
     private Vector2Int stairsUpLocation;
     private Vector2Int stairsDownLocation;
