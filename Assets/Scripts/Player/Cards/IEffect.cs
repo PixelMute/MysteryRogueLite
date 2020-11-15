@@ -11,7 +11,7 @@ namespace Roguelike
 {
     public interface IEffect
     {
-        void Activate(Vector2Int player, Vector2Int target);
+        int Activate(Vector2Int player, Vector2Int target);
     }
 
     //Damages the enemy on the given target
@@ -28,7 +28,7 @@ namespace Roguelike
             RawDamage = rawDamage;
         }
 
-        public void Activate(Vector2Int player, Vector2Int target)
+        public int Activate(Vector2Int player, Vector2Int target)
         {
             int newDamage = Damage;
             if (!RawDamage) // If we want bonuses
@@ -37,7 +37,7 @@ namespace Roguelike
                 newDamage = (int)((Damage + momentiumBonus) * BattleManager.cardResolveStack.GetInsightBonus());
             }
 
-            BattleGrid.instance.StrikeTile(target, newDamage);
+            return BattleGrid.instance.StrikeTile(target, newDamage);
         }
     }
 
@@ -50,12 +50,13 @@ namespace Roguelike
             StatusEffect = effect;
         }
 
-        public void Activate(Vector2Int player, Vector2Int target)
+        public int Activate(Vector2Int player, Vector2Int target)
         {
             // Apply momentium bonus
             int momentiumBonus = BattleManager.cardResolveStack.GetMomentumBonus();
             float insightBonus = BattleManager.cardResolveStack.GetInsightBonus();
-            BattleGrid.instance.StrikeTile(target, (int)((BattleManager.player.GetStatusEffectValue(StatusEffect) + momentiumBonus) * insightBonus));
+            int endDamage = (int)((BattleManager.player.GetStatusEffectValue(StatusEffect) + momentiumBonus) * insightBonus);
+            return BattleGrid.instance.StrikeTile(target, endDamage);
         }
     }
 
@@ -65,9 +66,10 @@ namespace Roguelike
     public class Teleport : IEffect
     {
         //Teleports player to target
-        public void Activate(Vector2Int player, Vector2Int target)
+        public int Activate(Vector2Int player, Vector2Int target)
         {
             BattleManager.player.MoveTo(target, true);
+            return 0;
         }
     }
 
@@ -87,18 +89,19 @@ namespace Roguelike
             SelfTar = selfTar;
         }
 
-        public void Activate(Vector2Int player, Vector2Int target)
+        public int Activate(Vector2Int player, Vector2Int target)
         {
             Debug.Log("Apply status effect activated. " + StatusEffect.ToString() + ", " + Power + ", self: " + SelfTar);
             if (SelfTar)
             {
                 BattleManager.player.ApplyStatusEffect(StatusEffect, Power);
+                return 1;
             }
             else
             {
-                BattleGrid.instance.ApplyStatusEffectOnTile(target, StatusEffect, Power);
+                bool flag = BattleGrid.instance.ApplyStatusEffectOnTile(target, StatusEffect, Power);
+                if (flag) return 1; else return 0;
             }
-
         }
     }
 
@@ -120,15 +123,18 @@ namespace Roguelike
             HitEmpty = hitEmpty;
         }
 
-        public void Activate(Vector2Int player, Vector2Int target)
+        /// <returns>Returns the number of targets hit.</returns>
+        public int Activate(Vector2Int player, Vector2Int target)
         {
             if (TarCentered)
             {
                 EffectFactory.SquareAOE(Radius, target, player, true, AppliedEffect, HitEmpty);
+                return 1;
             }
             else
             {
                 EffectFactory.SquareAOE(Radius, player, player, false, AppliedEffect, HitEmpty);
+                return 1;
             }
         }
     }
@@ -145,12 +151,13 @@ namespace Roguelike
             Number = number;
         }
 
-        public void Activate(Vector2Int player, Vector2Int target)
+        public int Activate(Vector2Int player, Vector2Int target)
         {
             for (int i = 0; i < Number; i++)
             {
                 BattleManager.player.DrawCard();
             }
+            return Number;
         }
     }
 
@@ -166,9 +173,65 @@ namespace Roguelike
             Number = number;
         }
 
-        public void Activate(Vector2Int player, Vector2Int target)
+        public int Activate(Vector2Int player, Vector2Int target)
         {
             BattleManager.player.AddEnergy(Number);
+            return Number;
+        }
+    }
+
+    //A 'utility' effect whose Activate function will do some operation on two values.
+    // Can be given either two effects or an effect and an int.
+    // And int takes priority over an effect.
+    public class UtilEffectCompare : IEffect
+    {
+        public enum UtilEffectCompareOperation { equals, lessThan, greaterThan, notEquals, max, min}
+        private UtilEffectCompareOperation op;
+        public int ConstantInt { get; private set; }
+        private IEffect EffectA { get; set; }
+        private IEffect EffectB { get; set; }
+
+        public UtilEffectCompare(IEffect effectA, IEffect effectB, UtilEffectCompareOperation op)
+        {
+            EffectA = effectA;
+            EffectB = effectB;
+            this.op = op;
+        }
+        public UtilEffectCompare(IEffect effectA, int con, UtilEffectCompareOperation op)
+        {
+            EffectA = effectA;
+            EffectB = null;
+            ConstantInt = con;
+            this.op = op;
+        }
+
+        public int Activate(Vector2Int player, Vector2Int target)
+        {
+            int valA = EffectA.Activate(player, target);
+            int valB;
+
+            if (EffectB == null)
+                valB = ConstantInt;
+            else
+                valB = EffectB.Activate(player, target);
+
+            switch (op)
+            {
+                case UtilEffectCompareOperation.equals:
+                    if (valA == valB) return 1; else return 0;
+                case UtilEffectCompareOperation.greaterThan:
+                    if (valA > valB) return 1; else return 0;
+                case UtilEffectCompareOperation.lessThan:
+                    if (valA < valB) return 1; else return 0;
+                case UtilEffectCompareOperation.notEquals:
+                    if (valA != valB) return 1; else return 0;
+                case UtilEffectCompareOperation.max:
+                    return Math.Max(valA, valB);
+                case UtilEffectCompareOperation.min:
+                    return Math.Min(valA, valB);
+                default:
+                    return 0;
+            }
         }
     }
 
@@ -250,7 +313,17 @@ namespace Roguelike
             return res;
         }
 
-        public static void SquareAOE(int radius, Vector2Int center, Vector2Int player, bool hitMiddle, IEffect appliedEffect, bool hitEmpty)
+        /// <summary>
+        /// Applies an effect in a square. Ignores LOS.
+        /// </summary>
+        /// <param name="radius">How many blocks out to effect. EG: radius of 1 is a 3x3 effect.</param>
+        /// <param name="center">coords for the center of the AOE effect.</param>
+        /// <param name="player">coords for where the player is.</param>
+        /// <param name="hitMiddle">Should we apply the effect to the middle tile?</param>
+        /// <param name="appliedEffect">What effect to apply</param>
+        /// <param name="hitEmpty">Apply the effect even if no creature is there?</param>
+        /// <returns>Returns the number of targets hit. Note that if you have hit empty enabled, this will just count tiles.</returns>
+        public static int SquareAOE(int radius, Vector2Int center, Vector2Int player, bool hitMiddle, IEffect appliedEffect, bool hitEmpty)
         {
             // Want to apply bonus damage once
             Strike s = appliedEffect as Strike;
@@ -260,6 +333,8 @@ namespace Roguelike
                 oldDamage = s.Damage;
                 s.Damage = (int)((s.Damage + BattleManager.cardResolveStack.GetMomentumBonus()) * BattleManager.cardResolveStack.GetInsightBonus());
             }
+
+            int targetsHit = 0;
 
             for (int xOffset = -radius; xOffset <= radius; xOffset++)
             {
@@ -271,6 +346,7 @@ namespace Roguelike
                         {
                             if (hitEmpty || BattleManager.instance.map.map[center.x + xOffset, center.y + yOffset].IsCreatureOnTile())
                             {
+                                targetsHit++;
                                 Debug.Log("AOE effect triggered. Offset = " + xOffset + ", " + yOffset + ". Hitmiddle: " + hitMiddle);
                                 appliedEffect.Activate(player, new Vector2Int(center.x + xOffset, center.y + yOffset));
                             }
@@ -289,6 +365,8 @@ namespace Roguelike
             {
                 s.Damage = oldDamage;
             }
+
+            return targetsHit;
         }
     }
 }

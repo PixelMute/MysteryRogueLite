@@ -394,16 +394,24 @@ public abstract class GenericEnemy : TileCreature
         return false;
     }
 
-    public override void TakeDamage(int amount)
+    public override int TakeDamage(int amount)
     {
-        BattleManager.cardResolveStack.AddDamageDealt(amount);
+        int healthBefore = Health;
+        
         Health -= amount;
+
+        int damageDealt = healthBefore - Health;
+
+        BattleManager.cardResolveStack.AddDamageDealt(damageDealt);
+
         if (Health <= 0)
             Eliminate(); // KO'd
         else
         {
             healthBarFade.StartFadeCycle(.3f, 1.2f);
         }
+
+        return damageDealt; // I'm not sure if this will work when you kill the enemy.
     }
 
     protected void DebugDrawPath(List<Point> path)

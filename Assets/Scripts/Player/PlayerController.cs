@@ -608,13 +608,14 @@ public class PlayerController : TileCreature
 
         BattleManager.currentTurn = BattleManager.TurnPhase.waiting;
         BattleGrid.instance.GoDownFloor();
-        isMoving = false;
+        isMoving = true;
         moveTarget = new Vector3(xPos, transform.position.y, zPos);
     }
 
     // Applies incoming damage
-    public override void TakeDamage(int damage)
+    public override int TakeDamage(int damage)
     {
+        int oldHealth = Health;
         if (damage >= 0) // Damage
         {
             // Do we have defense?
@@ -641,6 +642,8 @@ public class PlayerController : TileCreature
         {
             GameOverScreen.PlayerDeath();
         }
+
+        return (oldHealth - Health);
     }
 
     // Handles stuff that happens at the end of the player turn.
