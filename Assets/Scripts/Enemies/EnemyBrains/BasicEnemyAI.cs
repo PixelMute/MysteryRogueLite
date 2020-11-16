@@ -1,20 +1,15 @@
 ﻿using NesScripts.Controls.PathFind;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 class BasicEnemyAI : EnemyBrain
 {
-    private EnemyBody EnemyBody;
+    private EnemyBody Body;
+
     public void Start()
     {
-        EnemyBody = GetComponent<EnemyBody>();
+        Body = GetComponent<EnemyBody>();
     }
-
-
     // AI
     public enum EnemyAIState { standing, inCombat, movingToWanderTarget, milling, alerted } // Describes what the enemy is doing right now
     [SerializeField] protected EnemyAIState currentAIState = EnemyAIState.standing;
@@ -24,8 +19,6 @@ class BasicEnemyAI : EnemyBrain
     protected const bool RECALC_EACH_STEP = false; // Do we want to recalculate pathfinding every step, or only when we get stuck?
     public List<Point> intentPath = new List<Point>();
     protected TileEntity engagedTarget = null; // What target this is engaged with.
-
-    public int visionRange = 10;
 
     public override void StartOfTurn()
     {
@@ -59,8 +52,8 @@ class BasicEnemyAI : EnemyBrain
             {
                 // Go to alerted, take no action. But do shout for help.
                 currentAIState = EnemyAIState.alerted;
-                EnemyBody.EnemyUI.FadeExclaimationPoint();
-                EnemyBody.ShoutForHelp();
+                Body.EnemyUI.FadeExclaimationPoint();
+                ShoutForHelp();
             }
         }
         else
@@ -68,7 +61,7 @@ class BasicEnemyAI : EnemyBrain
             if (currentAIState == EnemyAIState.inCombat || currentAIState == EnemyAIState.alerted) // Did we just get out of a fight?
             {
                 // Go to where we last saw the target
-                intentPath = EnemyBody.FindPathTo(engagedTarget.xPos, engagedTarget.zPos, Pathfinding.DistanceType.NoCornerCutting);
+                intentPath = Body.FindPathTo(engagedTarget.xPos, engagedTarget.zPos, Pathfinding.DistanceType.NoCornerCutting);
                 DisengageTarget();
                 currentAIState = EnemyAIState.movingToWanderTarget;
                 turnsLeftToMill = 0;
@@ -100,7 +93,7 @@ class BasicEnemyAI : EnemyBrain
             PlayerController pc = target as PlayerController;
             if (pc != null)
             {
-                pc.AddEngagedEnemy(EnemyBody);
+                pc.AddEngagedEnemy(Body);
             }
         }
 
@@ -111,9 +104,16 @@ class BasicEnemyAI : EnemyBrain
     // If it ends its turn within 2 tiles of you, it will attack next turn.
     protected void DecideCombatTurn()
     {
-        if (EnemyBody.Attack.IsTargetInRange(BattleManager.ConvertVector(engagedTarget.transform.position)))
+        //If close enough to attack, then attack
+        if (Body.Attack.IsTargetInRange(BattleManager.ConvertVector(engagedTarget.transform.position)))
         {
-            EnemyBody.Attack.ActivateAttack(BattleManager.ConvertVector(engagedTarget.transform.position));
+            Body.Attack.ActivateAttack(BattleManager.ConvertVector(engagedTarget.transform.position));
+        }
+        //Else move closer to enemy
+        else
+        {
+            List<Point> pathToCombatTarget = Body.FindPathTo(engagedTarget.xPos, engagedTarget.zPos, Pathfinding.DistanceType.NoCornerCutting);
+            pathToCombatTarget = TakeStepInPath(pathToCombatTarget, false);
         }
 
     }
@@ -126,10 +126,10 @@ class BasicEnemyAI : EnemyBrain
         Vector2Int nextStepVector = BattleManager.ConvertPoint(nextStep);
 
         // Is this step valid?
-        if (BattleGrid.instance.IsMoveValid(nextStepVector, EnemyBody))
+        if (BattleGrid.instance.IsMoveValid(nextStepVector, Body))
         {
             // Take this step.
-            EnemyBody.MoveToPosition(nextStepVector);
+            Body.MoveToPosition(nextStepVector);
             path.RemoveAt(0);
         }
         else
@@ -137,7 +137,7 @@ class BasicEnemyAI : EnemyBrain
             if (recalcIfFail)
             {
                 // Something is blocking us. Recalculate.
-                path = EnemyBody.FindPathTo(wanderTarget.x, wanderTarget.y, Pathfinding.DistanceType.NoCornerCutting);
+                path = Body.FindPathTo(wanderTarget.x, wanderTarget.y, Pathfinding.DistanceType.NoCornerCutting);
             }
         }
 
@@ -153,7 +153,7 @@ class BasicEnemyAI : EnemyBrain
         if (engagedTarget is PlayerController)
         {
             PlayerController pc = (PlayerController)engagedTarget;
-            pc.RemoveEngagedEnemy(EnemyBody);
+            pc.RemoveEngagedEnemy(Body);
         }
         else
         {
@@ -207,7 +207,7 @@ class BasicEnemyAI : EnemyBrain
             tryNum++;
             wanderTarget = BattleGrid.instance.PickRandomEmptyTile();
             // Now check if we have a path to it.
-            intentPath = EnemyBody.FindPathTo(wanderTarget.x, wanderTarget.y, Pathfinding.DistanceType.NoCornerCutting);
+            intentPath = Body.FindPathTo(wanderTarget.x, wanderTarget.y, Pathfinding.DistanceType.NoCornerCutting);
         } while (intentPath.Count == 0 && tryNum < 10);
 
         if (tryNum >= 10)
@@ -239,7 +239,7 @@ class BasicEnemyAI : EnemyBrain
             Vector2Int tileLoc = new Vector2Int(xDir + xPos, zDir + zPos);
 
             // Try to move in that direction
-            if (BattleGrid.instance.IsMoveValid(tileLoc, EnemyBody))
+            if (BattleGrid.instance.IsMoveValid(tileLoc, Body))
             {
                 if (intentPath.Count > 0)
                     intentPath.Clear();
@@ -249,7 +249,7 @@ class BasicEnemyAI : EnemyBrain
         }
     }
 
-    public override void SummonForHelp(EnemyBody genericEnemy, List<Point> pathToFollow)
+    public override void SummonForHelp(List<Point> pathToFollow)
     {
         // If we're currently in combat, sorry, but I have bigger things to worry about.
         if (currentAIState == EnemyAIState.alerted || currentAIState == EnemyAIState.inCombat)
@@ -263,6 +263,34 @@ class BasicEnemyAI : EnemyBrain
             turnsLeftToMill = 0;
             currentAIState = EnemyAIState.movingToWanderTarget;
             intentPath = pathToFollow;
+        }
+    }
+
+    // Tries to get help from other enemies.
+    // For each other enemy, see if they are within range.
+    // Range is the average of our shoutdistance and their hearing range.
+    // If they are in range, they'll wander over here.
+    public void ShoutForHelp()
+    {
+        Debug.Log("I shout for help! Is anyone out there?");
+        // Get the list of enemies.
+        foreach (EnemyBody x in BattleGrid.instance.CurrentFloor.enemies)
+        {
+            if (x != this)
+            {
+                // Check straight line distance
+                int helpDistance = (x.AI.hearingRange + shoutRange) / 2;
+                if (Vector3.Distance(transform.position, x.transform.position) <= helpDistance)
+                {
+                    // Now check actual distance
+                    List<Point> audioPath = x.FindPathTo(Body.xPos, Body.zPos, Pathfinding.DistanceType.NoCornerCutting);
+                    if (audioPath.Count <= helpDistance)
+                    {
+                        Debug.Log("Found somebody to help. Calling " + x.name + " over.");
+                        x.AI.SummonForHelp(audioPath);
+                    }
+                }
+            }
         }
     }
 }

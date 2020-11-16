@@ -1,24 +1,21 @@
 ﻿using NesScripts.Controls.PathFind;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 // This script handles generic enemy behavior.
-[RequireComponent(typeof(EnemyUI))]
-[RequireComponent(typeof(Health))]
-[RequireComponent(typeof(Attack))]
-public abstract class EnemyBody : TileCreature
+//[RequireComponent(typeof(EnemyUI))]
+//[RequireComponent(typeof(Health))]
+//[RequireComponent(typeof(Attack))]
+public class EnemyBody : TileCreature
 {
     public EnemyUI EnemyUI { get; private set; }
     public Health Health { get; private set; }
     public Attack Attack { get; private set; }
     public EnemyBrain AI { get; private set; }
 
-
     public void Start()
     {
+        AI = GetComponent<EnemyBrain>();
         EnemyUI = GetComponent<EnemyUI>();
         EnemyUI.Initialize();
         Health = GetComponent<Health>();
@@ -26,47 +23,14 @@ public abstract class EnemyBody : TileCreature
         Attack = GetComponent<Attack>();
     }
 
-    [HideInInspector] public int shoutRange = 10;
-    [HideInInspector] public int hearingRange = 8;
+
 
     // Stuff for debugging pathfinding
     protected const bool DEBUGPATHFINDINGMODE = true;
     [HideInInspector] public Color enemyColor;
     [HideInInspector] public float enemyLineY; // so that all the lines are on different y levels.
 
-    // Tries to get help from other enemies.
-    // For each other enemy, see if they are within range.
-    // Range is the average of our shoutdistance and their hearing range.
-    // If they are in range, they'll wander over here.
-    public void ShoutForHelp()
-    {
-        Debug.Log("I shout for help! Is anyone out there?");
-        // Get the list of enemies.
-        foreach (EnemyBody x in BattleGrid.instance.CurrentFloor.enemies)
-        {
-            if (x != this)
-            {
-                // Check straight line distance
-                int helpDistance = (x.hearingRange + shoutRange) / 2;
-                if (Vector3.Distance(transform.position, x.transform.position) <= helpDistance)
-                {
-                    // Now check actual distance
-                    List<Point> audioPath = x.FindPathTo(xPos, zPos, Pathfinding.DistanceType.NoCornerCutting);
-                    if (audioPath.Count <= helpDistance)
-                    {
-                        Debug.Log("Found somebody to help. Calling " + x.name + " over.");
-                        x.SummonForHelp(this, audioPath);
-                    }
-                }
-            }
-        }
-    }
 
-    // Summons this enemy to start wandering towards another enemy
-    public void SummonForHelp(EnemyBody genericEnemy, List<Point> pathToFollow)
-    {
-        AI.SummonForHelp(genericEnemy, pathToFollow);
-    }
 
     public override float GetPathfindingCost()
     {
@@ -137,7 +101,12 @@ public abstract class EnemyBody : TileCreature
         BattleManager.RecursivelyEliminateObject(transform);
     }
 
-    public abstract void OnDeath();
+    public void OnDeath()
+    {
+        // Spawn some money
+        Debug.Log("Spawning monies");
+        BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int(xPos, zPos), UnityEngine.Random.Range(10, 22));
+    }
 
     public override void ApplyStatusEffect(BattleManager.StatusEffectEnum status, int amount)
     {

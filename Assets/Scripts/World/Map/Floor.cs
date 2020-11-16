@@ -1,13 +1,8 @@
 ﻿using DungeonGenerator;
 using DungeonGenerator.core;
 using NesScripts.Controls.PathFind;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -285,10 +280,25 @@ public class Floor
     private void SpawnEnemyAt(int x, int z)
     {
         var spawnLoc = new Vector2Int(x, z);
-        var newEnemy = BattleGrid.instance.CreateEnemy(spawnLoc);
-        enemies.Add(newEnemy);
-        newEnemy.name = "EnemyID: " + enemies.Count;
-        PlaceObjectOn(spawnLoc.x, spawnLoc.y, newEnemy);
+        var random = new System.Random();
+        var rand = random.Next(1, 4);
+        GameObject newEnemy;
+        switch (rand)
+        {
+            case 1:
+                newEnemy = EnemySpawner.SpawnArcher(spawnLoc);
+                break;
+            case 2:
+                newEnemy = EnemySpawner.SpawnBrute(spawnLoc);
+                break;
+            default:
+                newEnemy = EnemySpawner.SpawnBasicMeleeEnemy(spawnLoc);
+                break;
+        }
+        var enemyBody = newEnemy.GetComponent<EnemyBody>();
+        enemies.Add(enemyBody);
+        enemyBody.name = "EnemyID: " + enemies.Count;
+        PlaceObjectOn(spawnLoc.x, spawnLoc.y, enemyBody);
     }
 
     // Recalculates what is walkable and what is not.

@@ -1,14 +1,7 @@
-﻿using DungeonGenerator;
-using DungeonGenerator.core;
-using FoW;
+﻿using FoW;
 using NesScripts.Controls.PathFind;
-using Roguelike;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -152,14 +145,6 @@ public class BattleGrid : MonoBehaviour
         GameObject go = Instantiate(wallPrefab, spawnLocation, Quaternion.identity, terrainHolder.transform);
         Wall entityTile = go.AddComponent<Wall>();
         return entityTile;
-    }
-
-    //Instantiates enemy
-    public EnemyBody CreateEnemy(Vector2Int spawnLoc)
-    {
-        GameObject enemyObj = Instantiate(enemyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), Quaternion.identity, transform);
-        EnemyBody newEnemy = enemyObj.GetComponent<EnemyBody>();
-        return newEnemy;
     }
 
     //Instantiates money and tries to place it.

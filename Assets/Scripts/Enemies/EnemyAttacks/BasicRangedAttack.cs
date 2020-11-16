@@ -1,13 +1,16 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-class BasicMeleeAttack : Attack
+class BasicRangedAttack : Attack
 {
-    public int MaxDamage;
     public int MinDamage;
+    public int MaxDamage;
 
     public override bool IsTargetInRange(Vector2Int target)
     {
-        return Vector2Int.Distance(target, BattleManager.ConvertVector(transform.position)) < 2;
+        var xPos = transform.position.x;
+        var zPos = transform.position.z;
+        return Math.Abs(xPos - target.x) < 3 && Math.Abs(zPos - target.y) < 3;
     }
 
     public override void ActivateAttack(Vector2Int target)
@@ -17,3 +20,4 @@ class BasicMeleeAttack : Attack
         BattleGrid.instance.StrikeTile(target, damage);
     }
 }
+

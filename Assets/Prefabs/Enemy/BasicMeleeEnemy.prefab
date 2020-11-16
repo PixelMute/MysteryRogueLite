@@ -109,9 +109,11 @@ GameObject:
   - component: {fileID: 7581217503168102080}
   - component: {fileID: 9205022632598371815}
   - component: {fileID: 2535026014540561121}
-  - component: {fileID: 4349723802394164778}
   - component: {fileID: 6376111280425497438}
-  - component: {fileID: 2057948657964554598}
+  - component: {fileID: 4708224225759287368}
+  - component: {fileID: 1779214802309844719}
+  - component: {fileID: 588003684119583458}
+  - component: {fileID: 4765615793422211167}
   m_Layer: 0
   m_Name: EnemyHolder
   m_TagString: Untagged
@@ -212,31 +214,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &4349723802394164778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4685347585978527987}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fea09b0919f62d949af5b2f93cdab1e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  xPos: 0
-  zPos: 0
-  visionRange: 5
-  TimeToMove: 0.25
-  maxHealth: 70
-  damage: 10
-  shoutRange: 10
-  hearingRange: 8
-  isDead: 0
-  enemyColor: {r: 0, g: 0, b: 0, a: 0}
-  enemyLineY: 0
-  currentAIState: 0
-  wanderTarget: {x: 0, y: 0}
 --- !u!114 &6376111280425497438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,7 +230,7 @@ MonoBehaviour:
     type: 3}
   enemyCanvas: {fileID: 0}
   yOffsetForCanvas: 1
---- !u!114 &2057948657964554598
+--- !u!114 &4708224225759287368
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -262,7 +239,56 @@ MonoBehaviour:
   m_GameObject: {fileID: 4685347585978527987}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 202735adbe90ffc4698656cf5d5b6719, type: 3}
+  m_Script: {fileID: 11500000, guid: 7da723e47d6771545a874c6982211526, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 70
+  maxHealth: 40
+--- !u!114 &1779214802309844719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4685347585978527987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5108af19a0c33d74d8cc218792752b15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xPos: 0
+  zPos: 0
+  visionRange: 5
+  TimeToMove: 0.25
+  shoutRange: 10
+  hearingRange: 8
+  enemyColor: {r: 0, g: 0, b: 0, a: 0}
+  enemyLineY: 0
+--- !u!114 &588003684119583458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4685347585978527987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d86db582b2c90245a5227686f79f792, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentAIState: 0
+  wanderTarget: {x: 0, y: 0}
+  visionRange: 10
+--- !u!114 &4765615793422211167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4685347585978527987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4809000132a844a429d4121541f14437, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxDamage: 12
+  MinDamage: 8
