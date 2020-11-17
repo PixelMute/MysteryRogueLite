@@ -1,13 +1,8 @@
 ﻿using DungeonGenerator;
 using DungeonGenerator.core;
 using NesScripts.Controls.PathFind;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -137,38 +132,41 @@ public class Floor
                     case Roguelike.Tile.TileEntityType.enemy:
                         SpawnEnemyAt(i, j);
                         break;
-                    //case Roguelike.Tile.TileEntityType.stairsUp:
-                    //    var spawnLoc = new Vector2Int(i, j);
-                    //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
-                    //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
-                    //    break;
-                        
+                        //case Roguelike.Tile.TileEntityType.stairsUp:
+                        //    var spawnLoc = new Vector2Int(i, j);
+                        //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
+                        //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
+                        //    break;
+
                 }
 
-                // Determine terrain
-                if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.wall)
-                {
-                    Tile tile;
-                    if (i % 2 == 0)
-                    {
-                        tile = j % 2 == 0 ? topLeft : topRight;
-                    }
-                    else
-                    {
-                        tile = j % 2 == 0 ? bottomLeft : bottomRight;
-                    }
+                //// Determine terrain
+                //if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.wall)
+                //{
+                //    Tile tile;
+                //    if (i % 2 == 0)
+                //    {
+                //        tile = j % 2 == 0 ? topLeft : topRight;
+                //    }
+                //    else
+                //    {
+                //        tile = j % 2 == 0 ? bottomLeft : bottomRight;
+                //    }
 
-                    if (map[i,j].tileTerrainType == Roguelike.Tile.TileTerrainType.stairsDown)
-                    {
-                        var spawnLoc = new Vector2Int(i, j);
-                        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
-                        PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
-                    }
+                //    if (map[i, j].tileTerrainType == Roguelike.Tile.TileTerrainType.stairsDown)
+                //    {
+                //        var spawnLoc = new Vector2Int(i, j);
+                //        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
+                //        PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
+                //    }
 
-                    tileMap.SetTile(new Vector3Int(i, j, 0), tile);
-                }
+                //    tileMap.SetTile(new Vector3Int(i, j, 0), tile);
+                //}
             }
         }
+
+        var painter = new Painter();
+        painter.Paint(tileMap, map, sizeX, sizeZ);
 
         PlacePlayerInDungeon();
 
@@ -203,7 +201,7 @@ public class Floor
             Vector2Int spawnLoc = PickRandomEmptyTile();
             map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
         }
-        
+
         //stairsDownLocation = spawnLoc;
         //if (FloorNumber != 0)
         //{
@@ -388,7 +386,7 @@ public class Floor
     {
         if (walkCostsMap != null && ter.GetPathfindingCost() != 1f) // Might have to recalculate now that something has moved.
         {
-            walkCostsMap[x, z] = map[x,z].GetPathfindingCost();
+            walkCostsMap[x, z] = map[x, z].GetPathfindingCost();
             walkGrid.UpdateGrid(walkCostsMap);
         }
 

@@ -1,14 +1,8 @@
-﻿using DungeonGenerator;
-using DungeonGenerator.core;
-using FoW;
+﻿using FoW;
 using NesScripts.Controls.PathFind;
-using Roguelike;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -21,6 +15,7 @@ public class BattleGrid : MonoBehaviour
     public Tilemap tileMap;
     public GameObject stairsUp;
     public GameObject stairsDown;
+    public FogOfWar FogOfWar;
 
     public GameObject terrainHolder;
     public TextMeshProUGUI FloorDisplay;
@@ -120,11 +115,9 @@ public class BattleGrid : MonoBehaviour
         var fader = FindObjectOfType<SceneFader>();
         yield return fader.Fade(SceneFader.FadeDirection.In);                   //Start fading to black
         floorManager.GoDownFloor();                                             //When screen is black, despawn current floor, generate new floor
-        SetFogOfWarBounds(CurrentFloor.sizeX, CurrentFloor.sizeZ);              //Update fog of war
         BattleManager.player.UpdateLOS();                                       //Update player LOS
         FloorDisplay.text = (floorManager.CurrentFloorNumber + 1).ToString();
         yield return new WaitForSeconds(1f);
-        fogOfWar.ManualUpdate(1f);
         yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
         LoadingNewFloor = false;
         BattleManager.currentTurn = BattleManager.TurnPhase.player;
@@ -133,18 +126,10 @@ public class BattleGrid : MonoBehaviour
     public void GenerateFirstLevel()
     {
         floorManager.GenerateNewFloor();
-        InitFogOfWar();
+        //InitFogOfWar();
+        FogOfWar.Initialize();
     }
 
-
-    private void InitFogOfWar()
-    {
-        fogOfWar = GameObject.Find("FogOfWarHolder").GetComponent<FogOfWarTeam>();
-        playerReveal = BattleManager.player.gameObject.GetComponentInChildren<FogOfWarUnit>();
-        playerReveal.transform.SetParent(null);
-        playerReveal.transform.position = BattleManager.player.transform.position;
-        SetFogOfWarBounds(CurrentFloor.sizeX, CurrentFloor.sizeZ);
-    }
 
     //Instantiates wall
     public TileEntity SpawnWall(int x, int z)
@@ -196,15 +181,6 @@ public class BattleGrid : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
-
-    // Sets up the boundary for fog of war based on the map size.
-    private void SetFogOfWarBounds(int sizeX, int sizeZ)
-    {
-        fogOfWar.mapResolution = new Vector2Int(sizeX, sizeZ);
-        fogOfWar.mapSize = Mathf.Max(sizeX, sizeZ);
-        fogOfWar.mapOffset = new Vector2(sizeX / 2, sizeZ / 2);
-        fogOfWar.Reinitialize();
     }
 
     internal void ProcessEnemyTurn()
@@ -260,9 +236,6 @@ public class BattleGrid : MonoBehaviour
     public bool[,] RecalculateLOS(int size, out bool[,] simpleLoSGrid)
     {
         bool[,] LoSGrid = GenerateLOSGrid(size, out simpleLoSGrid);
-        Debug.Log("Updating fog of war");
-        playerReveal.transform.position = BattleManager.player.moveTarget;
-        fogOfWar.ManualUpdate(1f);
         return LoSGrid;
     }
 
