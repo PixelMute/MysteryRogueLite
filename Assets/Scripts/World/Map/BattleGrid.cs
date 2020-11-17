@@ -1,5 +1,4 @@
-﻿using FoW;
-using NesScripts.Controls.PathFind;
+﻿using NesScripts.Controls.PathFind;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -27,10 +26,6 @@ public class BattleGrid : MonoBehaviour
 
     // Line of Sight
     public LayerMask sightBlockingLayer; // Things that block LOS are on this layer
-
-    // Fog of War
-    FogOfWarTeam fogOfWar;
-    FogOfWarUnit playerReveal;
 
     // Items
     public GameObject moneyPrefab;
@@ -117,6 +112,8 @@ public class BattleGrid : MonoBehaviour
         floorManager.GoDownFloor();                                             //When screen is black, despawn current floor, generate new floor
         BattleManager.player.UpdateLOS();                                       //Update player LOS
         FloorDisplay.text = (floorManager.CurrentFloorNumber + 1).ToString();
+        FogOfWar.Initialize();
+        FogOfWar.ForceUpdate();
         yield return new WaitForSeconds(1f);
         yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
         LoadingNewFloor = false;
