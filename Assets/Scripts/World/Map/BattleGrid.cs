@@ -1,6 +1,9 @@
-﻿using NesScripts.Controls.PathFind;
+using NesScripts.Controls.PathFind;
 using System.Collections;
 using System.Collections.Generic;
+using FoW;
+using NesScripts.Controls.PathFind;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -105,7 +108,7 @@ public class BattleGrid : MonoBehaviour
         }
     }
 
-    private bool LoadingNewFloor = false;
+    public bool LoadingNewFloor { get; private set; } = false;
     private IEnumerator LoadNewFloorCoroutine()
     {
         var fader = FindObjectOfType<SceneFader>();
@@ -120,7 +123,6 @@ public class BattleGrid : MonoBehaviour
         yield return new WaitForSeconds(1f);
         yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
         LoadingNewFloor = false;
-        BattleManager.currentTurn = BattleManager.TurnPhase.player;
     }
 
     public void GenerateFirstLevel()
@@ -138,14 +140,6 @@ public class BattleGrid : MonoBehaviour
         GameObject go = Instantiate(wallPrefab, spawnLocation, Quaternion.identity, terrainHolder.transform);
         Wall entityTile = go.AddComponent<Wall>();
         return entityTile;
-    }
-
-    //Instantiates enemy
-    public GenericEnemy CreateEnemy(Vector2Int spawnLoc)
-    {
-        GameObject enemyObj = Instantiate(enemyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), Quaternion.identity, transform);
-        GenericEnemy newEnemy = enemyObj.GetComponent<GenericEnemy>();
-        return newEnemy;
     }
 
     //Instantiates money and tries to place it.
@@ -208,7 +202,7 @@ public class BattleGrid : MonoBehaviour
         if (CurrentFloor.map[target.x, target.y].tileEntityType == Roguelike.Tile.TileEntityType.enemy)
         {
             // Remove this from the list of enemies.
-            CurrentFloor.enemies.Remove((GenericEnemy)CurrentFloor.map[target.x, target.y].GetEntityOnTile());
+            CurrentFloor.enemies.Remove((EnemyBody)CurrentFloor.map[target.x, target.y].GetEntityOnTile());
         }
         CurrentFloor.map[target.x, target.y].SetEntityOnTile(null);
     }
@@ -233,7 +227,7 @@ public class BattleGrid : MonoBehaviour
     }
 
     // Recalculates the LOS grid for looking in [size] squares in all directions.
-    public bool[,] RecalculateLOS(int size, out bool[,] simpleLoSGrid)
+    public bool[,] RecalculateLOS(int size, Vector3 playerTarget, out bool[,] simpleLoSGrid)
     {
         bool[,] LoSGrid = GenerateLOSGrid(size, out simpleLoSGrid);
         return LoSGrid;

@@ -61,7 +61,7 @@ public class Floor
     public int sizeZ { get; private set; }
     public int seed { get; private set; }
     public int FloorNumber { get; private set; }
-    public List<GenericEnemy> enemies { get; private set; } = new List<GenericEnemy>();
+    public List<EnemyBody> enemies { get; private set; } = new List<EnemyBody>();
 
     private Vector2Int stairsUpLocation;
     private Vector2Int stairsDownLocation;
@@ -132,7 +132,6 @@ public class Floor
                         //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
                         //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
                         //    break;
-
                 }
 
                 //// Determine terrain
@@ -211,8 +210,6 @@ public class Floor
         var spawnLocation = PickRandomEmptyTile();
         BattleManager.player.EstablishSelf(spawnLocation.x, spawnLocation.y);
         BattleManager.player.transform.position = new Vector3(spawnLocation.x, 0.05f, spawnLocation.y);
-        BattleManager.player.moveTarget = new Vector3(spawnLocation.x, BattleManager.player.transform.position.y, spawnLocation.y);
-        BattleManager.player.isMoving = false;
     }
 
     private void SpawnStairs()
@@ -280,10 +277,25 @@ public class Floor
     private void SpawnEnemyAt(int x, int z)
     {
         var spawnLoc = new Vector2Int(x, z);
-        var newEnemy = BattleGrid.instance.CreateEnemy(spawnLoc);
-        enemies.Add(newEnemy);
-        newEnemy.name = "EnemyID: " + enemies.Count;
-        PlaceObjectOn(spawnLoc.x, spawnLoc.y, newEnemy);
+        var random = new System.Random();
+        var rand = random.Next(1, 4);
+        GameObject newEnemy;
+        switch (rand)
+        {
+            case 1:
+                newEnemy = EnemySpawner.SpawnArcher(spawnLoc);
+                break;
+            case 2:
+                newEnemy = EnemySpawner.SpawnBrute(spawnLoc);
+                break;
+            default:
+                newEnemy = EnemySpawner.SpawnBasicMeleeEnemy(spawnLoc);
+                break;
+        }
+        var enemyBody = newEnemy.GetComponent<EnemyBody>();
+        enemies.Add(enemyBody);
+        enemyBody.name = "EnemyID: " + enemies.Count;
+        PlaceObjectOn(spawnLoc.x, spawnLoc.y, enemyBody);
     }
 
     // Recalculates what is walkable and what is not.
