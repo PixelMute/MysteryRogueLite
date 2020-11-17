@@ -115,11 +115,6 @@ public class Floor
 
     public void InstantiateFloor()
     {
-        Tile topLeft = Resources.Load<Tile>("Tiles/GroundTopLeft");
-        Tile topRight = Resources.Load<Tile>("Tiles/GroundTopRight");
-        Tile bottomLeft = Resources.Load<Tile>("Tiles/GroundBottomLeft");
-        Tile bottomRight = Resources.Load<Tile>("Tiles/GroundBottomRight");
-
         for (int i = 0; i < sizeX; i++)
         {
             for (int j = 0; j < sizeZ; j++)
@@ -165,7 +160,7 @@ public class Floor
             }
         }
 
-        var painter = new Painter();
+        var painter = new Painter(BattleGrid.instance.DecorativeTileMap);
         painter.Paint(tileMap, map, sizeX, sizeZ);
 
         PlacePlayerInDungeon();

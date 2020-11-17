@@ -42,9 +42,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Decorative
+    uniqueID: 4293413869
+    locked: 0
   - name: FogOfWar
     uniqueID: 2017870235
-    locked: 0
-  - name: New Layer
-    uniqueID: 4293413869
     locked: 0

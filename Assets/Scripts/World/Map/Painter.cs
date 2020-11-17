@@ -16,13 +16,16 @@ class Painter
     private static Tile BottomLeftCorner { get; set; }
     private static Tile BottomRightCorner { get; set; }
     private static Tile EmptySpace { get; set; }
+    private static Tile LadderDown { get; set; }
     private static bool HaveTilesBeenLoaded { get; set; } = false;
 
     private static string Path = "Tiles/";
+    private DecorativeTileMap decorations;
 
-    public Painter()
+    public Painter(DecorativeTileMap decorativeTileMap)
     {
         LoadTiles();
+        decorations = decorativeTileMap;
     }
 
     public static void LoadTiles()
@@ -40,6 +43,7 @@ class Painter
         BottomLeftCorner = LoadTile("BottomLeftCorner");
         BottomRightCorner = LoadTile("BottomRightCorner");
         EmptySpace = LoadTile("EmptySpace");
+        LadderDown = LoadTile("LadderDown");
 
         HaveTilesBeenLoaded = true;
     }
@@ -62,6 +66,10 @@ class Painter
                     case Roguelike.Tile.TileEntityType.enemy:
                     case Roguelike.Tile.TileEntityType.player:
                     case Roguelike.Tile.TileEntityType.empty:
+                        if (map[i, j].tileTerrainType == Roguelike.Tile.TileTerrainType.stairsDown)
+                        {
+                            decorations.PaintStairs(new Vector3Int(i, j, 0));
+                        }
                         tile = FloorTiles.PickRandom();
                         break;
                     case Roguelike.Tile.TileEntityType.wall:
@@ -105,14 +113,6 @@ class Painter
         {
             return BottomWallTiles.PickRandom();
         }
-        if (x != maxX && y != maxY && IsEmpty(map[x + 1, y + 1]))
-        {
-            return BottomLeftCorner;
-        }
-        if (x != 0 && y != maxY && IsEmpty(map[x - 1, y + 1]))
-        {
-            return BottomRightCorner;
-        }
         if (x != maxX && y != 0 && IsEmpty(map[x + 1, y - 1]))
         {
             return LeftWallTiles.PickRandom();
@@ -121,6 +121,15 @@ class Painter
         {
             return RightWallTiles.PickRandom();
         }
+        if (x != maxX && y != maxY && IsEmpty(map[x + 1, y + 1]))
+        {
+            return BottomLeftCorner;
+        }
+        if (x != 0 && y != maxY && IsEmpty(map[x - 1, y + 1]))
+        {
+            return BottomRightCorner;
+        }
+
         return EmptySpace;
 
 

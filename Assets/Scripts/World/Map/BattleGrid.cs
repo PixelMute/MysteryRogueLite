@@ -15,6 +15,7 @@ public class BattleGrid : MonoBehaviour
     public GameObject stairsUp;
     public GameObject stairsDown;
     public FogOfWar FogOfWar;
+    public DecorativeTileMap DecorativeTileMap;
 
     public GameObject terrainHolder;
     public TextMeshProUGUI FloorDisplay;
@@ -109,7 +110,9 @@ public class BattleGrid : MonoBehaviour
     {
         var fader = FindObjectOfType<SceneFader>();
         yield return fader.Fade(SceneFader.FadeDirection.In);                   //Start fading to black
+        DecorativeTileMap.Clear();
         floorManager.GoDownFloor();                                             //When screen is black, despawn current floor, generate new floor
+        yield return null;
         BattleManager.player.UpdateLOS();                                       //Update player LOS
         FloorDisplay.text = (floorManager.CurrentFloorNumber + 1).ToString();
         FogOfWar.Initialize();
