@@ -58,6 +58,9 @@ class Painter
                 Tile tile = null;
                 switch (map[i, j].tileEntityType)
                 {
+                    //Enemies and the player can only spawn on floors
+                    case Roguelike.Tile.TileEntityType.enemy:
+                    case Roguelike.Tile.TileEntityType.player:
                     case Roguelike.Tile.TileEntityType.empty:
                         tile = FloorTiles.PickRandom();
                         break;
