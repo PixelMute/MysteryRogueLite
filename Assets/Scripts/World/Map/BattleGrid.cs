@@ -1,9 +1,5 @@
 using NesScripts.Controls.PathFind;
 using System.Collections;
-using System.Collections.Generic;
-using FoW;
-using NesScripts.Controls.PathFind;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -174,19 +170,6 @@ public class BattleGrid : MonoBehaviour
         if (gameObject != null)
         {
             Destroy(gameObject);
-        }
-    }
-
-    internal void ProcessEnemyTurn()
-    {
-        List<GenericEnemy> enemiesLeftToAct = new List<GenericEnemy>();
-        // Add all enemies to this list.
-        // This is so that if an enemy dies mid-turn, it doesn't break everything.
-        enemiesLeftToAct.AddRange(CurrentFloor.enemies);
-        while (enemiesLeftToAct.Count > 0)
-        {
-            enemiesLeftToAct[0].ProcessTurn();
-            enemiesLeftToAct.RemoveAt(0);
         }
     }
 
