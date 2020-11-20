@@ -67,10 +67,10 @@ public class FogOfWar : MonoBehaviour
                     {
                         TileMap.SetTile(new Vector3Int(x, y, 0), VisibleTile);
                     }
-                    else
-                    {
-                        tilesToRecheck.Add(new Vector3Int(x, y, 0));
-                    }
+                    //else
+                    //{
+                    //    tilesToRecheck.Add(new Vector3Int(x, y, 0));
+                    //}
                 }
                 else
                 {
@@ -115,7 +115,7 @@ public class FogOfWar : MonoBehaviour
                     {
                         count++;
                     }
-                    if (count >= 2)
+                    if (count == 2)
                     {
                         TileMap.SetTile(tile, VisibleTile);
                     }

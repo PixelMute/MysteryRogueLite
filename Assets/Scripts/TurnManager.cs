@@ -1,10 +1,4 @@
 ﻿using Roguelike;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 class TurnManager : MonoBehaviour
@@ -78,16 +72,18 @@ class TurnManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 CurrentPhase = TurnPhase.end;
+                return;
             }
             else
             {
-                Player.HandleMovement();
-                if (Player.IsMoving)
+                if (Player.HandleMovement())
                 {
                     CurrentPhase = TurnPhase.end;
                 }
             }
         }
+
+        //Wait for player to finish moving before ending turn
         if (CurrentPhase == TurnPhase.end && !Player.IsMoving)
         {
             Player.EndOfTurn();
@@ -111,6 +107,8 @@ class TurnManager : MonoBehaviour
         {
             enemy.ProcessTurn();
         }
+
+        //Start player's turn right away so there isn't a delay
         CurrentTurn = WhoseTurn.player;
         HandlePlayerTurn();
     }

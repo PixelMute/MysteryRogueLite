@@ -1,10 +1,7 @@
 ﻿using Roguelike;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.XR;
 
 // This goes onto the player holder.
 public class PlayerController : TileCreature
@@ -12,6 +9,7 @@ public class PlayerController : TileCreature
     private const int movementEnergyCost = 1;
     public Rigidbody rb;
     public BoxCollider boxCollider;
+    public PlayerAnimation Animation;
 
     // Card Management
     public static Deck playerDeck;
@@ -349,23 +347,31 @@ public class PlayerController : TileCreature
                 puim.MoveToState(PlayerUIManager.PlayerUIState.controllingCamera);
     }
 
-    public void HandleMovement()
+    /// <summary>
+    /// Handles moving the player. Returns true if the player moves by button click
+    /// </summary>
+    /// <returns></returns>
+    public bool HandleMovement()
     {
         bool movementLocked = puim.IsStateMovementLocked();
         if (!movementLocked)
         {
-            HandleMovementInput(); // Get input and pick somewhere to move.
+            return HandleMovementInput(); // Get input and pick somewhere to move.
         }
         else if (puim.IsStateControllingCamera())
         {
             Debug.Log("HandleCameraMovement");
             puim.HandleCameraMovement();
         }
-
+        return false;
 
     }
 
-    private void HandleMovementInput()
+    /// <summary>
+    /// Handle user input. Returns true if the player moves from the input
+    /// </summary>
+    /// <returns></returns>
+    private bool HandleMovementInput()
     {
         // First, get the movement.
 
@@ -386,7 +392,7 @@ public class PlayerController : TileCreature
             {
                 // Only able to move on diagonals while holding L.
                 if (xDir == 0 || zDir == 0)
-                    return;
+                    return false;
             }
             Vector2Int movementVector = new Vector2Int(xDir + xPos, zDir + zPos);
 
@@ -395,11 +401,24 @@ public class PlayerController : TileCreature
                 MoveToPosition(movementVector, speedOfMovement);
                 // Recalculate LOS
                 UpdateLOS(movementVector);
+
+                return true;
             }
 
         }
 
-        // Otherwise, do nothing.
+        return false;
+    }
+
+    public override void MoveToPosition(Vector2Int destination, float timeToMove)
+    {
+        Animation.StartWalkingAnimation();
+        base.MoveToPosition(destination, timeToMove);
+    }
+
+    protected override void OnStopMoving()
+    {
+        Animation.StartIdleAnimation();
     }
 
     // Checks to see if we can move in that direction.
@@ -473,7 +492,7 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     public void EndOfTurn()
     {
-        Debug.Log("Player Controller end of turn");
+        //Debug.Log("Player Controller end of turn");
         // Spirit decay
         LoseSpirit(1);
 

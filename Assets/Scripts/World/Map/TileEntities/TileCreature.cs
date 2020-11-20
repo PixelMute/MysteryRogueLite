@@ -34,7 +34,7 @@ public abstract class TileCreature : TileEntity
     /// </summary>
     /// <param name="destination">Destination we are moving to</param>
     /// <param name="timeToMove">How long it takes to move in seconds</param>
-    public void MoveToPosition(Vector2Int destination, float timeToMove)
+    public virtual void MoveToPosition(Vector2Int destination, float timeToMove)
     {
         BattleGrid.instance.MoveObjectTo(destination, this);
         MoveToPosition(BattleManager.ConvertVector(destination, transform.position.y), timeToMove);
@@ -68,9 +68,19 @@ public abstract class TileCreature : TileEntity
             {
                 IsMoving = false;
                 t = 1;
+                OnStopMoving();
             }
             transform.position = Vector3.Lerp(currentPos, destination, t);
             yield return null;
         }
     }
+
+    /// <summary>
+    /// Function that gets called when movement is over
+    /// </summary>
+    protected virtual void OnStopMoving()
+    {
+        return;
+    }
+
 }

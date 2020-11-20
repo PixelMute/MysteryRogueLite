@@ -414,7 +414,5 @@ public class Floor
         map[obj.xPos, obj.zPos].SetEntityOnTile(null);
         PlaceObjectOn(tar.x, tar.y, obj);
     }
-
-
 }
 

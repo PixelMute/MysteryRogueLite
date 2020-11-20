@@ -45,6 +45,9 @@ TagManager:
   - name: Decorative
     uniqueID: 4293413869
     locked: 0
+  - name: Entities
+    uniqueID: 3252607817
+    locked: 0
   - name: FogOfWar
     uniqueID: 2017870235
     locked: 0

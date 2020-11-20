@@ -141,7 +141,7 @@ public class BattleGrid : MonoBehaviour
     //Instantiates money and tries to place it.
     public void SpawnMoneyOnTile(Vector2Int spawnLoc, int amount)
     {
-        GameObject moneyObj = Instantiate(moneyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.25f), Quaternion.identity, transform);
+        GameObject moneyObj = Instantiate(moneyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.25f), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
         DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
         newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
         CurrentFloor.TryPlaceTileItemOn(spawnLoc, newMoneyBloodMoney, 2);

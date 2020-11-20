@@ -84,7 +84,7 @@ class Painter
         }
     }
 
-    private static Tile GetWallTile(int x, int y, Roguelike.Tile[,] map)
+    private Tile GetWallTile(int x, int y, Roguelike.Tile[,] map)
     {
         //This is terrible but no super easy way of doing it right now
         int maxX = map.GetLength(0) - 1;
