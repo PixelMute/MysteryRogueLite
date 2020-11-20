@@ -26,6 +26,9 @@ class TurnManager : MonoBehaviour
 
     public void Update()
     {
+        //Update fog of war every frame. Probably should change this to be more efficient
+        BattleGrid.instance.FogOfWar.ForceUpdate();
+
         //End game if they press escape
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -110,7 +113,6 @@ class TurnManager : MonoBehaviour
 
         //Start player's turn right away so there isn't a delay
         CurrentTurn = WhoseTurn.player;
-        BattleGrid.instance.FogOfWar.ForceUpdate();
         if (!BattleGrid.instance.LoadingNewFloor)
         {
             HandlePlayerTurn();
