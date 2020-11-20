@@ -398,16 +398,39 @@ public class PlayerController : TileCreature
 
             if (CheckCanMoveInDirection(xDir, zDir))
             {
-                MoveToPosition(movementVector, speedOfMovement);
-                // Recalculate LOS
-                UpdateLOS(movementVector);
+                if (ActivateMoveOntoEffects(movementVector))
+                {
+                    MoveToPosition(movementVector, speedOfMovement);
+                    // Recalculate LOS
+                    UpdateLOS(movementVector);
 
-                return true;
+                    return true;
+                }
             }
-
         }
 
         return false;
+    }
+
+    // Checks the target tile for anything that activates when you move onto it. EG: items, terrain
+    // Returns true if we should still move.
+    private bool ActivateMoveOntoEffects(Vector2Int newMoveTarget)
+    {
+        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
+        // First, check things that will not end your turn.
+
+        //if (tile.ItemOnTile != null)
+        //{
+        //    DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
+        //    if (moneyobj != null)
+        //    {
+        //        Debug.Log("Picked up money");
+        //        Money += moneyobj.Value;
+        //        moneyobj.Pickup();
+        //    }
+        //}
+
+        return true;
     }
 
     public override void MoveToPosition(Vector2Int destination, float timeToMove)
@@ -492,6 +515,21 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     public void EndOfTurn()
     {
+        var tile = BattleManager.instance.GetTileAtLocation((int)transform.position.x, (int)transform.position.z);
+        // First, check things that will not end your turn.
+
+        if (tile.ItemOnTile != null)
+        {
+            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
+            if (moneyobj != null)
+            {
+                Debug.Log("Picked up money");
+                Money += moneyobj.Value;
+                moneyobj.Pickup();
+            }
+        }
+
+
         //Debug.Log("Player Controller end of turn");
         // Spirit decay
         LoseSpirit(1);

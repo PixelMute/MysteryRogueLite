@@ -110,7 +110,10 @@ class TurnManager : MonoBehaviour
 
         //Start player's turn right away so there isn't a delay
         CurrentTurn = WhoseTurn.player;
-        HandlePlayerTurn();
+        if (!BattleGrid.instance.LoadingNewFloor)
+        {
+            HandlePlayerTurn();
+        }
     }
 
     private bool IsPlayerOnStairs()
