@@ -110,6 +110,7 @@ class TurnManager : MonoBehaviour
 
         //Start player's turn right away so there isn't a delay
         CurrentTurn = WhoseTurn.player;
+        BattleGrid.instance.FogOfWar.ForceUpdate();
         if (!BattleGrid.instance.LoadingNewFloor)
         {
             HandlePlayerTurn();

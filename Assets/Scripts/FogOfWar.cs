@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -12,6 +13,8 @@ public class FogOfWar : MonoBehaviour
     public int SizeX { get; private set; }
     public int SizeZ { get; private set; }
     public Vector2Int PrevPlayerPosition { get; private set; }
+
+    public List<HideInFog> HiddenElements;
     // Start is called before the first frame update
     void Start()
     {
@@ -48,6 +51,7 @@ public class FogOfWar : MonoBehaviour
                 TileMap.SetTile(new Vector3Int(i, j, 0), NotVisitedTile);
             }
         }
+        FindElementsToHide();
     }
 
     private void UpdateFogOfWar(Vector2Int targetLocation, bool[,] losGrid, int visionRange)
@@ -55,35 +59,66 @@ public class FogOfWar : MonoBehaviour
         int losX = losGrid.GetLength(0);
         int losY = losGrid.GetLength(1);
         var tilesToRecheck = new List<Vector3Int>();
-        for (int i = 0; i < losX; i++)
+        for (int i = -1; i <= losX; i++)
         {
-            for (int j = 0; j < losY; j++)
+            for (int j = -1; j <= losY; j++)
             {
                 int x = targetLocation.x + i - (losX / 2);
                 int y = targetLocation.y + j - (losY / 2);
-                if (Vector2Int.Distance(targetLocation, new Vector2Int(x, y)) <= visionRange)
-                {
-                    if (losGrid[i, j])
-                    {
-                        TileMap.SetTile(new Vector3Int(x, y, 0), VisibleTile);
-                    }
-                    //else
-                    //{
-                    //    tilesToRecheck.Add(new Vector3Int(x, y, 0));
-                    //}
-                }
-                else
+                if (i == -1 || j == -1 || i == losX || j == losY)
                 {
                     //If this tile was visible but now its not
                     if (TileMap.GetColor(new Vector3Int(x, y, 0)).a < VisitedTile.color.a)
                     {
                         TileMap.SetTile(new Vector3Int(x, y, 0), VisitedTile);
                     }
+                    continue;
                 }
+
+                if (Vector2Int.Distance(targetLocation, new Vector2Int(x, y)) <= visionRange)
+                {
+                    if (losGrid[i, j])
+                    {
+                        TileMap.SetTile(new Vector3Int(x, y, 0), VisibleTile);
+                        continue;
+                    }
+                    //else
+                    //{
+                    //    tilesToRecheck.Add(new Vector3Int(x, y, 0));
+                    //}
+                }
+                //If this tile was visible but now its not
+                if (TileMap.GetColor(new Vector3Int(x, y, 0)).a < VisitedTile.color.a)
+                {
+                    TileMap.SetTile(new Vector3Int(x, y, 0), VisitedTile);
+                }
+
             }
         }
 
         RecheckTiles(tilesToRecheck);
+
+        HideHiddenElements();
+    }
+
+    //Hide the entites that are supposed to be hidden in the fog
+    private void HideHiddenElements()
+    {
+        foreach (var hidden in HiddenElements)
+        {
+            if (hidden != null)
+            {
+                var location = new Vector3Int((int)hidden.transform.position.x, (int)hidden.transform.position.z, 0);
+                if (TileMap.GetColor(location).a == 0)
+                {
+                    hidden.Show();
+                }
+                else
+                {
+                    hidden.Hide();
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -122,5 +157,10 @@ public class FogOfWar : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void FindElementsToHide()
+    {
+        HiddenElements = Object.FindObjectsOfType<HideInFog>().ToList();
     }
 }
