@@ -60,6 +60,9 @@ public class PlayerController : TileCreature
         private set { money = value; puim.SetCurrentMoney(money); }
     }
 
+    public bool IsFacingRight = true;
+    public SpriteRenderer Sprite;
+
     void Awake()
     {
     }
@@ -400,6 +403,17 @@ public class PlayerController : TileCreature
             {
                 if (ActivateMoveOntoEffects(movementVector))
                 {
+                    if (IsFacingRight && xDir < 0)
+                    {
+                        Sprite.flipX = true;
+                        IsFacingRight = false;
+                    }
+                    else if (!IsFacingRight && xDir > 0)
+                    {
+                        Sprite.flipX = false;
+                        IsFacingRight = true;
+                    }
+
                     MoveToPosition(movementVector, speedOfMovement);
                     // Recalculate LOS
                     UpdateLOS(movementVector);
