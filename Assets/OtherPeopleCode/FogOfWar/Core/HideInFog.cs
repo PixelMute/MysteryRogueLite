@@ -29,7 +29,7 @@ namespace FoW
             FogOfWarTeam fow = FogOfWarTeam.GetTeam(team);
             if (fow == null)
             {
-                Debug.LogWarning("There is no Fog Of War team for team #" + team.ToString());
+                //Debug.LogWarning("There is no Fog Of War team for team #" + team.ToString());
                 return;
             }
 
