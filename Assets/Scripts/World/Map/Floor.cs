@@ -48,7 +48,7 @@ public class FloorManager
             seed = UnityEngine.Random.Range(-100000, 100000);
         }
 
-        var dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.NORMAL,
+        var dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.SPARSE,
             DungeonGenerator.gen.hints.GenRoomShape.BOX_AMALGAM, DungeonGenerator.gen.hints.GenRoomSize.HUGE,
             DungeonGenerator.gen.hints.GenMazeType.WILSON, DungeonGenerator.gen.hints.GenPathing.ROOM_TO_ROOM,
             DungeonGenerator.gen.hints.GenEgress.RANDOM_PLACEMENT, 0, 1);
@@ -61,6 +61,9 @@ public class Floor
 {
     private Tilemap tileMap;
     private Sirpgeon dungeonData;
+    private int[] roomsArea; // The number of tiles in each room, ordered in the same order as
+    // dungeonData.getRooms();
+    private int roomAreaSum = 0;
     public Roguelike.Tile[,] map { get; private set; }
     public int sizeX { get; private set; }
     public int sizeZ { get; private set; }
@@ -87,6 +90,8 @@ public class Floor
     //Builds the floor from the dungeon data
     public void BuildFloor()
     {
+        CalculateRoomAreas();
+
         DunNode[][] nodes = dungeonData.getNodes();
 
         sizeX = nodes.Length;
@@ -104,9 +109,14 @@ public class Floor
                 if (!nodes[i][j].open())
                 {
                     map[i, j].tileEntityType = Roguelike.Tile.TileEntityType.wall;
+                    //Color rng = UnityEngine.Random.ColorHSV();
+                    //UnityEngine.Debug.DrawLine(new Vector3(i, 0, j), new Vector3(i, 10, j), rng, 100f);
                 }
             }
         }
+
+        AssignPlayerLocation();
+        
 
         int numEnemies = FloorNumber + 1 == 5 ? 25 : 5 + (FloorNumber * 3);
         // Set the enemies locations
@@ -118,8 +128,48 @@ public class Floor
         SetStairsLocation();
     }
 
+    // Calculates how many tiles are in each room. Used later for placing objects weighted by room area.
+    private void CalculateRoomAreas()
+    {
+        List<Room> rooms = dungeonData.getRooms();
+        int numRooms = rooms.Count();
+        roomsArea = new int[numRooms];
+
+        for (int i = 0; i < numRooms; i++)
+        {
+            Position tl = rooms[i].topLeft();
+            Position br = rooms[i].bottomRight();
+
+            //UnityEngine.Debug.Log("In one room. tl.x: " + tl.x() + ", tl.y: " + tl.y() + "; br.x: " + br.x() + ", br.y(): " + br.y());
+
+            for (int j = tl.x(); j < br.x(); j++)
+            {
+                for (int k = tl.y(); k < br.y(); k++)
+                {
+                    if (rooms[i].inRoom(new Position(j, k)))
+                    {
+                        roomsArea[i]++;
+                    }
+                }
+            }
+            //UnityEngine.Debug.Log("Room number " + i + " has an area of " + roomsArea[i]);
+            roomAreaSum += roomsArea[i];
+            Color rng = UnityEngine.Random.ColorHSV();
+
+            int testTLX;
+            int testTLY;
+            int testBRX;
+            int testBRY;
+            UnityEngine.Debug.DrawLine(new Vector3(tl.x(), 0, tl.y()), new Vector3(tl.x(), 10, tl.y()), rng, 100f);
+            UnityEngine.Debug.DrawLine(new Vector3(br.x(), 0, br.y()), new Vector3(br.x(), 10, br.y()), rng, 100f);
+            UnityEngine.Debug.DrawLine(new Vector3(br.x(), 0, tl.y()), new Vector3(br.x(), 10, tl.y()), rng, 100f);
+            UnityEngine.Debug.DrawLine(new Vector3(tl.x(), 0, br.y()), new Vector3(tl.x(), 10, br.y()), rng, 100f);
+        }
+    }
+
     public void InstantiateFloor()
     {
+
         Tile topLeft = Resources.Load<Tile>("Tiles/GroundTopLeft");
         Tile topRight = Resources.Load<Tile>("Tiles/GroundTopRight");
         Tile bottomLeft = Resources.Load<Tile>("Tiles/GroundBottomLeft");
@@ -135,6 +185,7 @@ public class Floor
                         SpawnWallAt(i, j);
                         break;
                     case Roguelike.Tile.TileEntityType.enemy:
+                        UnityEngine.Debug.Log("Floor spawning enemy");
                         SpawnEnemyAt(i, j);
                         break;
                     //case Roguelike.Tile.TileEntityType.stairsUp:
@@ -171,7 +222,6 @@ public class Floor
         }
 
         PlacePlayerInDungeon();
-
         GenerateWalkableMap();
     }
 
@@ -200,7 +250,7 @@ public class Floor
     {
         for (int i = 0; i < 6; i++)
         {
-            Vector2Int spawnLoc = PickRandomEmptyTile();
+            Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
             map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
         }
         
@@ -213,9 +263,34 @@ public class Floor
         //}
     }
 
+    public void AssignPlayerLocation()
+    {
+        Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.offWall);
+        map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.player;
+        BattleManager.player.xPos = spawnLoc.x;
+        BattleManager.player.zPos = spawnLoc.y;
+    }
+
     public void PlacePlayerInDungeon()
     {
-        var spawnLocation = PickRandomEmptyTile();
+        // Find the spot set to player.
+        Vector2Int spawnLocation = PickRandomEmptyTile() ;
+        //bool flag = false;
+
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeZ; j++)
+            {
+                if (map[i,j].tileEntityType == Roguelike.Tile.TileEntityType.player)
+                {
+                    UnityEngine.Debug.Log("Player Location Found");
+                    //flag = true;
+                    spawnLocation = new Vector2Int(i, j);
+                }
+            }
+        }
+
+        //var spawnLocation = PickRandomEmptyTile();
         BattleManager.player.EstablishSelf(spawnLocation.x, spawnLocation.y);
         BattleManager.player.transform.position = new Vector3(spawnLocation.x, 0.05f, spawnLocation.y);
         BattleManager.player.moveTarget = new Vector3(spawnLocation.x, BattleManager.player.transform.position.y, spawnLocation.y);
@@ -238,6 +313,107 @@ public class Floor
             PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsUp);
             stairsUpLocation = spawnLoc;
         }
+    }
+
+    public enum FindTileCondition { notPlayersRoom, evenRoomWeighting, offWall, empty };
+    public Vector2Int FindTileInRoom(params FindTileCondition[] conds)
+    {
+        bool forbidPlayer = conds.Contains(FindTileCondition.notPlayersRoom);
+        bool weightEven = conds.Contains(FindTileCondition.evenRoomWeighting);
+        bool allowEdges = !conds.Contains(FindTileCondition.offWall);
+        bool needEmpty = conds.Contains(FindTileCondition.empty);
+
+        List<Room> rooms = dungeonData.getRooms();
+
+        int pickedRoom = -1;
+        bool flag = false ;
+        int tryNum = 0;
+        do
+        {
+            flag = true; // Does this room fit our criteria?
+            pickedRoom = -1;
+            tryNum++;
+            if (weightEven)
+            {
+                pickedRoom = UnityEngine.Random.Range(0, rooms.Count);
+            }
+            else
+            {
+                int randomVal = UnityEngine.Random.Range(0, roomAreaSum);
+                do
+                {
+                    pickedRoom++;
+                    randomVal -= roomsArea[pickedRoom];
+                } while (randomVal > 0);
+            }
+
+            // Have picked a random room. Check if it meets our criteria.
+            if (forbidPlayer)
+            {
+                //UnityEngine.Debug.Log("Player is at " + BattleManager.player.xPos + ", " + BattleManager.player.zPos);
+                // UnityEngine.Debug.Log("Room bounded by " + rooms[pickedRoom].topLeft().x() + ", " + rooms[pickedRoom].topLeft().y() + ", and " + rooms[pickedRoom].bottomRight().x() + ", " + rooms[pickedRoom].bottomRight().y());
+                // Check if this is the same room as the player.
+                Position playerPos = new Position(BattleManager.player.xPos, BattleManager.player.zPos);
+                if (rooms[pickedRoom].inRoom(playerPos))
+                {
+                    //UnityEngine.Debug.Log("True. ");
+                    flag = false;
+                }
+            }
+        } while (!flag && tryNum < 20);
+
+        if (tryNum >= 20)
+        {
+            UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Took 20+ tries to find a room. Going with an arbitrary one.");
+        }
+
+        // Now we know which room we're going to. Find a tile in it.
+        tryNum = 0;
+
+        do
+        {
+            flag = true;
+            tryNum++;
+
+            int triedX = UnityEngine.Random.Range(rooms[pickedRoom].topLeft().x(), rooms[pickedRoom].bottomRight().x());
+            int triedY = UnityEngine.Random.Range(rooms[pickedRoom].topLeft().y(), rooms[pickedRoom].bottomRight().y());
+
+            // Check conditions.
+            if (needEmpty)
+            {
+                if (map[triedX, triedY].tileEntityType != Roguelike.Tile.TileEntityType.empty)
+                    flag = false;
+            }
+
+            if (!allowEdges && flag) // check if this is next to a wall.
+            {
+                if (map[triedX + 1, triedY + 1].tileEntityType == Roguelike.Tile.TileEntityType.wall || map[triedX - 1, triedY + 1].tileEntityType == Roguelike.Tile.TileEntityType.wall
+                    || map[triedX - 1, triedY - 1].tileEntityType == Roguelike.Tile.TileEntityType.wall || map[triedX + 1, triedY - 1].tileEntityType == Roguelike.Tile.TileEntityType.wall)
+                    flag = false;
+            }
+
+            if (flag)
+            {// This position works.
+                return new Vector2Int(triedX, triedY);
+            }
+            
+        } while (!flag && tryNum < 40);
+
+        UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Could not find suitable tile. Loosening restrictions.");
+        UnityEngine.Debug.LogWarning("Room bounded by " + rooms[pickedRoom].topLeft().x() + ", " + rooms[pickedRoom].topLeft().y() + ", and " + rooms[pickedRoom].bottomRight().x() + ", " + rooms[pickedRoom].bottomRight().y() + ". Total rooms: " + rooms.Count);
+        //SpawnEnemyAt(rooms[pickedRoom].topLeft().x(), rooms[pickedRoom].topLeft().y(), pickedRoom.ToString());
+        //SpawnEnemyAt(rooms[pickedRoom].bottomRight().x(), rooms[pickedRoom].bottomRight().y(), pickedRoom.ToString());
+        if (conds.Length <= 1)
+        {
+            UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Returning a random empty tile.");
+            return PickRandomEmptyTile();
+        }
+        else
+        {
+            UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Returning an empty tile in a room.");
+            return FindTileInRoom(FindTileCondition.empty);
+        }
+            
     }
 
     // Picks a random empty tile out of the map.
@@ -284,12 +460,12 @@ public class Floor
         return Vector2Int.one;
     }
 
-    private void SpawnEnemyAt(int x, int z)
+    private void SpawnEnemyAt(int x, int z, string name = "")
     {
         var spawnLoc = new Vector2Int(x, z);
         var newEnemy = BattleGrid.instance.CreateEnemy(spawnLoc);
         enemies.Add(newEnemy);
-        newEnemy.name = "EnemyID: " + enemies.Count;
+        newEnemy.name = "EnemyID: " + enemies.Count + " " + name;
         PlaceObjectOn(spawnLoc.x, spawnLoc.y, newEnemy);
     }
 

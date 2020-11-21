@@ -54,7 +54,7 @@ public class PlayerUIManager : MonoBehaviour
     [HideInInspector] private GameObject spawnedTileSelectionPrefab;
     private Vector2Int selectedTileGridCoords;
     [HideInInspector] public bool tileCurrentlySelected = false;
-    [HideInInspector] public Vector3 selectedTile;
+    //[HideInInspector] public Vector3 selectedTile;
 
     // Stuff to detect wether the player is clicking on the UI
     //public GraphicRaycaster raycaster; // These need to be set to the ones on the main canvas.
@@ -320,7 +320,6 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Clicked World. Selecting Tile.");
             // Check to make sure player has clicked within selectable area.
             if (BattleManager.IsVectorNonNeg(tile) && tile.x < BattleGrid.instance.map.GetLength(0) && tile.y < BattleGrid.instance.map.GetLength(1))
             {
@@ -329,16 +328,38 @@ public class PlayerUIManager : MonoBehaviour
                 spawnedTileSelectionPrefab.SetActive(true);
                 spawnedTileSelectionPrefab.transform.position = target;
                 selectedTileGridCoords = tile;
-                selectedTile = target;
 
+                if (true) // Debug
+                {
+                    DebugPrintTileInfo();
+                }
+                
                 // If we've selected an enemy, show its canvas
                 if (BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType == Tile.TileEntityType.enemy)
                 {
-                    Debug.Log("Enemy Selected");
                     ((GenericEnemy)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).DisplayHealthBar();
                 }
             }
 
+        }
+    }
+
+    private void DebugPrintTileInfo()
+    {
+        Debug.Log("Selected tile entity: " + BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType.ToString());
+        Debug.Log("Selected terrain: " + BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileTerrainType.ToString());
+
+        TileItem item = BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].ItemOnTile;
+        if (item != null)
+        {
+            if (item is DroppedMoney)
+                Debug.Log("Selected item: Money, value of " + (item as DroppedMoney)?.Value);
+            else
+                Debug.Log("Selected item: Unknown. Please update this in PlayerUIManager.");
+        }
+        else
+        {
+            Debug.Log("Selected item: None.");
         }
     }
 

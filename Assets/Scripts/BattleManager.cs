@@ -67,7 +67,7 @@ public class BattleManager : MonoBehaviour
     {
         if (currentTurn != TurnPhase.waiting)
         {
-            Debug.Log("End of turn. Phase: " + currentTurn.ToString());
+            //Debug.Log("End of turn. Phase: " + currentTurn.ToString());
             currentTurn = TurnPhase.enemy;
             map.ProcessEnemyTurn();
             currentTurn = TurnPhase.player;
