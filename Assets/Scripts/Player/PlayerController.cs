@@ -131,19 +131,19 @@ public class PlayerController : TileCreature
             puim = GetComponent<PlayerUIManager>();
 
         // Placeholder cards.
-        Card claws = CardFactory.GetCard("claws");
-        claws.Owner = this;
+        Card slash = CardFactory.GetCard("slash");
+        slash.Owner = this;
         Card cinders = CardFactory.GetCard("cinders");
         cinders.Owner = this;
         Card footwork = CardFactory.GetCard("Footwork");
         footwork.Owner = this;
         Card dragonheart = CardFactory.GetCard("dragonheart");
         dragonheart.Owner = this;
-        playerDeck.InsertCardAtEndOfDrawPile(claws);
-        playerDeck.InsertCardAtEndOfDrawPile(claws);
-        playerDeck.InsertCardAtEndOfDrawPile(claws);
-        playerDeck.InsertCardAtEndOfDrawPile(claws);
-        playerDeck.InsertCardAtEndOfDrawPile(claws);
+        playerDeck.InsertCardAtEndOfDrawPile(slash);
+        playerDeck.InsertCardAtEndOfDrawPile(slash);
+        playerDeck.InsertCardAtEndOfDrawPile(slash);
+        playerDeck.InsertCardAtEndOfDrawPile(slash);
+        playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(footwork);
         playerDeck.InsertCardAtEndOfDrawPile(footwork);
         playerDeck.InsertCardAtEndOfDrawPile(cinders);

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cardList>
 
-<!--Card1: Claws-->
+<!--Card1: Slash-->
 <card>
 <id val="1"/>
 <spiritcost val="3"/>
 <energycost val="1"/>
-<name>Claws</name>
+<name>Slash</name>
 <description>Deal 15 damage. &lt;br&gt;Range 1-1.</description>
 <effects>
 	<strike dmg="15"/>
