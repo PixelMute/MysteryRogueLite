@@ -48,7 +48,7 @@ public class FloorManager
             seed = UnityEngine.Random.Range(-100000, 100000);
         }
 
-        var dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.SPARSE,
+        var dungeonData = new Sirpgeon(x, y, seed, DungeonGenerator.gen.hints.GenBorder.ODD, DungeonGenerator.gen.hints.GenDensity.NORMAL,
             DungeonGenerator.gen.hints.GenRoomShape.BOX_AMALGAM, DungeonGenerator.gen.hints.GenRoomSize.HUGE,
             DungeonGenerator.gen.hints.GenMazeType.WILSON, DungeonGenerator.gen.hints.GenPathing.ROOM_TO_ROOM,
             DungeonGenerator.gen.hints.GenEgress.RANDOM_PLACEMENT, 0, 1);
@@ -154,7 +154,7 @@ public class Floor
             }
             //UnityEngine.Debug.Log("Room number " + i + " has an area of " + roomsArea[i]);
             roomAreaSum += roomsArea[i];
-            Color rng = UnityEngine.Random.ColorHSV();
+            /*Color rng = UnityEngine.Random.ColorHSV();
 
             int testTLX;
             int testTLY;
@@ -163,7 +163,7 @@ public class Floor
             UnityEngine.Debug.DrawLine(new Vector3(tl.x(), 0, tl.y()), new Vector3(tl.x(), 10, tl.y()), rng, 100f);
             UnityEngine.Debug.DrawLine(new Vector3(br.x(), 0, br.y()), new Vector3(br.x(), 10, br.y()), rng, 100f);
             UnityEngine.Debug.DrawLine(new Vector3(br.x(), 0, tl.y()), new Vector3(br.x(), 10, tl.y()), rng, 100f);
-            UnityEngine.Debug.DrawLine(new Vector3(tl.x(), 0, br.y()), new Vector3(tl.x(), 10, br.y()), rng, 100f);
+            UnityEngine.Debug.DrawLine(new Vector3(tl.x(), 0, br.y()), new Vector3(tl.x(), 10, br.y()), rng, 100f);*/
         }
     }
 
@@ -250,7 +250,8 @@ public class Floor
     {
         for (int i = 0; i < 6; i++)
         {
-            Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
+            //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
+            Vector2Int spawnLoc = PickRandomEmptyTile();
             map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
         }
         
@@ -265,7 +266,8 @@ public class Floor
 
     public void AssignPlayerLocation()
     {
-        Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.offWall);
+        //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.offWall);
+        Vector2Int spawnLoc = PickRandomEmptyTile();
         map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.player;
         BattleManager.player.xPos = spawnLoc.x;
         BattleManager.player.zPos = spawnLoc.y;
