@@ -29,6 +29,11 @@ public class BattleUIManager : MonoBehaviour
         BattleManager.player.GetCardReward();
     }
 
+    public void ToggleCardDrawerPositionButtonClicked()
+    {
+        BattleManager.player.puim.ToggleCardDrawerPosition();
+    }
+
     public void SkipCardRewardButtonClicked()
     {
         BattleManager.player.puim.LeaveCardRewardScreen(false);
@@ -39,5 +44,13 @@ public class BattleUIManager : MonoBehaviour
     public void SetMassCardViewButtonToggle(int index)
     {
         BattleManager.player.puim.ToggleMassCardViewOption(index);
+    }
+
+    /// <summary>
+    /// Close out of windows
+    /// </summary>
+    public void BackShadingClicked()
+    {
+        BattleManager.player.puim.CloseOutOfWindows();
     }
 }

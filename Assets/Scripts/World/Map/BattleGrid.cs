@@ -242,16 +242,16 @@ public class BattleGrid : MonoBehaviour
     }
 
     // Damages whatever is on the given tile. If it's got HP, we'll smack it.
-    public void StrikeTile(Vector2Int target, int damage)
+    public int StrikeTile(Vector2Int target, int damage)
     {
         Debug.Log("Attacking tile " + target + " for " + damage + " damage.");
         var targetTile = CurrentFloor.map[target.x, target.y];
         if (targetTile.tileEntityType == Roguelike.Tile.TileEntityType.empty)
         {
-            return;
+            return 0;
         }
 
-        targetTile.GetEntityOnTile().TakeDamage(damage);
+        return targetTile.GetEntityOnTile().TakeDamage(damage);
     }
 
     /// <summary>
@@ -260,7 +260,8 @@ public class BattleGrid : MonoBehaviour
     /// <param name="target">A Vector2Int specifying which tile to target</param>
     /// <param name="status">Enum located in BattleManager that corresponds to which status effect you want to apply</param>
     /// <param name="power">How much status to apply</param>
-    public void ApplyStatusEffectOnTile(Vector2Int target, BattleManager.StatusEffectEnum status, int power)
+    /// <returns>True if there was something on this tile.</returns>
+    public bool ApplyStatusEffectOnTile(Vector2Int target, BattleManager.StatusEffectEnum status, int power)
     {
         Debug.Log("Applying status effect " + status.ToString() + " on tile " + target + ", with power " + power);
         Roguelike.Tile targetTile = map[target.x, target.y];
@@ -268,7 +269,9 @@ public class BattleGrid : MonoBehaviour
         if (tarCreature != null)
         {
             tarCreature.ApplyStatusEffect(status, power);
+            return true;
         }
+        return false;
     }
 
     public AcceptableTileTargetFailReasons AcceptableTileTarget(Vector3 tileTarget, Card cardData)

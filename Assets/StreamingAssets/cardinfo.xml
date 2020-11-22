@@ -454,4 +454,23 @@
 <playconditions>
 </playconditions>
 </card>
+
+<!--Card24:Blood Strike-->
+<card>
+<id val="24"/>
+<spiritcost val="8"/>
+<energycost val="1"/>
+<name>Blood Strike</name>
+<description>Deal 5 damage. Range 1-1. Banish 1.</description>
+<effects>
+	<strike dmg="5"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+<banishafterplay val="1"/>
+</card>
+
 </cardList>

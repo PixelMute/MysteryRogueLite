@@ -17,8 +17,9 @@ public class Wall : TileEntity
         return false;
     }
 
-    public override void TakeDamage(int amount)
+    public override int TakeDamage(int amount)
     {
         Debug.LogError("Wall--TakeDamage(" + amount + "):: I. Wall. ... You. No. Implement. Damage. For. Walls. Yet.");
+        return 0;
     }
 }

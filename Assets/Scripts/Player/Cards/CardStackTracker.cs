@@ -7,10 +7,6 @@ public class CardStackTracker
     private CardInterface currentlyResolvingCard; // If needed, we can make this an actual stack.
     private int usedMomentum = 0; // the amount of momentium this card stack has taken.
 
-    public enum ResolveBehaviorEnum { discard, banish};
-    public ResolveBehaviorEnum resolveBehavior = ResolveBehaviorEnum.discard;
-    public int banishAmount = 0;
-
     public CardInterface CurrentlyResolvingCard { get => currentlyResolvingCard; private set => currentlyResolvingCard = value; }
 
     public void AddCardToTracker(CardInterface input)

@@ -71,10 +71,6 @@ public class PlayerController : TileCreature
     private void Start()
     {
         AssignVariables();
-        //ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 4);
-        //ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, 5);
-        //ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, 2);
-        //ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, 5);
     }
 
     // 0 means cannot be moved through
@@ -140,6 +136,7 @@ public class PlayerController : TileCreature
         Card dragonheart = CardFactory.GetCard("dragonheart");
         dragonheart.Owner = this;
         playerDeck.InsertCardAtEndOfDrawPile(slash);
+        Card bloodStrike = CardFactory.GetCard("blood strike");
         playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(slash);
@@ -149,6 +146,9 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
+
+        playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
+        playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -296,16 +296,20 @@ public class PlayerController : TileCreature
         }
 
         // Determine where the card should go.
-        switch (BattleManager.cardResolveStack.resolveBehavior)
+        //while (BattleManager.cardResolveStack.GetCurrentlyResolvingCard() != null)
+        // {
+        switch (BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.ResolveBehavior)
         {
-            case CardStackTracker.ResolveBehaviorEnum.discard:
+            case CardInfo.ResolveBehaviorEnum.discard:
                 // Discard the resolved card
                 DiscardCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex);
                 break;
-            case CardStackTracker.ResolveBehaviorEnum.banish:
-                BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex, BattleManager.cardResolveStack.banishAmount);
+            case CardInfo.ResolveBehaviorEnum.banish:
+                BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex, BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.BanishAmount);
                 break;
         }
+        // cardResolveStack.PopCard(); }
+        // These comments are here for a guideline of what to do if we ever switch over to a proper card stack.
 
         BattleManager.instance.StopCardTracking();
     }
@@ -345,7 +349,7 @@ public class PlayerController : TileCreature
         // Hitting P will toggle control camera
         if (Input.GetKeyDown(KeyCode.P))
             if (puim.IsStateControllingCamera())
-                puim.MoveToState(PlayerUIManager.PlayerUIState.standardNoCardDrawer);
+                puim.MoveToState(PlayerUIManager.PlayerUIState.standardCardDrawer);
             else
                 puim.MoveToState(PlayerUIManager.PlayerUIState.controllingCamera);
     }
@@ -433,6 +437,7 @@ public class PlayerController : TileCreature
         var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
         // First, check things that will not end your turn.
 
+		//Moved picking up money to end of turn because it matches sprites more. Need to move it to after movement not after turn?
         //if (tile.ItemOnTile != null)
         //{
         //    DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
@@ -495,9 +500,21 @@ public class PlayerController : TileCreature
         }
     }
 
-    // Applies incoming damage
-    public override void TakeDamage(int damage)
+    private void ActivateStairs()
     {
+        // Decrement banished cards.
+        playerDeck.TickDownBanishedCards(0);
+
+        BattleManager.currentTurn = BattleManager.TurnPhase.waiting;
+        BattleGrid.instance.GoDownFloor();
+        isMoving = true;
+        moveTarget = new Vector3(xPos, transform.position.y, zPos);
+    }
+
+    // Applies incoming damage
+    public override int TakeDamage(int damage)
+    {
+        int oldHealth = Health;
         if (damage >= 0) // Damage
         {
             // Do we have defense?
@@ -524,6 +541,8 @@ public class PlayerController : TileCreature
         {
             GameOverScreen.PlayerDeath();
         }
+
+        return (oldHealth - Health);
     }
 
     // Handles stuff that happens at the end of the player turn.

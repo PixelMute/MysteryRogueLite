@@ -10,7 +10,7 @@ public abstract class TileCreature : TileEntity
 
     public abstract override float GetPathfindingCost();
     public abstract override bool GetPlayerWalkable();
-    public abstract override void TakeDamage(int amount);
+    public abstract override int TakeDamage(int amount);
 
     public abstract int GetStatusEffectValue(BattleManager.StatusEffectEnum status);
 

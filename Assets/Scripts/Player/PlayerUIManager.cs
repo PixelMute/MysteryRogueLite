@@ -29,11 +29,13 @@ public class PlayerUIManager : MonoBehaviour
     private HorizontalLayoutGroup cardRewardHorizontalLayout;
 
     // Ones that should be assigned in the editor.
-    [SerializeField] private TextMeshProUGUI moneyDisplayLabel;
+    [SerializeField] private TextMeshProUGUI moneyDisplayLabel = null;
+    [SerializeField] private GameObject backShading = null;
+    [SerializeField] private GameObject banishCounter = null;
 
     // Player UI FSM.
     // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
-    public enum PlayerUIState { standardCardDrawer, standardNoCardDrawer, controllingCamera, massCardView, cardRewardView }
+    public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView }
     private PlayerUIState playerUIState = PlayerUIState.standardCardDrawer;
 
     private PlayerController pc;
@@ -52,7 +54,7 @@ public class PlayerUIManager : MonoBehaviour
     [HideInInspector] private GameObject spawnedTileSelectionPrefab;
     private Vector2Int selectedTileGridCoords;
     [HideInInspector] public bool tileCurrentlySelected = false;
-    [HideInInspector] public Vector3 selectedTile;
+    //[HideInInspector] public Vector3 selectedTile;
 
     // Stuff to detect wether the player is clicking on the UI
     //public GraphicRaycaster raycaster; // These need to be set to the ones on the main canvas.
@@ -223,6 +225,12 @@ public class PlayerUIManager : MonoBehaviour
     internal void CardInHandClicked(int index)
     {
         Debug.Log("Card clicked: " + index + ", selectedCard = " + selectedCard);
+        // We're only allowed to click cards in standard UI state.
+        if (IsStateMovementLocked())
+        {
+            return;
+        }
+
         // Is this a double click?
         if (selectedCard && Time.time - initialClickTime < doubleClickTime && selectedCard.cardHandIndex == index)
         {
@@ -312,7 +320,6 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
         {
-            Debug.Log("Clicked World. Selecting Tile.");
             // Check to make sure player has clicked within selectable area.
             if (BattleManager.IsVectorNonNeg(tile) && tile.x < BattleGrid.instance.map.GetLength(0) && tile.y < BattleGrid.instance.map.GetLength(1))
             {
@@ -321,16 +328,38 @@ public class PlayerUIManager : MonoBehaviour
                 spawnedTileSelectionPrefab.SetActive(true);
                 spawnedTileSelectionPrefab.transform.position = target;
                 selectedTileGridCoords = tile;
-                selectedTile = target;
 
+                if (true) // Debug
+                {
+                    DebugPrintTileInfo();
+                }
+                
                 // If we've selected an enemy, show its canvas
                 if (BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType == Tile.TileEntityType.enemy)
                 {
-                    Debug.Log("Enemy Selected");
                     ((EnemyBody)BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetEntityOnTile()).EnemyUI.DisplayHealthBar();
                 }
             }
 
+        }
+    }
+
+    private void DebugPrintTileInfo()
+    {
+        Debug.Log("Selected tile entity: " + BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType.ToString());
+        Debug.Log("Selected terrain: " + BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileTerrainType.ToString());
+
+        TileItem item = BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].ItemOnTile;
+        if (item != null)
+        {
+            if (item is DroppedMoney)
+                Debug.Log("Selected item: Money, value of " + (item as DroppedMoney)?.Value);
+            else
+                Debug.Log("Selected item: Unknown. Please update this in PlayerUIManager.");
+        }
+        else
+        {
+            Debug.Log("Selected item: None.");
         }
     }
 
@@ -512,10 +541,51 @@ public class PlayerUIManager : MonoBehaviour
 
     #endregion
 
+    #region UIManipulation
+
+    bool cardDrawerAtTop = true;
+    /// <summary>
+    /// Toggles the card drawer's position and makes it go either to the top or bottom.
+    /// </summary>
+    public void ToggleCardDrawerPosition()
+    {
+        GameObject hand = handLayout.transform.parent.gameObject;
+        GameObject arrowImage = GameObject.Find("MoveCardViewButtonImage");
+        GameObject arrowButton = arrowImage.transform.parent.gameObject;
+        arrowButton.GetComponent<Button>().enabled = false;
+        if (cardDrawerAtTop)
+        {
+            iTween.MoveBy(hand, iTween.Hash("y", -5.25, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.0f));
+            iTween.MoveBy(arrowButton, iTween.Hash("y", 1.35, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.05f));
+            iTween.RotateTo(arrowImage, iTween.Hash("rotation", new Vector3(0, 0, 0), "easeType", "easeInOutSine", "loopType", "none", "time", 1.2f, "isLocal", true,
+                "onComplete", "ReenableMoveCardDrawerButton", "onCompleteTarget", gameObject));
+        }
+        else
+        {
+            iTween.MoveBy(hand, iTween.Hash("y", 5.25, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.0f));
+            iTween.MoveBy(arrowButton, iTween.Hash("y", -1.35, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.05f));
+            iTween.RotateTo(arrowImage, iTween.Hash("rotation", new Vector3(0, 0, 180), "easeType", "easeInOutSine", "loopType", "none", "time", 1.2f, "isLocal", true,
+                "onComplete", "ReenableMoveCardDrawerButton", "onCompleteTarget", gameObject));
+        }
+
+        cardDrawerAtTop = !cardDrawerAtTop;
+    }
+
+    /// <summary>
+    /// ToggleCardDrawerPosition() disables the button. This is called by iTween and reenables it.
+    /// </summary>
+    public void ReenableMoveCardDrawerButton()
+    {
+        GameObject arrowImage = GameObject.Find("MoveCardViewButtonImage");
+        GameObject arrowButton = arrowImage.transform.parent.gameObject;
+        arrowButton.GetComponent<Button>().enabled = true;
+    }
+
     public void ShowAlert(string text)
     {
         notificationBarFade.StartFadeCycle(text, 0.75f, 1f);
     }
+    #endregion
 
     #region Status Effects
     // Destroys the icon for a status effect 
@@ -580,15 +650,20 @@ public class PlayerUIManager : MonoBehaviour
     {
         switch (playerUIState)
         {
+            case PlayerUIState.standardCardDrawer:
+                DeselectCard();
+                break;
             case PlayerUIState.controllingCamera:
                 vcam.Follow = transform; // Lock camera
                 vcam.LookAt = transform;
                 break;
             case PlayerUIState.massCardView:
                 massCardViewBackground.gameObject.SetActive(false);
+                backShading.SetActive(false);
                 break;
             case PlayerUIState.cardRewardView:
                 cardRewardViewbackground.gameObject.SetActive(false);
+                backShading.SetActive(false);
                 break;
         }
     }
@@ -600,13 +675,16 @@ public class PlayerUIManager : MonoBehaviour
             case PlayerUIState.controllingCamera:
                 vcam.Follow = null; // Unlock camera
                 vcam.LookAt = null;
+                ShowAlert("Press P again to disable camera panning.");
                 break;
             case PlayerUIState.massCardView: // Open mass card view
                 massCardViewBackground.gameObject.SetActive(true);
+                backShading.SetActive(true);
                 PopulateMassCardView();
                 break;
             case PlayerUIState.cardRewardView: // Open card reward view
                 cardRewardViewbackground.gameObject.SetActive(true);
+                backShading.SetActive(true);
                 PopulateCardRewardView();
                 break;
         }
@@ -620,7 +698,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public bool IsStateMovementLocked()
     {
-        if (playerUIState == PlayerUIState.standardCardDrawer || playerUIState == PlayerUIState.standardNoCardDrawer)
+        if (playerUIState == PlayerUIState.standardCardDrawer)
         {
             return false;
         }
@@ -636,6 +714,22 @@ public class PlayerUIManager : MonoBehaviour
         }
         else
             return false;
+    }
+
+    /// <summary>
+    /// This is called when the backshading is clicked.
+    /// </summary>
+    public void CloseOutOfWindows()
+    {
+        if (playerUIState == PlayerUIState.cardRewardView)
+        {
+            ShowAlert("Pick a card or pick skip.");
+            return;
+        }
+        else
+        {
+            MoveToState(PlayerUIState.standardCardDrawer);
+        }
     }
 
     #endregion
@@ -658,8 +752,7 @@ public class PlayerUIManager : MonoBehaviour
         PlayerUIState state = GetState();
         switch (state)
         {
-            case PlayerUIState.standardCardDrawer:
-            case PlayerUIState.standardNoCardDrawer: // Open window
+            case PlayerUIState.standardCardDrawer: // Open window
                 MoveToState(PlayerUIState.massCardView);
                 break;
             case PlayerUIState.massCardView: // Close window
@@ -726,6 +819,9 @@ public class PlayerUIManager : MonoBehaviour
             foreach ((Card c, int i) in PlayerController.playerDeck.banishPile)
             {
                 GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
+                // Now we need to stick a banish counter on it.
+                GameObject bc = GameObject.Instantiate(banishCounter, newCard.transform);
+                bc.GetComponent<TextMeshProUGUI>().SetText(i.ToString());
                 CardInterface ci = newCard.GetComponent<CardInterface>();
                 ci.cardData = c;
                 ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardView);

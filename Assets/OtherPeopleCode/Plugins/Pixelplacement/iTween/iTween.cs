@@ -6439,7 +6439,7 @@ public class iTween : MonoBehaviour
 		if(!args.Contains("target")){
 			args["target"] = target;
 		
-		}		
+		}
 
 		tweens.Insert (0, args);
 		target.AddComponent<iTween>();

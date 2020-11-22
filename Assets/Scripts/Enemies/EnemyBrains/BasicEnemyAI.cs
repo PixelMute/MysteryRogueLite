@@ -272,6 +272,7 @@ class BasicEnemyAI : EnemyBrain
     // If they are in range, they'll wander over here.
     public void ShoutForHelp()
     {
+
         Debug.Log("I shout for help! Is anyone out there?");
         // Get the list of enemies.
         foreach (EnemyBody x in BattleGrid.instance.CurrentFloor.enemies)
@@ -292,6 +293,8 @@ class BasicEnemyAI : EnemyBrain
                 }
             }
         }
+
+        return damageDealt; // I'm not sure if this will work when you kill the enemy.
     }
 }
 
