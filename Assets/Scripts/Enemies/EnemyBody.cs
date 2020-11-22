@@ -60,7 +60,7 @@ public class EnemyBody : TileCreature
         return false;
     }
 
-    public override void TakeDamage(int amount)
+    public override int TakeDamage(int amount)
     {
         BattleManager.cardResolveStack.AddDamageDealt(amount);
         Health.TakeDamage(amount);
@@ -71,6 +71,7 @@ public class EnemyBody : TileCreature
         {
             EnemyUI.FadeHealthBar();
         }
+        return amount;
     }
 
     protected void DebugDrawPath(List<Point> path)

@@ -45,7 +45,7 @@ class TurnManager : MonoBehaviour
             {
                 HandlePlayerTurn();
             }
-            if (CurrentTurn == WhoseTurn.enemy)
+            if (CurrentTurn == WhoseTurn.enemy && !BattleGrid.instance.LoadingNewFloor)
             {
                 HandleEnemyTurn();
             }
@@ -94,6 +94,7 @@ class TurnManager : MonoBehaviour
             //If player ends their turn on the stairs, go down to next floor
             if (IsPlayerOnStairs())
             {
+                Player.GoDownStairsEffects();
                 BattleGrid.instance.GoDownFloor();
                 CurrentPhase = TurnPhase.start;
             }

@@ -437,7 +437,7 @@ public class PlayerController : TileCreature
         var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
         // First, check things that will not end your turn.
 
-		//Moved picking up money to end of turn because it matches sprites more. Need to move it to after movement not after turn?
+        //Moved picking up money to end of turn because it matches sprites more. Need to move it to after movement not after turn?
         //if (tile.ItemOnTile != null)
         //{
         //    DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
@@ -500,15 +500,10 @@ public class PlayerController : TileCreature
         }
     }
 
-    private void ActivateStairs()
+    public void GoDownStairsEffects()
     {
         // Decrement banished cards.
         playerDeck.TickDownBanishedCards(0);
-
-        BattleManager.currentTurn = BattleManager.TurnPhase.waiting;
-        BattleGrid.instance.GoDownFloor();
-        isMoving = true;
-        moveTarget = new Vector3(xPos, transform.position.y, zPos);
     }
 
     // Applies incoming damage
@@ -548,8 +543,8 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     public void EndOfTurn()
     {
+        //Pick up any money that we ended our turn on top of
         var tile = BattleManager.instance.GetTileAtLocation((int)transform.position.x, (int)transform.position.z);
-        // First, check things that will not end your turn.
 
         if (tile.ItemOnTile != null)
         {
