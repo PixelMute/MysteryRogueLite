@@ -1,8 +1,6 @@
-﻿using System;
+﻿using NesScripts.Controls.PathFind;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using NesScripts.Controls.PathFind;
 using UnityEngine;
 // This script handles generic enemy behavior.
 //[RequireComponent(typeof(EnemyUI))]
@@ -64,7 +62,7 @@ public class EnemyBody : TileCreature
         return false;
     }
 
-    public override int TakeDamage(int amount)
+    public override int TakeDamage(Vector2Int locationOfAttack, int amount)
     {
         BattleManager.cardResolveStack.AddDamageDealt(amount);
         Health.TakeDamage(amount);

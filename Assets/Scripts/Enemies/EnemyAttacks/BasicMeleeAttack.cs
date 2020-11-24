@@ -14,6 +14,6 @@ class BasicMeleeAttack : Attack
     {
         var random = new System.Random();
         var damage = random.Next(MinDamage, MaxDamage + 1);
-        BattleGrid.instance.StrikeTile(target, damage);
+        BattleGrid.instance.StrikeTile(target, BattleManager.ConvertVector(transform.position), damage);
     }
 }

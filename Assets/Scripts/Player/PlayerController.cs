@@ -32,6 +32,8 @@ public class PlayerController : TileCreature
 
     private int money;
 
+    public BloodSplatter Splatter;
+
     // LOS
     public bool[,] LoSGrid; // A grid that shows which tiles the player has LOS to relative to themselves. Used for un-obscuring the camera.
     public bool[,] SimpleLoSGrid; // Uses simple middle-to-middle LoS. Used for non-corner cutting attacks.
@@ -507,7 +509,7 @@ public class PlayerController : TileCreature
     }
 
     // Applies incoming damage
-    public override int TakeDamage(int damage)
+    public override int TakeDamage(Vector2Int locationOfAttack, int damage)
     {
         int oldHealth = Health;
         if (damage >= 0) // Damage
@@ -522,6 +524,7 @@ public class PlayerController : TileCreature
 
             if (damage > 0)
             {
+                Splatter.Play(locationOfAttack);
                 Health -= damage;
             }
         }

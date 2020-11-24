@@ -1,10 +1,7 @@
 ﻿using Cinemachine;
 using Roguelike;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -333,7 +330,7 @@ public class PlayerUIManager : MonoBehaviour
                 {
                     DebugPrintTileInfo();
                 }
-                
+
                 // If we've selected an enemy, show its canvas
                 if (BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType == Tile.TileEntityType.enemy)
                 {
@@ -905,7 +902,7 @@ public class PlayerUIManager : MonoBehaviour
     public void LeaveCardRewardScreen(bool pickedSomething)
     {
         if (!pickedSomething)
-            BattleManager.player.TakeDamage(-20); // Heal player for 10
+            BattleManager.player.TakeDamage(BattleManager.ConvertVector(transform.position), -20); // Heal player for 10
 
         // Clear it out
         foreach (Transform t in cardRewardHorizontalLayout.transform)

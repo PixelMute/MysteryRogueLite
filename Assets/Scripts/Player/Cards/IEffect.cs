@@ -1,9 +1,5 @@
-﻿using Roguelike;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 
@@ -37,7 +33,7 @@ namespace Roguelike
                 newDamage = (int)((Damage + momentiumBonus) * BattleManager.cardResolveStack.GetInsightBonus());
             }
 
-            return BattleGrid.instance.StrikeTile(target, newDamage);
+            return BattleGrid.instance.StrikeTile(target, player, newDamage);
         }
     }
 
@@ -56,7 +52,7 @@ namespace Roguelike
             int momentiumBonus = BattleManager.cardResolveStack.GetMomentumBonus();
             float insightBonus = BattleManager.cardResolveStack.GetInsightBonus();
             int endDamage = (int)((BattleManager.player.GetStatusEffectValue(StatusEffect) + momentiumBonus) * insightBonus);
-            return BattleGrid.instance.StrikeTile(target, endDamage);
+            return BattleGrid.instance.StrikeTile(target, player, endDamage);
         }
     }
 
@@ -185,7 +181,7 @@ namespace Roguelike
     // And int takes priority over an effect.
     public class UtilEffectCompare : IEffect
     {
-        public enum UtilEffectCompareOperation { equals, lessThan, greaterThan, notEquals, max, min}
+        public enum UtilEffectCompareOperation { equals, lessThan, greaterThan, notEquals, max, min }
         private UtilEffectCompareOperation op;
         public int ConstantInt { get; private set; }
         private IEffect EffectA { get; set; }
