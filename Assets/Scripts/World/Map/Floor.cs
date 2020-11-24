@@ -129,36 +129,35 @@ public class Floor
         List<Room> rooms = dungeonData.getRooms();
         int numRooms = rooms.Count();
         roomsArea = new int[numRooms];
+        DunNode[][] nodes = dungeonData.getNodes();
 
         for (int i = 0; i < numRooms; i++)
         {
             Position tl = rooms[i].topLeft();
+
             Position br = rooms[i].bottomRight();
 
             //UnityEngine.Debug.Log("In one room. tl.x: " + tl.x() + ", tl.y: " + tl.y() + "; br.x: " + br.x() + ", br.y(): " + br.y());
+            Color rng = UnityEngine.Random.ColorHSV();
 
             for (int j = tl.x(); j < br.x(); j++)
             {
                 for (int k = tl.y(); k < br.y(); k++)
                 {
+                    
                     if (rooms[i].inRoom(new Position(j, k)))
                     {
                         roomsArea[i]++;
+                        
+                        /*if (!nodes[k][j].open())
+                            UnityEngine.Debug.DrawLine(new Vector3(k, 0, j), new Vector3(k, 6, j), Color.red, 100f);
+                        else
+                            UnityEngine.Debug.DrawLine(new Vector3(k, 0, j), new Vector3(k, 5, j), Color.white, 100f);*/
                     }
                 }
             }
-            //UnityEngine.Debug.Log("Room number " + i + " has an area of " + roomsArea[i]);
+            UnityEngine.Debug.Log("Room number " + i + " has an area of " + roomsArea[i]);
             roomAreaSum += roomsArea[i];
-            /*Color rng = UnityEngine.Random.ColorHSV();
-
-            int testTLX;
-            int testTLY;
-            int testBRX;
-            int testBRY;
-            UnityEngine.Debug.DrawLine(new Vector3(tl.x(), 0, tl.y()), new Vector3(tl.x(), 10, tl.y()), rng, 100f);
-            UnityEngine.Debug.DrawLine(new Vector3(br.x(), 0, br.y()), new Vector3(br.x(), 10, br.y()), rng, 100f);
-            UnityEngine.Debug.DrawLine(new Vector3(br.x(), 0, tl.y()), new Vector3(br.x(), 10, tl.y()), rng, 100f);
-            UnityEngine.Debug.DrawLine(new Vector3(tl.x(), 0, br.y()), new Vector3(tl.x(), 10, br.y()), rng, 100f);*/
         }
     }
 
@@ -233,7 +232,9 @@ public class Floor
 
     private void SetEnemyLocation()
     {
-        Vector2Int spawnLoc = PickRandomEmptyTile();
+        //Vector2Int spawnLoc = PickRandomEmptyTile();
+        Debug.Log("Placing an enemy");
+        Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom);
         map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
     }
 
@@ -241,8 +242,8 @@ public class Floor
     {
         for (int i = 0; i < 6; i++)
         {
-            //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
-            Vector2Int spawnLoc = PickRandomEmptyTile();
+            Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
+            //Vector2Int spawnLoc = PickRandomEmptyTile();
             map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
         }
 
@@ -257,8 +258,9 @@ public class Floor
 
     public void AssignPlayerLocation()
     {
-        //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.offWall);
-        Vector2Int spawnLoc = PickRandomEmptyTile();
+        Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.offWall);
+        //Vector2Int spawnLoc = PickRandomEmptyTile();
+        Position playerPos = new Position(spawnLoc.y, spawnLoc.x);
         map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.player;
         BattleManager.player.xPos = spawnLoc.x;
         BattleManager.player.zPos = spawnLoc.y;
@@ -276,7 +278,7 @@ public class Floor
             {
                 if (map[i,j].tileEntityType == Roguelike.Tile.TileEntityType.player)
                 {
-                    UnityEngine.Debug.Log("Player Location Found");
+                    //UnityEngine.Debug.Log("Player Location Found");
                     //flag = true;
                     spawnLocation = new Vector2Int(i, j);
                 }
@@ -306,12 +308,13 @@ public class Floor
         }
     }
 
-    public enum FindTileCondition { notPlayersRoom, evenRoomWeighting, offWall, empty };
+    public enum FindTileCondition { notPlayersRoom, evenRoomWeighting, offWall, onWall, empty, abort };
     public Vector2Int FindTileInRoom(params FindTileCondition[] conds)
     {
         bool forbidPlayer = conds.Contains(FindTileCondition.notPlayersRoom);
         bool weightEven = conds.Contains(FindTileCondition.evenRoomWeighting);
         bool allowEdges = !conds.Contains(FindTileCondition.offWall);
+        bool requireEdge = conds.Contains(FindTileCondition.onWall);
         bool needEmpty = conds.Contains(FindTileCondition.empty);
 
         List<Room> rooms = dungeonData.getRooms();
@@ -342,12 +345,13 @@ public class Floor
             if (forbidPlayer)
             {
                 //UnityEngine.Debug.Log("Player is at " + BattleManager.player.xPos + ", " + BattleManager.player.zPos);
+                //UnityEngine.Debug.DrawLine(new Vector3(BattleManager.player.xPos, 0, BattleManager.player.zPos), new Vector3(BattleManager.player.xPos, 10, BattleManager.player.zPos), Color.cyan, 100f);
                 // UnityEngine.Debug.Log("Room bounded by " + rooms[pickedRoom].topLeft().x() + ", " + rooms[pickedRoom].topLeft().y() + ", and " + rooms[pickedRoom].bottomRight().x() + ", " + rooms[pickedRoom].bottomRight().y());
                 // Check if this is the same room as the player.
-                Position playerPos = new Position(BattleManager.player.xPos, BattleManager.player.zPos);
+                Position playerPos = new Position(BattleManager.player.zPos, BattleManager.player.xPos);
                 if (rooms[pickedRoom].inRoom(playerPos))
                 {
-                    //UnityEngine.Debug.Log("True. ");
+                    //UnityEngine.Debug.Log("Player is in this room, room: " + pickedRoom);
                     flag = false;
                 }
             }
@@ -366,8 +370,8 @@ public class Floor
             flag = true;
             tryNum++;
 
-            int triedX = UnityEngine.Random.Range(rooms[pickedRoom].topLeft().x(), rooms[pickedRoom].bottomRight().x());
-            int triedY = UnityEngine.Random.Range(rooms[pickedRoom].topLeft().y(), rooms[pickedRoom].bottomRight().y());
+            int triedX = UnityEngine.Random.Range(rooms[pickedRoom].topLeft().y(), rooms[pickedRoom].bottomRight().y());
+            int triedY = UnityEngine.Random.Range(rooms[pickedRoom].topLeft().x(), rooms[pickedRoom].bottomRight().x());
 
             // Check conditions.
             if (needEmpty)
@@ -382,16 +386,30 @@ public class Floor
                     || map[triedX - 1, triedY - 1].tileEntityType == Roguelike.Tile.TileEntityType.wall || map[triedX + 1, triedY - 1].tileEntityType == Roguelike.Tile.TileEntityType.wall)
                     flag = false;
             }
+            if (requireEdge && flag)
+            {
+                if (map[triedX + 1, triedY + 1].tileEntityType != Roguelike.Tile.TileEntityType.wall && map[triedX - 1, triedY + 1].tileEntityType != Roguelike.Tile.TileEntityType.wall
+                    && map[triedX - 1, triedY - 1].tileEntityType != Roguelike.Tile.TileEntityType.wall && map[triedX + 1, triedY - 1].tileEntityType != Roguelike.Tile.TileEntityType.wall)
+                {
+                    flag = false;
+                }   
+            }
 
             if (flag)
             {// This position works.
+                UnityEngine.Debug.DrawLine(new Vector3(triedX, 0, triedY), new Vector3(triedX, 10, triedY), Color.green, 100f);
                 return new Vector2Int(triedX, triedY);
             }
             
         } while (!flag && tryNum < 40);
 
+        
+        if (conds.Contains(FindTileCondition.abort))
+        {
+            UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Could not find suitable tile. Aborting and returning (-1, -1).");
+            return new Vector2Int(-1, -1);
+        }
         UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Could not find suitable tile. Loosening restrictions.");
-        UnityEngine.Debug.LogWarning("Room bounded by " + rooms[pickedRoom].topLeft().x() + ", " + rooms[pickedRoom].topLeft().y() + ", and " + rooms[pickedRoom].bottomRight().x() + ", " + rooms[pickedRoom].bottomRight().y() + ". Total rooms: " + rooms.Count);
         //SpawnEnemyAt(rooms[pickedRoom].topLeft().x(), rooms[pickedRoom].topLeft().y(), pickedRoom.ToString());
         //SpawnEnemyAt(rooms[pickedRoom].bottomRight().x(), rooms[pickedRoom].bottomRight().y(), pickedRoom.ToString());
         if (conds.Length <= 1)
