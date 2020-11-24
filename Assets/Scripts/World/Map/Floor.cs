@@ -457,6 +457,7 @@ public class Floor
         var random = new System.Random();
         var rand = random.Next(1, 4);
         GameObject newEnemy;
+        rand = 3;   //Testing animations. Should be removed
         switch (rand)
         {
             case 1:

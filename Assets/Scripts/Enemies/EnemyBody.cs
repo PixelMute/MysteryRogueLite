@@ -1,7 +1,9 @@
-﻿using NesScripts.Controls.PathFind;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using NesScripts.Controls.PathFind;
+using UnityEngine;
 // This script handles generic enemy behavior.
 //[RequireComponent(typeof(EnemyUI))]
 //[RequireComponent(typeof(Health))]
@@ -12,6 +14,8 @@ public class EnemyBody : TileCreature
     public Health Health { get; private set; }
     public Attack Attack { get; private set; }
     public EnemyBrain AI { get; private set; }
+    public EnemyAnimation Animation;
+    public float FadeAwayTime = 1f;
 
     public void Start()
     {
@@ -98,12 +102,37 @@ public class EnemyBody : TileCreature
         // Disengage
         BattleManager.player.RemoveEngagedEnemy(this);
 
+        StartCoroutine(FadeAway(FadeAwayTime));
+
         // Destroy self
+        //BattleManager.RecursivelyEliminateObject(transform);
+    }
+
+    private IEnumerator FadeAway(float timeToFade)
+    {
+        //Wait 4 frames for our dying animation to finish
+        for (int i = 0; i < 4; i++)
+        {
+            yield return null;
+        }
+        var time = 0f;
+        while (time < 1)
+        {
+            time += Time.deltaTime / timeToFade;
+            var curColor = Animation.Sprite.color;
+            Animation.Sprite.color = new Color(curColor.r, curColor.g, curColor.b, 1f - time);
+            yield return null;
+        }
+        //Remove object
         BattleManager.RecursivelyEliminateObject(transform);
+
+
+
     }
 
     public void OnDeath()
     {
+        Animation.Die();
         // Spawn some money
         Debug.Log("Spawning monies");
         BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int(xPos, zPos), UnityEngine.Random.Range(10, 22));

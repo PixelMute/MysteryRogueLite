@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 4376830779705786979}
   - component: {fileID: 2021742922095141656}
   - component: {fileID: 2807554158897417035}
+  - component: {fileID: 1927013019526428277}
+  - component: {fileID: 6932272818078246231}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -69,8 +71,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1042359479
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: -5237074582503671387, guid: 1496636b32cabb444ac3fc7af90c2d1e,
     type: 3}
@@ -96,6 +98,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68b2dd398233a6942b26b99562fae1ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!95 &1927013019526428277
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3196963497795960565}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 776e0555fbd133743925a5166b2da581, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &6932272818078246231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3196963497795960565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1001df53faa34144ad70e5424b3b10b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsFacingRight: 1
 --- !u!1 &4685347585978527987
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,6 +242,8 @@ MonoBehaviour:
   zPos: 0
   visionRange: 5
   TimeToMove: 0.25
+  Animation: {fileID: 6932272818078246231}
+  FadeAwayTime: 2
   enemyColor: {r: 0, g: 0, b: 0, a: 0}
   enemyLineY: 0
 --- !u!114 &588003684119583458
