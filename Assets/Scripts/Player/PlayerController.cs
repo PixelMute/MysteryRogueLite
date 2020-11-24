@@ -1,5 +1,6 @@
 ﻿using Roguelike;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -64,6 +65,8 @@ public class PlayerController : TileCreature
 
     public bool IsFacingRight = true;
     public SpriteRenderer Sprite;
+    private Shader shaderGUItext;
+    private Shader shaderSpritesDefault;
 
     void Awake()
     {
@@ -73,6 +76,8 @@ public class PlayerController : TileCreature
     private void Start()
     {
         AssignVariables();
+        shaderGUItext = Shader.Find("GUI/Text Shader");
+        shaderSpritesDefault = Shader.Find("Sprites/Default"); // or whatever sprite shader is being used
     }
 
     // 0 means cannot be moved through
@@ -525,6 +530,7 @@ public class PlayerController : TileCreature
             if (damage > 0)
             {
                 Splatter.Play(locationOfAttack);
+                StartCoroutine(HitColoration());
                 Health -= damage;
             }
         }
@@ -541,6 +547,15 @@ public class PlayerController : TileCreature
         }
 
         return (oldHealth - Health);
+    }
+
+    private IEnumerator HitColoration(float timeToWait = .05f)
+    {
+        Sprite.material.shader = shaderGUItext;
+        Sprite.color = Color.white;
+        yield return new WaitForSeconds(timeToWait);
+        Sprite.material.shader = shaderSpritesDefault;
+        Sprite.color = Color.white;
     }
 
     // Handles stuff that happens at the end of the player turn.
