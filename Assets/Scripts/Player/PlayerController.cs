@@ -136,7 +136,7 @@ public class PlayerController : TileCreature
         Card dragonheart = CardFactory.GetCard("dragonheart");
         dragonheart.Owner = this;
         playerDeck.InsertCardAtEndOfDrawPile(slash);
-        Card bloodStrike = CardFactory.GetCard("blood strike");
+        
         playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(slash);
@@ -147,8 +147,13 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
+        Card bloodStrike = CardFactory.GetCard("blood and thunder");
         playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
         playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
+
+        Card celerity = CardFactory.GetCard("celerity");
+        playerDeck.InsertCardAtEndOfDrawPile(celerity);
+        playerDeck.InsertCardAtEndOfDrawPile(celerity);
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();

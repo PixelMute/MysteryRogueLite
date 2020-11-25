@@ -62,8 +62,10 @@ public class EnemyBody : TileCreature
 
     public override int TakeDamage(int amount)
     {
-        BattleManager.cardResolveStack.AddDamageDealt(amount);
+        int oldHealth = Health.CurrentHealth;
         Health.TakeDamage(amount);
+        int damageDealt = oldHealth - Health.CurrentHealth;
+        BattleManager.cardResolveStack.AddDamageDealt(damageDealt);
         EnemyUI.UpdateHealthBar(Health);
         if (Health.IsDead)
             Eliminate(); // KO'd
@@ -71,7 +73,7 @@ public class EnemyBody : TileCreature
         {
             EnemyUI.FadeHealthBar();
         }
-        return amount;
+        return damageDealt;
     }
 
     protected void DebugDrawPath(List<Point> path)

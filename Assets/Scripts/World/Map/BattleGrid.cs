@@ -138,13 +138,16 @@ public class BattleGrid : MonoBehaviour
         return entityTile;
     }
 
-    //Instantiates money and tries to place it.
+    //Instantiates money and tries to place it. Might not actually get the input spot if the input spot is taken.
     public void SpawnMoneyOnTile(Vector2Int spawnLoc, int amount)
     {
-        GameObject moneyObj = Instantiate(moneyPrefab, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.25f), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
+        Vector2Int adjustedSpawnLoc = CurrentFloor.FindSpotForItem(spawnLoc, 2); // It might bounce.
+        if (adjustedSpawnLoc.x == -1 && adjustedSpawnLoc.y == -1)
+            return; // money was lost to the void.
+        GameObject moneyObj = Instantiate(moneyPrefab, BattleManager.ConvertVector(adjustedSpawnLoc, transform.position.y + 0.25f), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
         DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
         newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
-        CurrentFloor.TryPlaceTileItemOn(spawnLoc, newMoneyBloodMoney, 2);
+        map[adjustedSpawnLoc.x, adjustedSpawnLoc.y].SetItemOnTile(newMoneyBloodMoney);
     }
 
     public TileTerrain SpawnStairsUp(Vector2Int spawnLoc)

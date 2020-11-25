@@ -278,6 +278,10 @@ public class CardFactory
                 return ParseApplyStatusEffect(effect);
             case "aoe":
                 return ParseAOE(effect);
+            case "var_compareop":
+                return ParseVarCompareOp(effect);
+            case "heal":
+                return ParseHeal(effect);
             default:
                 Debug.LogWarning("Unknown card effect with the name " + effect.Name);
                 return null;
@@ -390,6 +394,105 @@ public class CardFactory
 
         return new AOEAttack(subeffect, radius, selftar, hitempty);
     }
+
+    // <var_compareop op="+" const="11">
+    // <effectA/>
+    // <effectB/> (if you don't have a const)
+    // </var_compareop>
+    private static IEffect ParseVarCompareOp(XmlNode effect)
+    {
+        bool usingConst = int.TryParse(effect.Attributes["const"]?.Value, out int constant);
+
+        Var_CompareOp.CompareOperation op;
+
+        // Find operation
+        if (effect.Attributes["op"] != null)
+        {
+            string opToParse = effect.Attributes["op"].Value;
+            switch (opToParse)
+            {
+                case "==":
+                case "=":
+                    op = Var_CompareOp.CompareOperation.equals;
+                    break;
+                case "<":
+                    op = Var_CompareOp.CompareOperation.lessThan;
+                    break;
+                case ">":
+                    op = Var_CompareOp.CompareOperation.greaterThan;
+                    break;
+                case "!=":
+                    op = Var_CompareOp.CompareOperation.notEquals;
+                    break;
+                case "max":
+                    op = Var_CompareOp.CompareOperation.max;
+                    break;
+                case "min":
+                    op = Var_CompareOp.CompareOperation.min;
+                    break;
+                default:
+                    Debug.LogWarning("Unknown value " + opToParse + " for op. Using default value of '=='.");
+                    op = Var_CompareOp.CompareOperation.equals;
+                    break;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No value 'op' found for this var_compareop node. Using default value of '=='.");
+            op = Var_CompareOp.CompareOperation.equals;
+        }
+
+        // Now, we need to parse the effect, or two effects if we're not using a constant.
+        XmlNodeList subnodes = effect.ChildNodes;
+        if (subnodes == null)
+        {
+            throw new Exception("CardFactory::ParseVarCompareOp(" + effect.Name + ") -- Wrong number of subeffects. Got null.");
+        }
+
+        if (usingConst)
+        {
+            if (subnodes.Count != 1)
+                throw new Exception("CardFactory::ParseVarCompareOp(" + effect.Name + ") -- Wrong number of subeffects. Expected 1, but got " + subnodes.Count);
+
+            return new Var_CompareOp(ParseSingleEffect(subnodes[0]), constant, op);
+        }
+        else
+        {
+            if (subnodes.Count != 2)
+                throw new Exception("CardFactory::ParseVarCompareOp(" + effect.Name + ") -- Wrong number of subeffects. Expected 2, but got " + subnodes.Count);
+
+            return new Var_CompareOp(ParseSingleEffect(subnodes[0]), ParseSingleEffect(subnodes[1]), op);
+        }
+    }
+
+    //<heal val="11" selfTar="true">
+    // <effectA/> (if you don't have a const)
+    // </var_compareop>
+    private static IEffect ParseHeal(XmlNode effect)
+    {
+        bool usingConst = int.TryParse(effect.Attributes["val"]?.Value, out int cons);
+        if (!bool.TryParse(effect.Attributes["selftar"]?.Value, out bool selfTar))
+        {
+            Debug.LogWarning("No value 'selfTar' found for this heal node. Using default value of 'true'.");
+            selfTar = true;
+        }
+
+        if (!usingConst)
+        {
+            XmlNodeList subnodes = effect.ChildNodes;
+            if (subnodes == null || subnodes.Count != 1)
+            {
+               throw new Exception("CardFactory::ParseVarCompareOp(" + effect.Name + ") -- Wrong number of subeffects. Wanted 1.");
+            }
+
+            return new Heal(ParseSingleEffect(subnodes[0]), selfTar);
+        }
+        else
+        {
+            return new Heal(cons, selfTar);
+        }
+    }
+
     #endregion
 
 
