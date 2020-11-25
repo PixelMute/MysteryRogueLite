@@ -111,7 +111,7 @@ public class Floor
         }
 
         AssignPlayerLocation();
-        
+
 
         int numEnemies = FloorNumber + 1 == 5 ? 25 : 5 + (FloorNumber * 3);
         // Set the enemies locations
@@ -267,14 +267,14 @@ public class Floor
     public void PlacePlayerInDungeon()
     {
         // Find the spot set to player.
-        Vector2Int spawnLocation = PickRandomEmptyTile() ;
+        Vector2Int spawnLocation = PickRandomEmptyTile();
         //bool flag = false;
 
         for (int i = 0; i < sizeX; i++)
         {
             for (int j = 0; j < sizeZ; j++)
             {
-                if (map[i,j].tileEntityType == Roguelike.Tile.TileEntityType.player)
+                if (map[i, j].tileEntityType == Roguelike.Tile.TileEntityType.player)
                 {
                     UnityEngine.Debug.Log("Player Location Found");
                     //flag = true;
@@ -317,7 +317,7 @@ public class Floor
         List<Room> rooms = dungeonData.getRooms();
 
         int pickedRoom = -1;
-        bool flag = false ;
+        bool flag = false;
         int tryNum = 0;
         do
         {
@@ -387,7 +387,7 @@ public class Floor
             {// This position works.
                 return new Vector2Int(triedX, triedY);
             }
-            
+
         } while (!flag && tryNum < 40);
 
         UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Could not find suitable tile. Loosening restrictions.");
@@ -404,7 +404,7 @@ public class Floor
             UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Returning an empty tile in a room.");
             return FindTileInRoom(FindTileCondition.empty);
         }
-            
+
     }
 
     // Picks a random empty tile out of the map.
@@ -457,7 +457,7 @@ public class Floor
         var random = new System.Random();
         var rand = random.Next(1, 4);
         GameObject newEnemy;
-        rand = 3;   //Testing animations. Should be removed
+        rand = 1; //Used for testing, should be removed
         switch (rand)
         {
             case 1:
