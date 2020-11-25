@@ -65,8 +65,6 @@ public class PlayerController : TileCreature
 
     public bool IsFacingRight = true;
     public SpriteRenderer Sprite;
-    private Shader shaderGUItext;
-    private Shader shaderSpritesDefault;
 
     void Awake()
     {
@@ -76,8 +74,6 @@ public class PlayerController : TileCreature
     private void Start()
     {
         AssignVariables();
-        shaderGUItext = Shader.Find("GUI/Text Shader");
-        shaderSpritesDefault = Shader.Find("Sprites/Default"); // or whatever sprite shader is being used
     }
 
     // 0 means cannot be moved through
@@ -551,10 +547,10 @@ public class PlayerController : TileCreature
 
     private IEnumerator HitColoration(float timeToWait = .05f)
     {
-        Sprite.material.shader = shaderGUItext;
+        Sprite.material.shader = BattleManager.instance.ShaderGUItext;
         Sprite.color = Color.white;
         yield return new WaitForSeconds(timeToWait);
-        Sprite.material.shader = shaderSpritesDefault;
+        Sprite.material.shader = BattleManager.instance.ShaderSpritesDefault;
         Sprite.color = Color.white;
     }
 

@@ -15,6 +15,9 @@ public class EnemyBody : TileCreature
     public EnemyAnimation Animation;
     public float FadeAwayTime = 1f;
 
+    public BloodSplatter Splatter;
+
+
     public void Start()
     {
         AI = GetComponent<EnemyBrain>();
@@ -30,14 +33,10 @@ public class EnemyBody : TileCreature
         return Attack.IsAttackDone && (Animation.IsIdle() || Animation.IsMoving());
     }
 
-
-
     // Stuff for debugging pathfinding
     protected const bool DEBUGPATHFINDINGMODE = true;
     [HideInInspector] public Color enemyColor;
     [HideInInspector] public float enemyLineY; // so that all the lines are on different y levels.
-
-
 
     public override float GetPathfindingCost()
     {
@@ -69,6 +68,7 @@ public class EnemyBody : TileCreature
 
     public override int TakeDamage(Vector2Int locationOfAttack, int amount)
     {
+        Animation.GetHit(locationOfAttack);
         BattleManager.cardResolveStack.AddDamageDealt(amount);
         Health.TakeDamage(amount);
         EnemyUI.UpdateHealthBar(Health);

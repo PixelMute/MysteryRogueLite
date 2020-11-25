@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class EnemyAnimation : MonoBehaviour
 {
     public Animator Animator { get; private set; }
     public SpriteRenderer Sprite { get; private set; }
-    public bool IsFacingRight = true;
+    public bool IsFacingRight { get; private set; } = true;
+    public BloodSplatter Splatter;
     // Start is called before the first frame update
     void Start()
     {
@@ -83,6 +85,21 @@ public class EnemyAnimation : MonoBehaviour
             Sprite.flipX = false;
             IsFacingRight = true;
         }
+    }
+
+    public void GetHit(Vector2Int locationOfAttack)
+    {
+        Splatter.Play(locationOfAttack);
+        StartCoroutine(HitColoration());
+    }
+
+    private IEnumerator HitColoration(float timeToWait = .05f)
+    {
+        Sprite.material.shader = BattleManager.instance.ShaderGUItext;
+        Sprite.color = Color.white;
+        yield return new WaitForSeconds(timeToWait);
+        Sprite.material.shader = BattleManager.instance.ShaderSpritesDefault;
+        Sprite.color = Color.white;
     }
 }
 
