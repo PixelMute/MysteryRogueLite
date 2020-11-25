@@ -25,6 +25,11 @@ public class EnemyBody : TileCreature
         Attack = GetComponent<Attack>();
     }
 
+    public bool IsDoneWithTurn()
+    {
+        return Attack.IsAttackDone && (Animation.IsIdle() || Animation.IsMoving());
+    }
+
 
 
     // Stuff for debugging pathfinding

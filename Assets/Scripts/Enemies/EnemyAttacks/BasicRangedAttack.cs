@@ -6,6 +6,15 @@ class BasicRangedAttack : Attack
     public int MinDamage;
     public int MaxDamage;
     public GameObject Arrow;
+    private Arrow _arrow;
+
+    public void Update()
+    {
+        if (_arrow == null)
+        {
+            IsAttackDone = true;
+        }
+    }
 
     public override bool IsTargetInRange(Vector2Int target)
     {
@@ -16,8 +25,9 @@ class BasicRangedAttack : Attack
 
     public override void ActivateAttack(Vector2Int target)
     {
-        var arrow = Instantiate(Arrow, transform.position, Quaternion.Euler(new Vector3(90, 0, 0))).GetComponent<Arrow>();
-        arrow.ShootAtTarget(target, AttackTarget);
+        IsAttackDone = false;
+        _arrow = Instantiate(Arrow, transform.position, Quaternion.Euler(new Vector3(90, 0, 0))).GetComponent<Arrow>();
+        _arrow.ShootAtTarget(target, AttackTarget);
     }
 
     private void AttackTarget(Vector2Int target)

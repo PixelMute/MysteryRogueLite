@@ -12,6 +12,28 @@ public class EnemyAnimation : MonoBehaviour
         Sprite = GetComponent<SpriteRenderer>();
     }
 
+    public bool IsIdle()
+    {
+        return IsPlayingClip("Idle");
+    }
+
+    public bool IsMoving()
+    {
+
+        return IsPlayingClip("Moving");
+
+    }
+
+    private bool IsPlayingClip(string clipName)
+    {
+        var clipInfo = Animator.GetCurrentAnimatorClipInfo(0);
+        if (clipInfo.Length > 0)
+        {
+            return clipInfo[0].clip.name == clipName;
+        }
+        return false;
+    }
+
     public void Idle()
     {
         Animator.Play("Idle");

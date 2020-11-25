@@ -13,5 +13,7 @@ public abstract class Attack : MonoBehaviour
     /// </summary>
     /// <param name="target">Target that we are attacking</param>
     public abstract void ActivateAttack(Vector2Int target);
+
+    public bool IsAttackDone { get; protected set; } = true;
 }
 
