@@ -149,7 +149,7 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
-        if (true) // Debugging testing certain cards.
+        if (false) // Debugging testing certain cards.
         {
             Card card1 = CardFactory.GetCard("Rebound");
             playerDeck.InsertCardAtEndOfDrawPile(card1);
