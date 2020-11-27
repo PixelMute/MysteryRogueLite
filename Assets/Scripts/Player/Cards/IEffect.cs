@@ -272,11 +272,11 @@ namespace Roguelike
 
             if (healSelf)
             {
-                return BattleManager.player.TakeDamage(-1 * value);
+                return BattleManager.player.TakeDamage(player, -1 * value);
             }
             else
             {
-                return BattleGrid.instance.StrikeTile(target, -1 * value);
+                return BattleGrid.instance.StrikeTile(player, target, -1 * value);
             }
         }
     }
