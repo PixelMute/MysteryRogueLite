@@ -1,7 +1,4 @@
-﻿using Roguelike;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Wall : TileEntity
 {
@@ -17,7 +14,7 @@ public class Wall : TileEntity
         return false;
     }
 
-    public override int TakeDamage(int amount)
+    public override int TakeDamage(Vector2Int locationOfAttack, int amount)
     {
         Debug.LogError("Wall--TakeDamage(" + amount + "):: I. Wall. ... You. No. Implement. Damage. For. Walls. Yet.");
         return 0;

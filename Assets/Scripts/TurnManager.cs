@@ -107,17 +107,34 @@ class TurnManager : MonoBehaviour
     private void HandleEnemyTurn()
     {
         var enemies = BattleGrid.instance.CurrentFloor.enemies;
-        foreach (var enemy in enemies)
+        if (CurrentPhase == TurnPhase.start)
         {
-            enemy.ProcessTurn();
+            foreach (var enemy in enemies)
+            {
+                enemy.ProcessTurn();
+            }
+
+            CurrentPhase = TurnPhase.end;
+        }
+        if (CurrentPhase == TurnPhase.end)
+        {
+            foreach (var enemy in enemies)
+            {
+                //If the enemies aren't done attacking, then wait
+                if (!enemy.IsDoneWithTurn())
+                {
+                    return;
+                }
+            }
+            //Start player's turn right away so there isn't a delay
+            CurrentTurn = WhoseTurn.player;
+            CurrentPhase = TurnPhase.start;
+            if (!BattleGrid.instance.LoadingNewFloor)
+            {
+                HandlePlayerTurn();
+            }
         }
 
-        //Start player's turn right away so there isn't a delay
-        CurrentTurn = WhoseTurn.player;
-        if (!BattleGrid.instance.LoadingNewFloor)
-        {
-            HandlePlayerTurn();
-        }
     }
 
     private bool IsPlayerOnStairs()

@@ -1,9 +1,5 @@
-﻿using Roguelike;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 
@@ -37,7 +33,7 @@ namespace Roguelike
                 newDamage = (int)((Damage + momentiumBonus) * BattleManager.cardResolveStack.GetInsightBonus());
             }
 
-            return BattleGrid.instance.StrikeTile(target, newDamage);
+            return BattleGrid.instance.StrikeTile(target, player, newDamage);
         }
     }
 
@@ -56,7 +52,7 @@ namespace Roguelike
             int momentiumBonus = BattleManager.cardResolveStack.GetMomentumBonus();
             float insightBonus = BattleManager.cardResolveStack.GetInsightBonus();
             int endDamage = (int)((BattleManager.player.GetStatusEffectValue(StatusEffect) + momentiumBonus) * insightBonus);
-            return BattleGrid.instance.StrikeTile(target, endDamage);
+            return BattleGrid.instance.StrikeTile(target, player, endDamage);
         }
     }
 

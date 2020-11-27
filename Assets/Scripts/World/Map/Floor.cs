@@ -111,7 +111,7 @@ public class Floor
         }
 
         AssignPlayerLocation();
-        
+
 
         int numEnemies = FloorNumber + 1 == 5 ? 25 : 5 + (FloorNumber * 3);
         // Set the enemies locations
@@ -269,14 +269,14 @@ public class Floor
     public void PlacePlayerInDungeon()
     {
         // Find the spot set to player.
-        Vector2Int spawnLocation = PickRandomEmptyTile() ;
+        Vector2Int spawnLocation = PickRandomEmptyTile();
         //bool flag = false;
 
         for (int i = 0; i < sizeX; i++)
         {
             for (int j = 0; j < sizeZ; j++)
             {
-                if (map[i,j].tileEntityType == Roguelike.Tile.TileEntityType.player)
+                if (map[i, j].tileEntityType == Roguelike.Tile.TileEntityType.player)
                 {
                     //UnityEngine.Debug.Log("Player Location Found");
                     //flag = true;
@@ -320,7 +320,7 @@ public class Floor
         List<Room> rooms = dungeonData.getRooms();
 
         int pickedRoom = -1;
-        bool flag = false ;
+        bool flag = false;
         int tryNum = 0;
         do
         {
@@ -400,7 +400,7 @@ public class Floor
                 UnityEngine.Debug.DrawLine(new Vector3(triedX, 0, triedY), new Vector3(triedX, 10, triedY), Color.green, 100f);
                 return new Vector2Int(triedX, triedY);
             }
-            
+
         } while (!flag && tryNum < 40);
 
         
@@ -422,7 +422,7 @@ public class Floor
             UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Returning an empty tile in a room.");
             return FindTileInRoom(FindTileCondition.empty);
         }
-            
+
     }
 
     // Picks a random empty tile out of the map.
