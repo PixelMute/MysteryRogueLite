@@ -120,6 +120,8 @@ public class CardFactory
         int minRange = 0;
         int maxRange = 0;
         List<IEffect> effectList = null;
+        List<IEffect> onBanishEffects = null;
+        List<IEffect> onDiscardEffects = null;
         List<PlayCondition> playConditionList = null;
 
         foreach (XmlNode subnode in node.ChildNodes)
@@ -166,6 +168,12 @@ public class CardFactory
                 case "effects":
                     effectList = ParseEffects(subnode);
                     break;
+                case "banisheffects":
+                    onBanishEffects = ParseEffects(subnode);
+                    break;
+                case "discardeffects":
+                    onDiscardEffects = ParseEffects(subnode);
+                    break;
                 case "playconditions":
                     playConditionList = ParsePlayConditions(subnode);
                     break;
@@ -192,7 +200,7 @@ public class CardFactory
 
         // Now that we've done that, compile the info into an actual card.
         var range = new Range(playConditionList, minRange, maxRange);
-        var card = new Card(cardInfo, range, effectList);
+        var card = new Card(cardInfo, range, effectList, onDiscardEffects, onBanishEffects);
 
         return card;
     }
@@ -282,6 +290,8 @@ public class CardFactory
                 return ParseVarCompareOp(effect);
             case "heal":
                 return ParseHeal(effect);
+            case "maniphand":
+                return ParseManipHand(effect);
             default:
                 Debug.LogWarning("Unknown card effect with the name " + effect.Name);
                 return null;
@@ -339,6 +349,9 @@ public class CardFactory
         return new DamageBasedOnStatus(res);
     }
 
+    // <applystatuseffect status="momentum" power="7" self="true">
+    //  <internalEffect/> (if not using a power)
+    // </applystatuseffect>
     private static IEffect ParseApplyStatusEffect(XmlNode effect)
     {
         if (!Enum.TryParse(effect.Attributes["status"]?.Value, out BattleManager.StatusEffectEnum res))
@@ -347,16 +360,21 @@ public class CardFactory
             res = BattleManager.StatusEffectEnum.defence;
         }
 
-        if (!int.TryParse(effect.Attributes["power"]?.Value, out int power))
-        {
-            Debug.LogWarning("No value 'power' found for this applystatuseffect node. Using default value.");
-            power = 1;
-        }
-
         if (!bool.TryParse(effect.Attributes["self"]?.Value, out bool self))
         {
             Debug.LogWarning("No value 'self' found for this applystatuseffect node. Using default value.");
             self = true;
+        }
+
+        if (!int.TryParse(effect.Attributes["power"]?.Value, out int power))
+        {
+            XmlNodeList subnodes = effect.ChildNodes;
+            if (subnodes != null && subnodes.Count == 1)
+            {
+                return new ApplyStatusEffect(ParseSingleEffect(subnodes[0]), res, self);
+            }
+            else
+                throw new Exception("CardFactory::ParseAOE(" + effect.Name + ") -- Wrong number of subeffects. Expected 1");
         }
 
         return new ApplyStatusEffect(power, res, self);
@@ -467,7 +485,7 @@ public class CardFactory
 
     //<heal val="11" selfTar="true">
     // <effectA/> (if you don't have a const)
-    // </var_compareop>
+    // </heal>
     private static IEffect ParseHeal(XmlNode effect)
     {
         bool usingConst = int.TryParse(effect.Attributes["val"]?.Value, out int cons);
@@ -490,6 +508,76 @@ public class CardFactory
         else
         {
             return new Heal(cons, selfTar);
+        }
+    }
+
+    // <maniphand val="11" tar="left" op="discard">
+    // <effectA/> (if you don't have a const)
+    // </maniphand>
+    // tar can be "left", "right", "leftmost", "rightmost", "random"
+    // op can be "discard" or "banish"
+    // val doesn't matter with discard.
+    private static IEffect ParseManipHand(XmlNode effect)
+    {
+        Debug.Log("ParseManiphand started 1");
+        XmlNodeList subnodes = effect.ChildNodes;
+        bool usingEffect = (subnodes != null && subnodes.Count == 1);
+        ManipulateHand.ManipulateHandEffectEnum discardOrBanish;
+        ManipulateHand.ManipulateHandTargetEnum target;
+        
+        string tar = effect.Attributes["tar"]?.Value;
+        if (tar == null)
+            throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- No 'tar' attribute found.");
+        Debug.Log("ParseManiphand started 2");
+        switch (tar)
+        {
+            case "left":
+                target = ManipulateHand.ManipulateHandTargetEnum.leftCard;
+                break;
+            case "right":
+                target = ManipulateHand.ManipulateHandTargetEnum.rightCard;
+                break;
+            case "leftmost":
+                target = ManipulateHand.ManipulateHandTargetEnum.leftMostCard;
+                break;
+            case "rightmost":
+                target = ManipulateHand.ManipulateHandTargetEnum.rightMostCard;
+                break;
+            case "random":
+                target = ManipulateHand.ManipulateHandTargetEnum.random;
+                break;
+            default:
+                throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- Unknown value for tar called " + tar);
+        }
+        Debug.Log("ParseManiphand started 3");
+        string op = effect.Attributes["op"]?.Value;
+        if (op == null)
+            throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- No 'op' attribute found.");
+
+        switch (op)
+        {
+            case "discard":
+                discardOrBanish = ManipulateHand.ManipulateHandEffectEnum.discard;
+                break;
+            case "banish":
+                discardOrBanish = ManipulateHand.ManipulateHandEffectEnum.banish;
+                break;
+            default:
+                throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- Unknown value for op called " + op);
+        }
+        Debug.Log("ParseManiphand started 4");
+        if (usingEffect)
+        {
+            Debug.Log("ParseManiphand started 5");
+            return new ManipulateHand(ParseSingleEffect(subnodes[0]), target, discardOrBanish);
+        }
+        else
+        {
+            
+            if (!int.TryParse(effect.Attributes["val"]?.Value, out int cons))
+                cons = 1;
+            Debug.Log("ParseManiphand started 6");
+            return new ManipulateHand(cons, target, discardOrBanish);
         }
     }
 

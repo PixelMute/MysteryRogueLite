@@ -78,28 +78,42 @@ namespace Roguelike
     /// </summary>
     public class ApplyStatusEffect : IEffect
     {
-        public int Power { get; private set; }
+        public int StaticPower { get; private set; }
+        public IEffect PowerFromEffect { get; private set; } = null;
         public BattleManager.StatusEffectEnum StatusEffect { get; private set; }
         public bool SelfTar { get; private set; }
 
         public ApplyStatusEffect(int initPower, BattleManager.StatusEffectEnum initStatusEffect, bool selfTar)
         {
-            Power = initPower;
+            StaticPower = initPower;
+            StatusEffect = initStatusEffect;
+            SelfTar = selfTar;
+        }
+
+        public ApplyStatusEffect(IEffect powerFromEffect, BattleManager.StatusEffectEnum initStatusEffect, bool selfTar)
+        {
+            PowerFromEffect = powerFromEffect;
             StatusEffect = initStatusEffect;
             SelfTar = selfTar;
         }
 
         public int Activate(Vector2Int player, Vector2Int target)
         {
-            Debug.Log("Apply status effect activated. " + StatusEffect.ToString() + ", " + Power + ", self: " + SelfTar);
+            Debug.Log("Apply status effect activated. " + StatusEffect.ToString() + ", " + StaticPower + ", self: " + SelfTar);
+            int value;
+            if (PowerFromEffect != null)
+                value = PowerFromEffect.Activate(player, target);
+            else
+                value = StaticPower;
+
             if (SelfTar)
             {
-                BattleManager.player.ApplyStatusEffect(StatusEffect, Power);
+                BattleManager.player.ApplyStatusEffect(StatusEffect, value);
                 return 1;
             }
             else
             {
-                bool flag = BattleGrid.instance.ApplyStatusEffectOnTile(target, StatusEffect, Power);
+                bool flag = BattleGrid.instance.ApplyStatusEffectOnTile(target, StatusEffect, value);
                 if (flag) return 1; else return 0;
             }
         }
@@ -268,6 +282,45 @@ namespace Roguelike
             {
                 return BattleGrid.instance.StrikeTile(target, -1 * value);
             }
+        }
+    }
+
+    public class ManipulateHand : IEffect
+    {
+        public int StaticVal { get; private set; } = -1;
+        public IEffect ValEffect { get; private set; } = null; // Get the value from this effect.
+
+        public enum ManipulateHandTargetEnum { leftCard, rightCard, leftMostCard, rightMostCard, random };
+        public enum ManipulateHandEffectEnum { discard, banish };
+
+        public ManipulateHandTargetEnum Target { get; private set; } = ManipulateHandTargetEnum.leftCard;
+        public ManipulateHandEffectEnum Effect { get; private set; } = ManipulateHandEffectEnum.discard;
+
+        public ManipulateHand(int staticVal, ManipulateHandTargetEnum target, ManipulateHandEffectEnum effect)
+        {
+            StaticVal = staticVal;
+            Target = target;
+            Effect = effect;
+        }
+        public ManipulateHand(IEffect valeffect, ManipulateHandTargetEnum target, ManipulateHandEffectEnum effect)
+        {
+            ValEffect = valeffect;
+            Target = target;
+            Effect = effect;
+        }
+
+        public int Activate(Vector2Int player, Vector2Int target)
+        {
+            int value;
+            if (ValEffect != null) // Use value from this effect
+                value = ValEffect.Activate(player, target);
+            else // Use static value
+                value = StaticVal;
+
+            if (BattleManager.cardResolveStack.MakeHandManipulateRequest(Target, Effect, value))
+                return 1;
+            else
+                return 0;
         }
     }
 

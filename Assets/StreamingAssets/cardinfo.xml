@@ -140,12 +140,12 @@
 </playconditions>
 </card>
 
-<!--Card8:Backflip-->
+<!--Card8:Composure-->
 <card>
 <id val="8"/>
 <spiritcost val="8"/>
 <energycost val="2"/>
-<name>Backflip</name>
+<name>Composure</name>
 <description>Gain 8 defense. Draw 2 cards.</description>
 <effects>
 	<applystatuseffect status="defence" power="8" self="true"/>
@@ -503,5 +503,105 @@
 <banishafterplay val="2"/>
 </card>
 
+<!--Card26:Void's Cackle-->
+<card>
+<id val="26"/>
+<spiritcost val="4"/>
+<energycost val="0"/>
+<name>Void's Cackle</name>
+<description>Take 5 damage. Gain momentum 7.</description>
+<effects>
+	<heal selftar="true" val="-5"/>
+	<applystatuseffect status="momentum" power="7" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card27:Geomancy-->
+<card>
+<id val="27"/>
+<spiritcost val="3"/>
+<energycost val="3"/>
+<name>Geomancy</name>
+<description>Gain Insight 3. Banish 2.</description>
+<effects>
+	<applystatuseffect status="insight" power="3" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Draconic</theme>
+<playconditions>
+</playconditions>
+<banishafterplay val="2"/>
+</card>
+
+<!--Card28:Crushing Pommel-->
+<card>
+<id val="28"/>
+<spiritcost val="8"/>
+<energycost val="2"/>
+<name>Crushing Pommel</name>
+<description>Deal 15 damage. Gain defense equal to damage dealt. Range 1-1.</description>
+<effects>
+	<applystatuseffect status="defence" self="true">
+		<strike dmg="15"/>
+	</applystatuseffect>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>Draconic</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card29:Fulgurite-->
+<card>
+<id val="29"/>
+<spiritcost val="8"/>
+<energycost val="2"/>
+<name>Fulgurite</name>
+<description>Deal 1 damage three times. Range 1-3. Lifesteal. Banish 2.</description>
+<effects>
+	<heal selftar="true">
+		<strike dmg="1"/>
+	</heal>
+	<heal selftar="true">
+		<strike dmg="1"/>
+	</heal>
+	<heal selftar="true">
+		<strike dmg="1"/>
+	</heal>
+</effects>
+<minrange val="1"/>
+<maxrange val="3"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card30:Dis card-->
+<card>
+<id val="30"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Dis card</name>
+<description>ggg</description>
+<effects>
+	<maniphand val="5" tar="left" op="banish"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="3"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+</card>
 
 </cardList>

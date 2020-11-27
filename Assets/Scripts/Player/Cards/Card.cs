@@ -13,6 +13,8 @@ public class Card
 {
     public CardInfo CardInfo { get; private set; }
     public List<IEffect> Effects { get; private set; }
+    public List<IEffect> OnDiscardEffects { get; private set; } // Effects that are activated when the card is discarded through an effect.
+    public List<IEffect> OnBanishEffects { get; private set; }
     public Range Range { get; private set; }
 
     public TileCreature Owner { get; set; }
@@ -22,11 +24,13 @@ public class Card
 
     public Card(CardInfo cardInfo, Range range) : this(cardInfo, range, new List<IEffect>()) { }
 
-    public Card(CardInfo cardInfo, Range range, List<IEffect> effects)
+    public Card(CardInfo cardInfo, Range range, List<IEffect> effects, List<IEffect> onDiscard = null, List<IEffect> onBanish = null)
     {
         Effects = effects;
         CardInfo = cardInfo;
         Range = range;
+        OnBanishEffects = onBanish;
+        OnDiscardEffects = onDiscard;
     }
 
     //Adds the effect to the card. The new effect will be activated last
@@ -42,12 +46,26 @@ public class Card
 
     internal void OnDiscard(bool fromEffect)
     {
-        return; // If we want to have any effects that activate when the card is discarded
+        if (fromEffect && OnDiscardEffects != null)
+        {
+            Vector2Int defaultTargeting = new Vector2Int(BattleManager.player.xPos, BattleManager.player.zPos);
+            foreach (var effect in OnDiscardEffects)
+            {
+                effect.Activate(defaultTargeting, defaultTargeting);
+            }
+        }
     }
 
     internal void OnBanish()
     {
-        return;
+        if (OnBanishEffects != null)
+        { 
+            Vector2Int defaultTargeting = new Vector2Int(BattleManager.player.xPos, BattleManager.player.zPos);
+            foreach (var effect in OnBanishEffects)
+            {
+                effect.Activate(defaultTargeting, defaultTargeting);
+            }
+        }
     }
 
     /// <summary>

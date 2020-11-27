@@ -136,7 +136,6 @@ public class PlayerController : TileCreature
         Card dragonheart = CardFactory.GetCard("dragonheart");
         dragonheart.Owner = this;
         playerDeck.InsertCardAtEndOfDrawPile(slash);
-        
         playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(slash);
@@ -147,13 +146,21 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
-        Card bloodStrike = CardFactory.GetCard("blood and thunder");
-        playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
-        playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
+        if (true) // Debugging testing certain cards.
+        {
+            Card card1 = CardFactory.GetCard("dis card");
+            playerDeck.InsertCardAtEndOfDrawPile(card1);
+            playerDeck.InsertCardAtEndOfDrawPile(card1);
 
-        Card celerity = CardFactory.GetCard("celerity");
-        playerDeck.InsertCardAtEndOfDrawPile(celerity);
-        playerDeck.InsertCardAtEndOfDrawPile(celerity);
+            Card card2 = CardFactory.GetCard("dis card");
+            playerDeck.InsertCardAtEndOfDrawPile(card2);
+            playerDeck.InsertCardAtEndOfDrawPile(card2);
+
+            Card card3 = CardFactory.GetCard("geomancy");
+            playerDeck.InsertCardAtEndOfDrawPile(card3);
+            playerDeck.InsertCardAtEndOfDrawPile(card3);
+        }
+        
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -327,14 +334,14 @@ public class PlayerController : TileCreature
     }
 
     // Discards this card and fixes the indexes for the others.
-    private void DiscardCardIndex(int index, bool fromEffect = false)
+    public void DiscardCardIndex(int index, bool fromEffect = false)
     {
         // Discard card data
         playerDeck.DiscardCardAtIndex(index, fromEffect);
         puim.DestroyCardAtIndex(index);
     }
 
-    private void BanishCardIndex(int index, int amount)
+    public void BanishCardIndex(int index, int amount)
     {
         playerDeck.BanishCardAtIndex(index, amount);
         puim.DestroyCardAtIndex(index);
