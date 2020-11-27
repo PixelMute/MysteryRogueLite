@@ -148,11 +148,11 @@ public class PlayerController : TileCreature
 
         if (true) // Debugging testing certain cards.
         {
-            Card card1 = CardFactory.GetCard("dis card");
+            Card card1 = CardFactory.GetCard("Rebound");
             playerDeck.InsertCardAtEndOfDrawPile(card1);
             playerDeck.InsertCardAtEndOfDrawPile(card1);
 
-            Card card2 = CardFactory.GetCard("dis card");
+            Card card2 = CardFactory.GetCard("Rebound");
             playerDeck.InsertCardAtEndOfDrawPile(card2);
             playerDeck.InsertCardAtEndOfDrawPile(card2);
 

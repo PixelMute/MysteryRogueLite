@@ -587,19 +587,21 @@
 </playconditions>
 </card>
 
-<!--Card30:Dis card-->
+<!--Card30:Rebound-->
 <card>
 <id val="30"/>
 <spiritcost val="0"/>
 <energycost val="0"/>
-<name>Dis card</name>
-<description>ggg</description>
+<name>Rebound</name>
+<description>Discard your leftmost and rightmost cards. Draw 2 cards.</description>
 <effects>
-	<maniphand val="5" tar="left" op="banish"/>
+	<maniphand tar="leftmost" op="discard"/>
+	<maniphand tar="rightmost" op="discard"/>
+	<drawcards val="2"/>
 </effects>
-<minrange val="1"/>
-<maxrange val="3"/>
-<theme>Impundulu</theme>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
 <playconditions>
 </playconditions>
 </card>
