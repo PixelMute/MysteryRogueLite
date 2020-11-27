@@ -66,8 +66,8 @@
 <name>DragonHeart</name>
 <description>Gain 12 defense, then deal damage equal to defense in range 1-2. Does not need LOS.</description>
 <effects>
-	<applyStatusEffect self="true" status="defence" power="12"/>
-	<damagebasedonstatus status="defence"/>
+	<applyStatusEffect self="true" status="defense" power="12"/>
+	<damagebasedonstatus status="defense"/>
 </effects>
 <minrange val="1"/>
 <maxrange val="2"/>
@@ -148,9 +148,10 @@
 <name>Composure</name>
 <description>Gain 8 defense. Draw 2 cards.</description>
 <effects>
-	<applystatuseffect status="defence" power="8" self="true"/>
+	<applystatuseffect status="defense" power="8" self="true"/>
 	<drawcards val="2"/>
 </effects>
+<theme>Draconic</theme>
 <minrange val="0"/>
 <maxrange val="0"/>
 <playconditions>
@@ -263,7 +264,7 @@
 <name>Fallback</name>
 <description>Gain 8 defense. Move to the targeted tile. Range 1-2.</description>
 <effects>
-	<applystatuseffect status="defence" power="8" self="true"/>
+	<applystatuseffect status="defense" power="8" self="true"/>
 	<teleport/>
 </effects>
 <minrange val="1"/>
@@ -449,7 +450,7 @@
 <description>Gain 4 defense per enemy within 3 tiles.</description>
 <effects>
 	<aoe selftar="true" radius="3" hitempty="false">
-		<applystatuseffect status="defence" power="4" self="true"/>
+		<applystatuseffect status="defense" power="4" self="true"/>
 	</aoe>
 </effects>
 <minrange val="0"/>
@@ -545,9 +546,9 @@
 <spiritcost val="8"/>
 <energycost val="2"/>
 <name>Crushing Pommel</name>
-<description>Deal 15 damage. Gain defense equal to damage dealt. Range 1-1.</description>
+<description>Deal 15 damage. Gain defense equal to damage dealt. Range 1-1. Banish 1.</description>
 <effects>
-	<applystatuseffect status="defence" self="true">
+	<applystatuseffect status="defense" self="true">
 		<strike dmg="15"/>
 	</applystatuseffect>
 </effects>
@@ -558,6 +559,7 @@
 	<mustHitCreature/>
 	<needsLOS/>
 </playconditions>
+<banishafterplay val="1"/>
 </card>
 
 <!--Card29:Fulgurite-->
@@ -585,13 +587,14 @@
 	<mustHitCreature/>
 	<needsLOS/>
 </playconditions>
+<banishafterplay val="2"/>
 </card>
 
 <!--Card30:Rebound-->
 <card>
 <id val="30"/>
-<spiritcost val="0"/>
-<energycost val="0"/>
+<spiritcost val="2"/>
+<energycost val="1"/>
 <name>Rebound</name>
 <description>Discard your leftmost and rightmost cards. Draw 2 cards.</description>
 <effects>
@@ -603,6 +606,184 @@
 <maxrange val="0"/>
 <theme>AlMiraj</theme>
 <playconditions>
+</playconditions>
+</card>
+
+<!--Card31:Second Wind-->
+<card>
+<id val="31"/>
+<spiritcost val="1"/>
+<energycost val="2"/>
+<name>Second Wind</name>
+<description>Gain 3 energy. &lt;b&gt;Echo&lt;b&gt;: Gain 2 energy.</description>
+<effects>
+	<gainenergy val="3"/>
+</effects>
+<discardeffects>
+	<gainenergy val="2"/>
+</discardeffects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card32:Reckless Strike-->
+<card>
+<id val="32"/>
+<spiritcost val="4"/>
+<energycost val="1"/>
+<name>Reckless Strike</name>
+<description>Deal 25 damage. Discard a random card. Range 1-1.</description>
+<effects>
+	<strike dmg="25"/>
+	<maniphand tar="random" op="discard"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card32:Fury Chant-->
+<card>
+<id val="32"/>
+<spiritcost val="7"/>
+<energycost val="2"/>
+<name>Fury Chant</name>
+<description>Gain insight 1 and momentum 5. &lt;b&gt;Echo&lt;/b&gt;: same effect.</description>
+<effects>
+	<applystatuseffect status="insight" power="1" self="true"/>
+	<applystatuseffect status="momentum" power="5" self="true"/>
+</effects>
+<discardeffects>
+	<applystatuseffect status="insight" power="1" self="true"/>
+	<applystatuseffect status="momentum" power="5" self="true"/>
+</discardeffects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card33:Ebb and Flow-->
+<card>
+<id val="33"/>
+<spiritcost val="2"/>
+<energycost val="1"/>
+<name>Ebb and Flow</name>
+<description>Deal 15 damage. Range 1. Cuts Corners. &lt;b&gt;Echo&lt;/b&gt;: Gain 10 defense.</description>
+<effects>
+	<strike dmg="15"/>
+</effects>
+<discardeffects>
+	<applystatuseffect status="defense" power="10" self="true"/>
+</discardeffects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+	<cornercutting/>
+</playconditions>
+</card>
+
+<!--Card34:Horn Lance-->
+<card>
+<id val="34"/>
+<spiritcost val="6"/>
+<energycost val="2"/>
+<name>Horn Lance</name>
+<description>Deal 35 damage. Range 1-3. Line. Discard the cards to the left and right of this one.</description>
+<effects>
+	<strike dmg="35"/>
+	<maniphand tar="left" op="discard"/>
+	<maniphand tar="right" op="discard"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="3"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+	<straightLine/>
+</playconditions>
+</card>
+
+<!--Card35:Whirling Rage-->
+<card>
+<id val="35"/>
+<spiritcost val="7"/>
+<energycost val="2"/>
+<name>Whirling Rage</name>
+<description>Deal 15 damage to every enemy in range 2. Banish 1. &lt;b&gt;Echo&lt;/b&gt;: Same effect.</description>
+<effects>
+	<aoe selftar="true" radius="2" hitempty="false">
+		<strike dmg="15"/>
+	</aoe>
+</effects>
+<discardeffects>
+	<aoe selftar="true" radius="2" hitempty="false">
+		<strike dmg="15"/>
+	</aoe>
+</discardeffects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
+<playconditions>
+</playconditions>
+<banishafterplay val="1"/>
+</card>
+
+<!--Card36:Stalker's Strike-->
+<card>
+<id val="36"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Stalker's Strike</name>
+<description>Deal 10 damage four times. Range 4-4. Line. Cuts corners.</description>
+<effects>
+	<strike dmg="10"/>
+	<strike dmg="10"/>
+	<strike dmg="10"/>
+	<strike dmg="10"/>
+</effects>
+<minrange val="4"/>
+<maxrange val="4"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<needsLOS/>
+	<straightLine/>
+	<musthitCreature/>
+</playconditions>
+</card>
+
+<!--Card37:Springfooted-->
+<card>
+<id val="37"/>
+<spiritcost val="4"/>
+<energycost val="1"/>
+<name>Springfooted</name>
+<description>Move to targeted tile. Range 1-2. Line. &lt;b&gt;Echo&lt;/b&gt;: Draw a card.</description>
+<effects>
+	<teleport/>
+</effects>
+<discardeffects>
+	<drawcards val="1"/>
+</discardeffects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<needsLOS/>
+	<straightLine/>
+	<emptyTile/>
 </playconditions>
 </card>
 

@@ -156,7 +156,6 @@ public class Floor
                     }
                 }
             }
-            UnityEngine.Debug.Log("Room number " + i + " has an area of " + roomsArea[i]);
             roomAreaSum += roomsArea[i];
         }
     }
@@ -173,7 +172,7 @@ public class Floor
                         SpawnWallAt(i, j);
                         break;
                     case Roguelike.Tile.TileEntityType.enemy:
-                        UnityEngine.Debug.Log("Floor spawning enemy");
+                        //UnityEngine.Debug.Log("Floor spawning enemy");
                         SpawnEnemyAt(i, j);
                         break;
                         //case Roguelike.Tile.TileEntityType.stairsUp:
@@ -233,7 +232,6 @@ public class Floor
     private void SetEnemyLocation()
     {
         //Vector2Int spawnLoc = PickRandomEmptyTile();
-        Debug.Log("Placing an enemy");
         Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom);
         map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
     }

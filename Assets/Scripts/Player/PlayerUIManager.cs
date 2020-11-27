@@ -206,7 +206,7 @@ public class PlayerUIManager : MonoBehaviour
         // Loop through and reduce the index of other cards by one
         for (int i = index + 1; i < graphicalHand.Count; i++)
         {
-            Debug.Log("Reducing index of number " + i);
+            //Debug.Log("Reducing index of number " + i);
             graphicalHand[i].cardHandIndex--;
         }
 

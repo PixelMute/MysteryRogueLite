@@ -344,7 +344,7 @@ public class CardFactory
         if (!Enum.TryParse(effect.Attributes["status"]?.Value, out BattleManager.StatusEffectEnum res))
         {
             Debug.LogWarning("No value 'status' found for this damagebasedonstatuseffect node. Using default value.");
-            res = BattleManager.StatusEffectEnum.defence;
+            res = BattleManager.StatusEffectEnum.defense;
         }
         return new DamageBasedOnStatus(res);
     }
@@ -357,7 +357,7 @@ public class CardFactory
         if (!Enum.TryParse(effect.Attributes["status"]?.Value, out BattleManager.StatusEffectEnum res))
         {
             Debug.LogWarning("No value 'status' found for this applystatuseffect node. Using default value.");
-            res = BattleManager.StatusEffectEnum.defence;
+            res = BattleManager.StatusEffectEnum.defense;
         }
 
         if (!bool.TryParse(effect.Attributes["self"]?.Value, out bool self))
@@ -519,7 +519,6 @@ public class CardFactory
     // val doesn't matter with discard.
     private static IEffect ParseManipHand(XmlNode effect)
     {
-        Debug.Log("ParseManiphand started 1");
         XmlNodeList subnodes = effect.ChildNodes;
         bool usingEffect = (subnodes != null && subnodes.Count == 1);
         ManipulateHand.ManipulateHandEffectEnum discardOrBanish;
@@ -528,7 +527,6 @@ public class CardFactory
         string tar = effect.Attributes["tar"]?.Value;
         if (tar == null)
             throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- No 'tar' attribute found.");
-        Debug.Log("ParseManiphand started 2");
         switch (tar)
         {
             case "left":
@@ -549,7 +547,6 @@ public class CardFactory
             default:
                 throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- Unknown value for tar called " + tar);
         }
-        Debug.Log("ParseManiphand started 3");
         string op = effect.Attributes["op"]?.Value;
         if (op == null)
             throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- No 'op' attribute found.");
@@ -565,10 +562,8 @@ public class CardFactory
             default:
                 throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- Unknown value for op called " + op);
         }
-        Debug.Log("ParseManiphand started 4");
         if (usingEffect)
         {
-            Debug.Log("ParseManiphand started 5");
             return new ManipulateHand(ParseSingleEffect(subnodes[0]), target, discardOrBanish);
         }
         else
@@ -576,7 +571,6 @@ public class CardFactory
             
             if (!int.TryParse(effect.Attributes["val"]?.Value, out int cons))
                 cons = 1;
-            Debug.Log("ParseManiphand started 6");
             return new ManipulateHand(cons, target, discardOrBanish);
         }
     }

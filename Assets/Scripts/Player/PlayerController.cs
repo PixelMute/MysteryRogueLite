@@ -149,17 +149,17 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
-        if (false) // Debugging testing certain cards.
+        if (true) // Debugging testing certain cards.
         {
             Card card1 = CardFactory.GetCard("Rebound");
             playerDeck.InsertCardAtEndOfDrawPile(card1);
             playerDeck.InsertCardAtEndOfDrawPile(card1);
 
-            Card card2 = CardFactory.GetCard("Rebound");
+            Card card2 = CardFactory.GetCard("Horn Lance");
             playerDeck.InsertCardAtEndOfDrawPile(card2);
             playerDeck.InsertCardAtEndOfDrawPile(card2);
 
-            Card card3 = CardFactory.GetCard("geomancy");
+            Card card3 = CardFactory.GetCard("ebb and flow");
             playerDeck.InsertCardAtEndOfDrawPile(card3);
             playerDeck.InsertCardAtEndOfDrawPile(card3);
         }
@@ -528,11 +528,11 @@ public class PlayerController : TileCreature
         if (damage >= 0) // Damage
         {
             // Do we have defense?
-            if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defence, out StatusEffectDataHolder val))
+            if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defense, out StatusEffectDataHolder val))
             {
                 int oldDamage = (int)damage;
                 damage -= val.EffectValue;
-                ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1 * oldDamage); // Deal damage to defense
+                ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1 * oldDamage); // Deal damage to defense
             }
 
             if (damage > 0)
@@ -607,9 +607,9 @@ public class PlayerController : TileCreature
     private void StartOfTurnStatusDecay()
     {
         // Do we have defense?
-        if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.defence))
+        if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.defense))
         { // Lose one defense
-            ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1);
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1);
         }
         // Do we have any engaged enemies?
         if (engagedEnemies.Count == 0)

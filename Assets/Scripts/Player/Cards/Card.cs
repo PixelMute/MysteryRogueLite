@@ -48,6 +48,7 @@ public class Card
     {
         if (fromEffect && OnDiscardEffects != null)
         {
+            Debug.Log("Activating discard effect.");
             Vector2Int defaultTargeting = new Vector2Int(BattleManager.player.xPos, BattleManager.player.zPos);
             foreach (var effect in OnDiscardEffects)
             {
