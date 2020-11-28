@@ -1,4 +1,6 @@
-﻿public class StandardRoom : Room
+﻿using UnityEngine;
+
+public class StandardRoom : Room
 {
     public StandardRoom() : base(new RoomInfo()
     {
@@ -15,7 +17,7 @@
     {
         base.PaintDoors(level);
         var painter = new RoomPainter(level, this);
-        foreach (var door in ConnectionLocations)
+        foreach (var door in ConnectionPoints)
         {
             if (door.x == Bounds.Right || door.x == Bounds.Left)
             {
@@ -72,6 +74,10 @@
         painter.PaintFloorArea(Bounds.Left + 1, Bounds.Right - 1, Bounds.Bottom + 1, Bounds.Top - 1);
         painter.PaintBottomLeftCorner(Bounds.Left, Bounds.Bottom);
         painter.PaintBottomRightCorner(Bounds.Right - 1, Bounds.Bottom);
+        Corners.Add(new Vector2Int(Bounds.Left, Bounds.Bottom));
+        Corners.Add(new Vector2Int(Bounds.Right - 1, Bounds.Bottom));
+        Corners.Add(new Vector2Int(Bounds.Left, Bounds.Top - 1));
+        Corners.Add(new Vector2Int(Bounds.Right - 1, Bounds.Top - 1));
     }
 }
 

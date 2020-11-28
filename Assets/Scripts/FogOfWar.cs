@@ -22,20 +22,21 @@ public class FogOfWar : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        var playerPosition = BattleManager.ConvertVector(BattleManager.player.transform.position);
-        if (PrevPlayerPosition != playerPosition)
-        {
-            UpdateFogOfWar(playerPosition, BattleManager.player.LoSGrid, BattleManager.player.visionRange);
-        }
+    //void Update()
+    //{
+    //    var playerPosition = BattleManager.ConvertVector(BattleManager.player.transform.position);
+    //    if (PrevPlayerPosition != playerPosition)
+    //    {
+    //        UpdateFogOfWar(playerPosition, BattleManager.player.LoSGrid, BattleManager.player.visionRange);
+    //    }
 
-        PrevPlayerPosition = playerPosition;
-    }
+    //    PrevPlayerPosition = playerPosition;
+    //}
 
     public void ForceUpdate()
     {
         var playerPosition = BattleManager.ConvertVector(BattleManager.player.transform.position);
+        BattleManager.player.UpdateLOS();
         UpdateFogOfWar(playerPosition, BattleManager.player.LoSGrid, BattleManager.player.visionRange);
         PrevPlayerPosition = playerPosition;
     }
@@ -82,10 +83,6 @@ public class FogOfWar : MonoBehaviour
                         TileMap.SetTile(new Vector3Int(x, y, 0), VisibleTile);
                         continue;
                     }
-                    //else
-                    //{
-                    //    tilesToRecheck.Add(new Vector3Int(x, y, 0));
-                    //}
                 }
                 //If this tile was visible but now its not
                 if (TileMap.GetColor(new Vector3Int(x, y, 0)).a < VisitedTile.color.a)
@@ -96,7 +93,7 @@ public class FogOfWar : MonoBehaviour
             }
         }
 
-        RecheckTiles(tilesToRecheck);
+        RecheckTiles(BattleGrid.instance.CurrentFloor.Level.Corners);
 
         HideHiddenElements();
     }
@@ -125,7 +122,7 @@ public class FogOfWar : MonoBehaviour
     /// Recheck certain tiles to see if they are corners. If they are corners then they should be visible
     /// </summary>
     /// <param name="tilesToRecheck"></param>
-    private void RecheckTiles(List<Vector3Int> tilesToRecheck)
+    private void RecheckTiles(List<Vector2Int> tilesToRecheck)
     {
         foreach (var tile in tilesToRecheck)
         {
@@ -152,7 +149,11 @@ public class FogOfWar : MonoBehaviour
                     }
                     if (count == 2)
                     {
-                        TileMap.SetTile(tile, VisibleTile);
+                        TileMap.SetTile(new Vector3Int(tile.x, tile.y, 0), VisibleTile);
+                    }
+                    else
+                    {
+
                     }
                 }
             }

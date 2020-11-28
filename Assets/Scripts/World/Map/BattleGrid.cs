@@ -147,18 +147,6 @@ public class BattleGrid : MonoBehaviour
         CurrentFloor.TryPlaceTileItemOn(spawnLoc, newMoneyBloodMoney, 2);
     }
 
-    public TileTerrain SpawnStairsUp(Vector2Int spawnLoc)
-    {
-        var newObj = Instantiate(stairsUp, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), stairsUp.transform.rotation);
-        return newObj.GetComponent<Stairs>();
-    }
-
-    public TileTerrain SpawnStairsDown(Vector2Int spawnLoc)
-    {
-        var newObj = Instantiate(stairsDown, BattleManager.ConvertVector(spawnLoc, transform.position.y + 0.05f), stairsDown.transform.rotation);
-        return newObj.GetComponent<Stairs>();
-    }
-
     // Picks a random empty tile out of the map.
     public Vector2Int PickRandomEmptyTile()
     {
@@ -212,7 +200,7 @@ public class BattleGrid : MonoBehaviour
     // Recalculates the LOS grid for looking in [size] squares in all directions.
     public bool[,] RecalculateLOS(int size, Vector3 playerTarget, out bool[,] simpleLoSGrid)
     {
-        bool[,] LoSGrid = GenerateLOSGrid(size, out simpleLoSGrid);
+        bool[,] LoSGrid = GenerateLOSGrid(size, playerTarget, out simpleLoSGrid);
         return LoSGrid;
     }
 
@@ -279,19 +267,19 @@ public class BattleGrid : MonoBehaviour
         return AcceptableTileTarget(new Vector2Int((int)tileTarget.x, (int)tileTarget.z), cardData);
     }
 
-    private bool[,] GenerateLOSGrid(int size, out bool[,] simpleLoSGrid)
+    private bool[,] GenerateLOSGrid(int size, Vector3 location, out bool[,] simpleLoSGrid)
     {
         int gridSize = 2 * size + 1;
         bool[,] grid = new bool[gridSize, gridSize]; // The middle will be at [size,size]
         simpleLoSGrid = new bool[gridSize, gridSize];
-        Vector3 playerEffectivePosition = new Vector3(BattleManager.player.xPos, 0.5f, BattleManager.player.zPos);
+        location = new Vector3((int)location.x, (int)location.y, (int)location.z);
 
         for (int i = 0; i < gridSize; i++)
         {
             for (int j = 0; j < gridSize; j++)
             {
-                int realXPosition = BattleManager.player.xPos + (i - size);
-                int realZPosition = BattleManager.player.zPos + (j - size);
+                int realXPosition = (int)location.x + (i - size);
+                int realZPosition = (int)location.z + (j - size);
                 if (realXPosition >= 0 && realXPosition < CurrentFloor.sizeX && realZPosition >= 0 && realZPosition < CurrentFloor.sizeZ)
                 {
                     bool disabledCollider = false;
@@ -306,8 +294,8 @@ public class BattleGrid : MonoBehaviour
                     // Now check the collision
                     Vector3 fromPosition = new Vector3(realXPosition, 0.5f, realZPosition);
                     //Debug.Log("Checking from " + fromPosition + " to " + playerEffectivePosition + ", and assigning that to " + i + ", " + j);
-                    grid[i, j] = CheckLoS(playerEffectivePosition, fromPosition);
-                    simpleLoSGrid[i, j] = CheckSimpleLoS(playerEffectivePosition, fromPosition);
+                    grid[i, j] = CheckLoS(location, fromPosition);
+                    simpleLoSGrid[i, j] = CheckSimpleLoS(location, fromPosition);
 
                     if (disabledCollider)
                     {

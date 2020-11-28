@@ -11,6 +11,22 @@ public class Level
     public Tilemap Decorations { get; private set; }
     public bool HasBeenBuilt { get; private set; } = false;
     private RogueRect _bounds;
+    private List<Vector2Int> _corners;
+    public List<Vector2Int> Corners
+    {
+        get
+        {
+            if (_corners == null)
+            {
+                _corners = new List<Vector2Int>();
+                foreach (var room in Rooms)
+                {
+                    _corners.AddRange(room.Corners);
+                }
+            }
+            return _corners;
+        }
+    }
 
 
     public RogueRect Bounds
@@ -129,9 +145,9 @@ public class Level
         foreach (var room in Rooms)
         {
             room.Bounds.Shift(-xOffset, -yOffset);
-            for (int i = 0; i < room.ConnectionLocations.Count; i++)
+            for (int i = 0; i < room.ConnectionPoints.Count; i++)
             {
-                room.ConnectionLocations[i] += new Vector2Int(-xOffset, -yOffset);
+                room.ConnectionPoints[i] += new Vector2Int(-xOffset, -yOffset);
             }
         }
     }

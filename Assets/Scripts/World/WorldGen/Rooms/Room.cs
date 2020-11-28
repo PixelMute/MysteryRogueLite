@@ -38,20 +38,23 @@ public abstract class Room
 
     public List<Room> Neighbors { get; private set; }
 
-    public List<Vector2Int> ConnectionLocations { get; private set; }
+    public List<Vector2Int> ConnectionPoints { get; private set; }
+    public List<Vector2Int> Corners { get; private set; }
 
     public Room(RoomInfo info)
     {
         Info = info;
         Bounds = new RogueRect();
         Neighbors = new List<Room>();
-        ConnectionLocations = new List<Vector2Int>();
+        ConnectionPoints = new List<Vector2Int>();
+        Corners = new List<Vector2Int>();
     }
 
     public void Reset()
     {
         Bounds = new RogueRect();
-        ConnectionLocations = new List<Vector2Int>();
+        ConnectionPoints = new List<Vector2Int>();
+        Corners = new List<Vector2Int>();
         Neighbors = new List<Room>();
     }
 
@@ -92,8 +95,8 @@ public abstract class Room
             {
                 return false;
             }
-            ConnectionLocations.Add(connectionPoint.Value);
-            room.ConnectionLocations.Add(connectionPoint.Value);
+            ConnectionPoints.Add(connectionPoint.Value);
+            room.ConnectionPoints.Add(connectionPoint.Value);
             Neighbors.Add(room);
             room.Neighbors.Add(this);
 
@@ -143,7 +146,7 @@ public abstract class Room
     public virtual void PaintDoors(Level level)
     {
         var painter = new RoomPainter(level, this);
-        foreach (var door in ConnectionLocations)
+        foreach (var door in ConnectionPoints)
         {
             if (door.x == Bounds.Right)
             {

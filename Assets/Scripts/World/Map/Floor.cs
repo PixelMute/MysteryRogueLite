@@ -1,9 +1,9 @@
 ﻿using DungeonGenerator;
-using DungeonGenerator.core;
 using NesScripts.Controls.PathFind;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class FloorManager
 {
@@ -137,12 +137,17 @@ public class Floor
             {
                 map[i, j] = new Roguelike.Tile();
                 var tile = Level.Terrain.GetTile(new Vector3Int(i, j, 0));
-                if (tile != null && tile.name.Contains("Wall"))
+                if (IsTileAWall(tile))
                 {
                     map[i, j].tileEntityType = Roguelike.Tile.TileEntityType.wall;
                 }
             }
         }
+    }
+
+    private bool IsTileAWall(TileBase tile)
+    {
+        return tile != null && (tile.name.Contains("Wall") || tile.name.Contains("Corner") || tile.name.Contains("Turn"));
     }
 
     public void InstantiateFloor()
@@ -233,27 +238,15 @@ public class Floor
             spawnLoc = stairsLocation.Value;
         }
         map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
-
-        //for (int i = 0; i < 6; i++)
+        //var stairsDown = new Stairs()
         //{
-        //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
-        //Vector2Int spawnLoc = PickRandomEmptyTile();
-        //map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
-        //}
-
-        //stairsDownLocation = spawnLoc;
-        //if (FloorNumber != 0)
-        //{
-        //    spawnLoc = PickRandomEmptyTile();
-        //    map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.stairsUp;
-        //    stairsUpLocation = spawnLoc;
-        //}
+        //    IsUp = false,
+        //};
+        //PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
     }
 
     public void AssignPlayerLocation()
     {
-        //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.offWall);
-        //Vector2Int spawnLoc = PickRandomEmptyTile();
         var playerSpawn = Level.Entrance.PlayerSpawn;
         Vector2Int spawnLoc;
         if (playerSpawn == null)
@@ -265,7 +258,6 @@ public class Floor
         {
             spawnLoc = playerSpawn.Value;
         }
-        Position playerPos = new Position(spawnLoc.y, spawnLoc.x);
         map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.player;
         BattleManager.player.xPos = spawnLoc.x;
         BattleManager.player.zPos = spawnLoc.y;
@@ -293,24 +285,6 @@ public class Floor
         //var spawnLocation = PickRandomEmptyTile();
         BattleManager.player.EstablishSelf(spawnLocation.x, spawnLocation.y);
         BattleManager.player.transform.position = new Vector3(spawnLocation.x, 0.05f, spawnLocation.y);
-    }
-
-    private void SpawnStairs()
-    {
-        //List<Room> rooms = dungeonData.getRooms();
-        //var spawnLoc = new Vector2Int(rooms.Last().bottomRight().x(), rooms.Last().bottomRight().y());
-        var spawnLoc = PickRandomEmptyTile();
-        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
-        PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
-        //stairsDownLocation = spawnLoc;
-        if (FloorNumber != 0)
-        {
-            //spawnLoc = new Vector2Int(rooms[0].bottomRight().x(), rooms[0].bottomRight().y());
-            spawnLoc = PickRandomEmptyTile();
-            var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
-            PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsUp);
-            //stairsUpLocation = spawnLoc;
-        }
     }
 
     public enum FindTileCondition { notPlayersRoom, evenRoomWeighting, offWall, onWall, empty, abort };
