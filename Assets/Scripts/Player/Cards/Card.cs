@@ -19,18 +19,22 @@ public class Card
 
     public TileCreature Owner { get; set; }
 
+    public enum CardTooltipPrompts {line, cutscorners, move, defense, momentum, insight, aoe, lifesteal, banish, echo} // Things we should display a tooltip about.
+    public List<CardTooltipPrompts> Prompts { get; private set; }
+
     //public Sprite Sprite { get; private set; }  //For when we have different sprites for each card
     //public ICardAnimation Animation { get; private set; } //For when we have different animations for each card
 
     public Card(CardInfo cardInfo, Range range) : this(cardInfo, range, new List<IEffect>()) { }
 
-    public Card(CardInfo cardInfo, Range range, List<IEffect> effects, List<IEffect> onDiscard = null, List<IEffect> onBanish = null)
+    public Card(CardInfo cardInfo, Range range, List<IEffect> effects, List<IEffect> onDiscard = null, List<IEffect> onBanish = null, List<CardTooltipPrompts> prompts = null)
     {
         Effects = effects;
         CardInfo = cardInfo;
         Range = range;
         OnBanishEffects = onBanish;
         OnDiscardEffects = onDiscard;
+        Prompts = prompts;
     }
 
     //Adds the effect to the card. The new effect will be activated last

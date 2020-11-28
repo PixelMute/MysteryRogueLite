@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 // This class inherits from MonoBehavior to interface between the card data and Unity
-public class CardInterface : MonoBehaviour
+public class CardInterface : MonoBehaviour, IPointerClickHandler
 {
     public Card cardData;
 
@@ -23,7 +24,7 @@ public class CardInterface : MonoBehaviour
     [HideInInspector] public bool isHighlighted = false;
 
     // Indicates where on the ui this card is.
-    public enum CardInterfaceLocations { hand, cardView, cardReward };
+    public enum CardInterfaceLocations { hand, cardView, cardReward, tooltip };
     private CardInterfaceLocations location;
 
     private void Awake()
@@ -107,5 +108,13 @@ public class CardInterface : MonoBehaviour
     public CardInterfaceLocations GetLocation()
     {
         return location;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Right && location != CardInterfaceLocations.tooltip)
+        {
+            BattleManager.player.puim.ToolTipRequest(cardData);
+        }
     }
 }

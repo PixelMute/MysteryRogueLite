@@ -32,8 +32,27 @@ public class PlayerUIManager : MonoBehaviour
 
     // Player UI FSM.
     // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
-    public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView }
-    private PlayerUIState playerUIState = PlayerUIState.standardCardDrawer;
+    public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView}
+
+    internal class PlayerUIStateClass
+    {
+        public bool tooltipOpen;
+        public PlayerUIState internalUIState = PlayerUIState.standardCardDrawer;
+
+        public PlayerUIStateClass(PlayerUIState initial)
+        {
+            internalUIState = initial;
+            tooltipOpen = false;
+        }
+    }
+
+    private PlayerUIStateClass playerUIState = new PlayerUIStateClass(PlayerUIState.standardCardDrawer);
+
+    // Tooltips
+    [SerializeField] private GameObject tooltipView;
+    [SerializeField] private GameObject tooltipCardHolder;
+    [SerializeField] private GameObject tooltipContent;
+    [SerializeField] private GameObject tooltipTextPrefab;
 
     private PlayerController pc;
 
@@ -206,7 +225,6 @@ public class PlayerUIManager : MonoBehaviour
         // Loop through and reduce the index of other cards by one
         for (int i = index + 1; i < graphicalHand.Count; i++)
         {
-            //Debug.Log("Reducing index of number " + i);
             graphicalHand[i].cardHandIndex--;
         }
 
@@ -631,7 +649,7 @@ public class PlayerUIManager : MonoBehaviour
         switch (state)
         {
             case PlayerUIState.controllingCamera:
-                switch (playerUIState)
+                switch (playerUIState.internalUIState)
                 {
                     case PlayerUIState.massCardView: // Cannot move from masscardview to controlling camera.
                         return false;
@@ -645,7 +663,7 @@ public class PlayerUIManager : MonoBehaviour
     // Does whatever must be done to leave a state.
     private void ExitState()
     {
-        switch (playerUIState)
+        switch (playerUIState.internalUIState)
         {
             case PlayerUIState.standardCardDrawer:
                 DeselectCard();
@@ -685,17 +703,17 @@ public class PlayerUIManager : MonoBehaviour
                 PopulateCardRewardView();
                 break;
         }
-        playerUIState = state;
+        playerUIState.internalUIState = state;
     }
 
     public PlayerUIState GetState()
     {
-        return playerUIState;
+        return playerUIState.internalUIState;
     }
 
     public bool IsStateMovementLocked()
     {
-        if (playerUIState == PlayerUIState.standardCardDrawer)
+        if (playerUIState.internalUIState == PlayerUIState.standardCardDrawer && !playerUIState.tooltipOpen)
         {
             return false;
         }
@@ -705,7 +723,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public bool IsStateControllingCamera()
     {
-        if (playerUIState == PlayerUIState.controllingCamera)
+        if (playerUIState.internalUIState == PlayerUIState.controllingCamera)
         {
             return true;
         }
@@ -718,14 +736,20 @@ public class PlayerUIManager : MonoBehaviour
     /// </summary>
     public void CloseOutOfWindows()
     {
-        if (playerUIState == PlayerUIState.cardRewardView)
+        if (playerUIState.tooltipOpen) // Closing the tooltip takes priority
         {
-            ShowAlert("Pick a card or pick skip.");
+            CloseToolTip();
             return;
         }
-        else
+
+        switch (playerUIState.internalUIState)
         {
-            MoveToState(PlayerUIState.standardCardDrawer);
+            case PlayerUIState.cardRewardView:
+                ShowAlert("Pick a card or pick skip.");
+                return;
+            default:
+                MoveToState(PlayerUIState.standardCardDrawer);
+                return;
         }
     }
 
@@ -884,8 +908,8 @@ public class PlayerUIManager : MonoBehaviour
         // Now spawn 3 random cards.
         for (int i = 0; i < 3; i++)
         {
-            // For now, just pick a random number from 1-23
-            int pickedCard = UnityEngine.Random.Range(4, 26);
+            // For now, just pick a random number from 4-37
+            int pickedCard = UnityEngine.Random.Range(4, 37);
             GameObject newCard = GameObject.Instantiate(cardPrefab, cardRewardHorizontalLayout.transform);
             CardInterface ci = newCard.GetComponent<CardInterface>();
             ci.cardData = CardFactory.GetCardByID(pickedCard);
@@ -912,6 +936,138 @@ public class PlayerUIManager : MonoBehaviour
 
         // Exit out of state
         MoveToState(PlayerUIState.standardCardDrawer);
+    }
+
+    #endregion
+
+    #region CardTooltipScreen
+
+    // Opens the tooltip window for one card.
+    public void ToolTipRequest(Card cardinfo)
+    {
+        if (playerUIState.tooltipOpen == false)
+        { // We need to open it.
+            OpenToolTip();
+        }
+
+        ClearToolTip();
+        PopulateToolTip(cardinfo);
+    }
+
+    private void OpenToolTip()
+    {
+        tooltipView.SetActive(true);
+        playerUIState.tooltipOpen = true;
+        backShading.SetActive(true);
+    }
+
+    /// <summary>
+    /// Closes the tooltip. If the player is in a ui state that wouldn't normally have the backshading, also hides that.
+    /// </summary>
+    private void CloseToolTip()
+    {
+        tooltipView.SetActive(false);
+        playerUIState.tooltipOpen = false;
+        if (playerUIState.internalUIState == PlayerUIState.controllingCamera || playerUIState.internalUIState == PlayerUIState.standardCardDrawer)
+        {
+            backShading.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Clears out an open tooltip. Clears the card on display, as well as all text tool tips.
+    /// </summary>
+    private void ClearToolTip()
+    {
+        foreach (Transform t in tooltipContent.transform)
+        {
+            BattleManager.RecursivelyEliminateObject(t);
+        }
+        foreach (Transform t in tooltipCardHolder.transform)
+        {
+            BattleManager.RecursivelyEliminateObject(t);
+        }
+    }
+
+    /// <summary>
+    /// Fills the text boxes with details about the requested card.
+    /// </summary>
+    /// <param name="cardInfo"></param>
+    private void PopulateToolTip(Card cardInfo)
+    {
+        GameObject newCard = GameObject.Instantiate(cardPrefab, tooltipCardHolder.transform);
+
+        CardInterface ci = newCard.GetComponent<CardInterface>();
+        ci.cardData = cardInfo;
+        ci.OnCardSpawned(CardInterface.CardInterfaceLocations.tooltip);
+
+        // Set size and location
+        newCard.transform.localScale = new Vector3(3, 3, 1);
+        newCard.transform.localPosition = new Vector3(-280, 0, 0);
+
+        // Fill prompt box.
+        if (cardInfo.Prompts != null)
+        {
+            foreach (Card.CardTooltipPrompts x in cardInfo.Prompts)
+            {
+                string promptText = "This should never appear.";
+                switch (x)
+                {
+                    case Card.CardTooltipPrompts.line:
+                        promptText = "<b>Line</b>: This card must target a space in a straight line in one of the eight cardinal directions.";
+                        break;
+                    case Card.CardTooltipPrompts.cutscorners:
+                        promptText = "<b>Corner Cutting</b>: This card uses a more forgiving line of sight calculation, allowing you to target across corners.";
+                        break;
+                    case Card.CardTooltipPrompts.move:
+                        promptText = "<b>Move</b>: This card will move you to the targeted tile. Does not end your turn, and must target an empty tile.";
+                        break;
+                    case Card.CardTooltipPrompts.defense:
+                        promptText = "<b>Defense</b>: Defense is a status condition that takes damage before your health does. Decays at a rate of one per turn.";
+                        break;
+                    case Card.CardTooltipPrompts.momentum:
+                        promptText = "<b>Momentum</b>: Momentum boosts the damage of your next played card. Works well with multi-hit cards. Decays while not in combat.";
+                        break;
+                    case Card.CardTooltipPrompts.insight:
+                        promptText = "<b>Insight</b>: Each point of insight boosts your next <i>instance</i> of damage by 100%. Works well with big single-hit cards. Decays while not in combat.";
+                        break;
+                    case Card.CardTooltipPrompts.aoe:
+                        promptText = "<b>AOE</b>: Means Area of Effect. Targets everything in a square of some radius. If it is centered on you, you don't get hit by it.";
+                        break;
+                    case Card.CardTooltipPrompts.lifesteal:
+                        promptText = "<b>Lifesteal</b>: Any damage you deal with this card is gained as health.";
+                        break;
+                    case Card.CardTooltipPrompts.banish:
+                        promptText = "<b>Banish</b>: Banish X means that after you play this card, it is unavailable for X floors, after which it is shuffled back into your discard pile.";
+                        break;
+                    case Card.CardTooltipPrompts.echo:
+                        promptText = "<b>Echo</b>: This Echo effect will trigger if this card is discarded by another card's effect. Echo effects do not cost energy or spirit.";
+                        break;
+                }
+                GameObject setPrompt = GameObject.Instantiate(tooltipTextPrefab, tooltipContent.transform);
+                setPrompt.GetComponent<TextMeshProUGUI>().SetText(promptText);
+            }
+        }
+
+        // Next, add a prompt based on the theme.
+        string setPromptText;
+        switch (cardInfo.CardInfo.ThemeName)
+        {
+            case "Draconic":
+                setPromptText = "This card is in the Draconic set, which focuses on defense and devastating heavy strikes.<br>Ancient and powerful, these creatures command respect and fear";
+                break;
+            case "Impundulu":
+                setPromptText = "This card is in the Impundulu set, which focuses on momentum, multihit cards, and lifesteal.<br>These vampiric thunderbirds are devious and relentless beasts.";
+                break;
+            case "AlMiraj":
+                setPromptText = "This card is in the Al-Mi'raj set, which focuses on discard and Echo effects.<br>Deceptively vicious, these horned beasts devourer all in their path.";
+                break;
+            default:
+                setPromptText = "This card isn't part of any set. Maybe it's because the developers forgot to assign it one.";
+                break;
+        }
+        GameObject newPrompt = GameObject.Instantiate(tooltipTextPrefab, tooltipContent.transform);
+        newPrompt.GetComponent<TextMeshProUGUI>().SetText(setPromptText);
     }
 
     #endregion

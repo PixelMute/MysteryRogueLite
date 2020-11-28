@@ -123,6 +123,7 @@ public class CardFactory
         List<IEffect> onBanishEffects = null;
         List<IEffect> onDiscardEffects = null;
         List<PlayCondition> playConditionList = null;
+        List<Card.CardTooltipPrompts> promptList = null;
 
         foreach (XmlNode subnode in node.ChildNodes)
         {
@@ -187,6 +188,9 @@ public class CardFactory
                     else
                         throw new Exception("Cannot parse BanishAfterPlay");
                     break;
+                case "prompts":
+                    promptList = ParsePrompts(subnode);
+                    break;
                 default:
                     Debug.LogWarning("CardFactory::ParseCardXML() -- Unknown node: " + subnode.Name);
                     break;
@@ -200,7 +204,7 @@ public class CardFactory
 
         // Now that we've done that, compile the info into an actual card.
         var range = new Range(playConditionList, minRange, maxRange);
-        var card = new Card(cardInfo, range, effectList, onDiscardEffects, onBanishEffects);
+        var card = new Card(cardInfo, range, effectList, onDiscardEffects, onBanishEffects, promptList);
 
         return card;
     }
@@ -296,6 +300,26 @@ public class CardFactory
                 Debug.LogWarning("Unknown card effect with the name " + effect.Name);
                 return null;
         }
+    }
+
+    private static List<Card.CardTooltipPrompts> ParsePrompts(XmlNode node)
+    {
+        XmlNodeList subnodes = node.ChildNodes;
+        if (subnodes == null)
+            return null;
+        List<Card.CardTooltipPrompts> prompts = new List<Card.CardTooltipPrompts>(subnodes.Count);
+        foreach (XmlNode N in subnodes)
+        {
+            if (!Enum.TryParse(N.Name, out Card.CardTooltipPrompts singlePrompt))
+            {
+                Debug.LogWarning(N.Name + " is an unknown prompt.");
+            }
+            else
+            {
+                prompts.Add(singlePrompt);
+            }
+        }
+        return prompts;
     }
 
 
