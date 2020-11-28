@@ -55,6 +55,15 @@ public class Level
             room.Paint(this);
             room.PaintDoors(this);
         }
+        var stairsLoc = Exit.StairsLocation;
+        if (stairsLoc != null)
+        {
+            Decorations.SetTile(new Vector3Int(stairsLoc.Value.x, stairsLoc.Value.y, 0), Painter.LadderDown);
+        }
+        else
+        {
+            Debug.LogError("Exit doesn't have valid space for stairs down. This is very bad");
+        }
 
     }
 
@@ -98,10 +107,10 @@ public class Level
     private List<Room> InitRooms()
     {
         var rooms = new List<Room>();
-        var entrance = new Entrance();
-        var exit = new Exit();
-        rooms.Add(entrance);
-        rooms.Add(exit);
+        Entrance = new Entrance();
+        Exit = new Exit();
+        rooms.Add(Entrance);
+        rooms.Add(Exit);
 
         for (int i = 0; i < 4; i++)
         {

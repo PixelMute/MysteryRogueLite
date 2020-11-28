@@ -113,7 +113,7 @@ public class Floor
         //    }
         //}
 
-        //AssignPlayerLocation();
+        AssignPlayerLocation();
 
 
         //int numEnemies = FloorNumber + 1 == 5 ? 25 : 5 + (FloorNumber * 3);
@@ -123,7 +123,7 @@ public class Floor
         //    SetEnemyLocation();
         //}
 
-        //SetStairsLocation();
+        SetStairsLocation();
     }
 
     private void ConstructTiles()
@@ -221,12 +221,25 @@ public class Floor
 
     private void SetStairsLocation()
     {
-        for (int i = 0; i < 6; i++)
+        var stairsLocation = Level.Exit.StairsLocation;
+        Vector2Int spawnLoc;
+        if (stairsLocation == null)
         {
-            //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
-            Vector2Int spawnLoc = PickRandomEmptyTile();
-            map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
+            Debug.LogError("Exit didn't have any valid positions to spawn stairs");
+            spawnLoc = PickRandomEmptyTile();
         }
+        else
+        {
+            spawnLoc = stairsLocation.Value;
+        }
+        map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
+
+        //for (int i = 0; i < 6; i++)
+        //{
+        //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
+        //Vector2Int spawnLoc = PickRandomEmptyTile();
+        //map[spawnLoc.x, spawnLoc.y].tileTerrainType = Roguelike.Tile.TileTerrainType.stairsDown;
+        //}
 
         //stairsDownLocation = spawnLoc;
         //if (FloorNumber != 0)
@@ -240,7 +253,18 @@ public class Floor
     public void AssignPlayerLocation()
     {
         //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.offWall);
-        Vector2Int spawnLoc = PickRandomEmptyTile();
+        //Vector2Int spawnLoc = PickRandomEmptyTile();
+        var playerSpawn = Level.Entrance.PlayerSpawn;
+        Vector2Int spawnLoc;
+        if (playerSpawn == null)
+        {
+            Debug.LogError("Entrance didn't have any valid positions to spawn");
+            spawnLoc = PickRandomEmptyTile();
+        }
+        else
+        {
+            spawnLoc = playerSpawn.Value;
+        }
         Position playerPos = new Position(spawnLoc.y, spawnLoc.x);
         map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.player;
         BattleManager.player.xPos = spawnLoc.x;

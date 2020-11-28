@@ -32,8 +32,6 @@ public class Builder
         }
 
         float direction = Random.RandomDirection();
-        Debug.Log($"Random direction: {direction}");
-        direction = 0;
         entrance.SetSize();
         entrance.Bounds.SetPosition(0, 0);
         PlacedRooms.Add(entrance);
