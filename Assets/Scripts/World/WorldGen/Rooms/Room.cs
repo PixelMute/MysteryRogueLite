@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
-public enum Direction
+public enum DiRogueRection
 {
     LEFT,
     RIGHT,
@@ -30,23 +31,27 @@ public class RoomInfo
     public RoomType RoomType { get; set; }
 }
 
-public class Room
+public abstract class Room
 {
-    public Rect Bounds { get; private set; }
+    public RogueRect Bounds { get; private set; }
     public RoomInfo Info { get; private set; }
 
     public List<Room> Neighbors { get; private set; }
 
+    public List<Vector2Int> ConnectionLocations { get; private set; }
+
     public Room(RoomInfo info)
     {
         Info = info;
-        Bounds = new Rect();
+        Bounds = new RogueRect();
         Neighbors = new List<Room>();
+        ConnectionLocations = new List<Vector2Int>();
     }
 
     public void Reset()
     {
-        Bounds = new Rect();
+        Bounds = new RogueRect();
+        ConnectionLocations = new List<Vector2Int>();
         Neighbors = new List<Room>();
     }
 
@@ -59,7 +64,7 @@ public class Room
 
     public bool SetSizeWithLimit(int width, int height)
     {
-        if (width < Info.MinWidth || height < Info.MinHeight)
+        if (width <= Info.MinWidth || height <= Info.MinHeight)
         {
             return false;
         }
@@ -80,12 +85,78 @@ public class Room
             return true;
         }
         var intersection = Bounds.Intersect(room.Bounds);
-        if ((intersection.Width == 0 && intersection.Height >= 2) || (intersection.Height == 0 && intersection.Width >= 2))
+        if (intersection == null || (intersection.Width == 0 && intersection.Height >= 2) || (intersection.Height == 0 && intersection.Width >= 2))
         {
+            var connectionPoint = GetConnectionPoint(room);
+            if (connectionPoint == null)
+            {
+                return false;
+            }
+            ConnectionLocations.Add(connectionPoint.Value);
+            room.ConnectionLocations.Add(connectionPoint.Value);
             Neighbors.Add(room);
             room.Neighbors.Add(this);
+
             return true;
         }
         return false;
+    }
+
+    private Vector2Int? GetConnectionPoint(Room room)
+    {
+        var doorPoints = new List<Vector2Int>();
+        var intersection = Bounds.Intersect(room.Bounds);
+        if (intersection == null)
+        {
+            return null;
+        }
+        foreach (var point in intersection.GetPoints())
+        {
+            if (CanConnect(point) && room.CanConnect(point))
+            {
+                doorPoints.Add(point);
+            }
+        }
+        if (doorPoints.Count > 0)
+        {
+            return doorPoints.PickRandom();
+        }
+        return null;
+
+    }
+
+    public abstract void Paint(Level level);
+
+    public virtual bool CanConnect(Vector2Int point)
+    {
+        if (point.x == Bounds.Left || point.x == Bounds.Right)
+        {
+            return point.y < Bounds.Top - 1 && point.y > Bounds.Bottom;
+        }
+        else if (point.y == Bounds.Top || point.y == Bounds.Bottom)
+        {
+            return point.x < Bounds.Right - 1 && point.y > Bounds.Left;
+        }
+        return false;
+    }
+
+    public virtual void PaintDoors(Level level)
+    {
+        var painter = new RoomPainter(level, this);
+        foreach (var door in ConnectionLocations)
+        {
+            if (door.x == Bounds.Right)
+            {
+                painter.PaintFloor(door.x - 1, door.y);
+            }
+            else if (door.y == Bounds.Top)
+            {
+                painter.PaintFloor(door.x, door.y - 1);
+            }
+            else
+            {
+                painter.PaintFloor(door.x, door.y);
+            }
+        }
     }
 }

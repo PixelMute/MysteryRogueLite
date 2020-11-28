@@ -162,7 +162,7 @@ public class BattleGrid : MonoBehaviour
     // Picks a random empty tile out of the map.
     public Vector2Int PickRandomEmptyTile()
     {
-        return CurrentFloor.PickRandomEmptyTile();
+        return new Vector2Int(0, 0);
     }
 
     public void DestroyGameObject(GameObject gameObject)

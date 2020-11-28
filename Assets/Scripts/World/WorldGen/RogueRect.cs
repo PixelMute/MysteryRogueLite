@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class Rect
+public class RogueRect
 {
     public int Left { get; set; }
     public int Right { get; set; }
@@ -66,7 +67,7 @@ public class Rect
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool IsColliding(Rect other)
+    public bool IsColliding(RogueRect other)
     {
         return !(Math.Max(Left, other.Left) >= Math.Min(Right, other.Right) || Math.Max(Top, other.Top) >= Math.Min(Bottom, other.Bottom));
     }
@@ -76,7 +77,7 @@ public class Rect
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool IsInside(Rect other)
+    public bool IsInside(RogueRect other)
     {
         return Left >= other.Left && Right <= other.Right && Top <= other.Top && Bottom >= other.Bottom;
     }
@@ -96,14 +97,35 @@ public class Rect
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public Rect Intersect(Rect other)
+    public RogueRect Intersect(RogueRect other)
     {
-        Rect result = new Rect();
+        var result = new RogueRect();
         result.Left = Math.Max(Left, other.Left);
         result.Right = Math.Min(Right, other.Right);
-        result.Top = Math.Max(Top, other.Top);
-        result.Bottom = Math.Min(Bottom, other.Bottom);
+        result.Top = Math.Min(Top, other.Top);
+        result.Bottom = Math.Max(Bottom, other.Bottom);
+        if (result.Width < 0 || result.Height < 0)
+        {
+            return null;
+        }
         return result;
+    }
+
+    /// <summary>
+    /// Gets all the points of this rectangle
+    /// </summary>
+    /// <returns></returns>
+    public List<Vector2Int> GetPoints()
+    {
+        var res = new List<Vector2Int>();
+        for (int i = Left; i <= Right; i++)
+        {
+            for (int j = Bottom; j <= Top; j++)
+            {
+                res.Add(new Vector2Int(i, j));
+            }
+        }
+        return res;
     }
 }
 

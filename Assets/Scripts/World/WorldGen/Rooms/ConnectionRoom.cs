@@ -1,4 +1,6 @@
-﻿class ConnectionRoom : Room
+﻿using UnityEngine;
+
+class ConnectionRoom : Room
 {
     public static RoomInfo ConnectionRoomInfo = new RoomInfo()
     {
@@ -12,5 +14,15 @@
     };
 
     public ConnectionRoom() : base(ConnectionRoomInfo) { }
+
+    public override bool CanConnect(Vector2Int point)
+    {
+        return true;
+    }
+
+    public override void Paint(Level level)
+    {
+        throw new System.NotImplementedException();
+    }
 }
 

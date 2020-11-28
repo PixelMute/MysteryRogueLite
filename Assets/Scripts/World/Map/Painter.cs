@@ -6,17 +6,17 @@ using UnityEngine.Tilemaps;
 class Painter
 {
     private static System.Random random { get; set; } = new System.Random();
-    private static List<Tile> TopWallTiles { get; set; }
-    private static List<Tile> LeftWallTiles { get; set; }
-    private static List<Tile> RightWallTiles { get; set; }
-    private static List<Tile> BottomWallTiles { get; set; }
-    private static List<Tile> FloorTiles { get; set; }
-    private static List<Tile> TurnLeftTiles { get; set; }
-    private static List<Tile> TurnRightTiles { get; set; }
-    private static Tile BottomLeftCorner { get; set; }
-    private static Tile BottomRightCorner { get; set; }
-    private static Tile EmptySpace { get; set; }
-    private static Tile LadderDown { get; set; }
+    public static List<Tile> LeftWallTiles { get; set; }
+    public static List<Tile> TopWallTiles { get; set; }
+    public static List<Tile> RightWallTiles { get; set; }
+    public static List<Tile> BottomWallTiles { get; set; }
+    public static List<Tile> FloorTiles { get; set; }
+    public static List<Tile> TurnLeftTiles { get; set; }
+    public static List<Tile> TurnRightTiles { get; set; }
+    public static Tile BottomLeftCorner { get; set; }
+    public static Tile BottomRightCorner { get; set; }
+    public static Tile EmptySpace { get; set; }
+    public static Tile LadderDown { get; set; }
     private static bool HaveTilesBeenLoaded { get; set; } = false;
 
     private static string Path = "Tiles/";
@@ -79,6 +79,8 @@ class Painter
                 if (tile != null)
                 {
                     tileMap.SetTile(new Vector3Int(i, j, 0), tile);
+                    var getTile = tileMap.GetTile(new Vector3Int(i, j, 0));
+                    Debug.Log(getTile.name);
                 }
             }
         }

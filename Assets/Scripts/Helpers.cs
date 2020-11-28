@@ -24,7 +24,20 @@ public static class Helpers
 
     public static float RadiansToDegrees(this float radians)
     {
-        return radians * (180.0f / (float)Math.PI));
+        return radians * (180.0f / (float)Math.PI);
+    }
+
+    public static int Gate(this int value, int min, int max)
+    {
+        if (value < min)
+        {
+            return min;
+        }
+        else if (value > max)
+        {
+            return max;
+        }
+        return value;
     }
 }
 
