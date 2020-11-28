@@ -12,11 +12,15 @@ public class RoomPainter
         Room = room;
     }
 
+    public void PaintFloorArea(RogueRect rect)
+    {
+        PaintFloorArea(rect.Left, rect.Right, rect.Bottom, rect.Top);
+    }
     public void PaintFloorArea(int minX, int maxX, int minY, int maxY)
     {
-        for (int i = minX; i < maxX; i++)
+        for (int i = minX; i <= maxX; i++)
         {
-            for (int j = minY; j < maxY; j++)
+            for (int j = minY; j <= maxY; j++)
             {
                 var tile = Painter.FloorTiles.PickRandom();
                 Level.Terrain.SetTile(new Vector3Int(i, j, 0), tile);
@@ -82,5 +86,7 @@ public class RoomPainter
         var tile = Painter.BottomRightCorner;
         Level.Terrain.SetTile(new Vector3Int(x, y, 0), tile);
     }
+
+
 }
 

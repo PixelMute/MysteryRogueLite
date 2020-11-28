@@ -45,14 +45,18 @@ public class Builder
         int rejected = 0;
         for (int i = 0; i < roomsOnPath; i++)
         {
-            //var connectionRoom = new ConnectionRoom();
-            //res = AttemptToPlaceRoom(curr, connectionRoom, direction + Random.Range(-pathVariance, pathVariance));
-            //if (res != -1)
-            //{
-            //    rooms.Add(connectionRoom);
-            //    placedRooms.Add(connectionRoom);
-            //    curr = connectionRoom;
-            //}
+            var connectionRoom = new ConnectionRoom();
+            res = AttemptToPlaceRoom(curr, connectionRoom, direction + Random.Range(-pathVariance, pathVariance));
+            if (res != -1)
+            {
+                rooms.Add(connectionRoom);
+                PlacedRooms.Add(connectionRoom);
+                curr = connectionRoom;
+            }
+            else
+            {
+                rejected++;
+            }
             var next = multiConnnections[i];
             res = AttemptToPlaceRoom(curr, next, direction + Random.Range(-pathVariance, pathVariance));
             if (res != -1)
@@ -122,6 +126,14 @@ public class Builder
         var freeSpace = FindFreeSpace(startingSpace, start);
         if (freeSpace == null || !nextRoom.SetSizeWithLimit(freeSpace.Width, freeSpace.Height))
         {
+            if (freeSpace == null)
+            {
+                Debug.Log("Reason for rejection: free space was null");
+            }
+            else
+            {
+                Debug.Log("Reason for rejection: free space too small for room");
+            }
             //If there is no free space or the free space is too small for the room
             return -1;
         }
@@ -155,6 +167,7 @@ public class Builder
         }
         if (!nextRoom.Bounds.IsInside(freeSpace))
         {
+            Debug.Log("Reason for rejection: Room not inside of free space");
             //Something went wrong
             return -1;
         }
@@ -163,6 +176,7 @@ public class Builder
         {
             return GetAngleBetweenRooms(nextRoom, previousRoom);
         }
+        Debug.Log("Reason for rejection: Couldn't connect to previous room");
         return -1;
     }
 

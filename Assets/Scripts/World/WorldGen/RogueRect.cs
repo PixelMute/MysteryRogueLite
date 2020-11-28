@@ -12,6 +12,15 @@ public class RogueRect
     public int Width { get { return Right - Left; } }
     public int Height { get { return Top - Bottom; } }
 
+    public RogueRect() { }
+    public RogueRect(Vector2Int point, Vector2Int otherPoint)
+    {
+        Left = Math.Min(otherPoint.x, point.x);
+        Right = Math.Max(otherPoint.x, point.x);
+        Top = Math.Max(otherPoint.y, point.y);
+        Bottom = Math.Min(otherPoint.y, point.y);
+    }
+
     /// <summary>
     /// Sets the rect to have the new bounds
     /// </summary>
