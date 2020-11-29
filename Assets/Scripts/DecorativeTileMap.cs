@@ -5,6 +5,9 @@ public class DecorativeTileMap : MonoBehaviour
 {
     public Tilemap TileMap;
     public Tile LadderDown;
+    public GameObject Torch;
+    public GameObject SideTorch;
+
 
     public void PaintStairs(Vector3Int stairsLocation)
     {
@@ -14,5 +17,10 @@ public class DecorativeTileMap : MonoBehaviour
     public void Clear()
     {
         TileMap.ClearAllTiles();
+    }
+
+    public void SpawnTorch(int x, int y)
+    {
+        var torch = Instantiate(Torch, new Vector3(x, .01f, y), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
     }
 }

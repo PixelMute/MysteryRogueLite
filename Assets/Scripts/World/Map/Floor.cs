@@ -16,7 +16,7 @@ public class FloorManager
     {
         Painter.LoadTiles();
         //CurrentFloor = GenerateRandomFloor(CurrentFloorNumber);
-        CurrentFloor = new Floor(new Level(BattleGrid.instance.tileMap, BattleGrid.instance.DecorativeTileMap.TileMap), CurrentFloorNumber, 0);
+        CurrentFloor = new Floor(new Level(BattleGrid.instance.tileMap, BattleGrid.instance.DecorativeTileMap), CurrentFloorNumber, 0);
         AllFloors.Append(CurrentFloor);
         CurrentFloor.InstantiateFloor();
     }

@@ -20,7 +20,7 @@ class ConnectionRoom : Room
         var painter = new RoomPainter(level, this);
         var center = GetCenterPoint();
 
-        Helpers.DrawDebugLine(center.x, center.y);
+        //Helpers.DrawDebugLine(center.x, center.y);
         foreach (var door in ConnectionPoints.Values)
         {
 

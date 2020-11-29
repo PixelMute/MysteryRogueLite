@@ -170,4 +170,6 @@ public abstract class Room
             }
         }
     }
+
+    public virtual void Decorate() { }
 }

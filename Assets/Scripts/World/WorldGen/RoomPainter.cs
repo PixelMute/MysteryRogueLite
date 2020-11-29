@@ -3,6 +3,7 @@ using UnityEngine.Tilemaps;
 
 public class RoomPainter
 {
+    private enum TypeOfTile { Left, Right, Top, Bottom, None, Floor }
     public Level Level { get; set; }
     public Room Room { get; set; }
 
@@ -105,6 +106,22 @@ public class RoomPainter
         }
     }
 
+    public void Decorate()
+    {
+        Room.Decorate();
+        for (int i = Room.Bounds.Left; i < Room.Bounds.Right; i++)
+        {
+            for (int j = Room.Bounds.Bottom; j < Room.Bounds.Top; j++)
+            {
+                var type = GetTypeOfWall(i, j);
+                if (type == TypeOfTile.Top && Random.RandBool(.25f))
+                {
+                    Level.DecorativeTileMap.SpawnTorch(i, j);
+                }
+            }
+        }
+    }
+
     private Tile GetWallTile(int x, int y)
     {
         //This is terrible but no super easy way of doing it right now
@@ -164,6 +181,34 @@ public class RoomPainter
         return tile != null && tile.name.Contains("Floor");
     }
 
-
+    private TypeOfTile GetTypeOfWall(int x, int y)
+    {
+        var tile = Level.Terrain.GetTile(new Vector3Int(x, y, 0));
+        if (tile == null)
+        {
+            return TypeOfTile.None;
+        }
+        if (tile.name.Contains("Floor"))
+        {
+            return TypeOfTile.Floor;
+        }
+        if (tile.name.Contains("BottomWall"))
+        {
+            return TypeOfTile.Bottom;
+        }
+        if (tile.name.Contains("TopWall"))
+        {
+            return TypeOfTile.Top;
+        }
+        if (tile.name.Contains("LeftWall"))
+        {
+            return TypeOfTile.Left;
+        }
+        if (tile.name.Contains("RightWall"))
+        {
+            return TypeOfTile.Right;
+        }
+        return TypeOfTile.None;
+    }
 }
 

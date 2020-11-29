@@ -62,6 +62,7 @@ public class StandardRoom : Room
                 }
             }
         }
+        painter.Decorate();
     }
 
     public override void Paint(Level level)

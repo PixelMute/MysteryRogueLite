@@ -9,6 +9,7 @@ public class Level
     public Exit Exit { get; private set; }
     public Tilemap Terrain { get; private set; }
     public Tilemap Decorations { get; private set; }
+    public DecorativeTileMap DecorativeTileMap { get; private set; }
     public bool HasBeenBuilt { get; private set; } = false;
     private RogueRect _bounds;
     private List<Vector2Int> _corners;
@@ -41,10 +42,11 @@ public class Level
         }
     }
 
-    public Level(Tilemap terrain, Tilemap decorations)
+    public Level(Tilemap terrain, DecorativeTileMap decorativeTileMap)
     {
         Terrain = terrain;
-        Decorations = decorations;
+        Decorations = decorativeTileMap.TileMap;
+        DecorativeTileMap = decorativeTileMap;
     }
 
     public void Build()
@@ -66,7 +68,7 @@ public class Level
         Paint();
         HasBeenBuilt = true;
 
-        DebugRooms();
+        //DebugRooms();
     }
 
     private void DebugRooms()
