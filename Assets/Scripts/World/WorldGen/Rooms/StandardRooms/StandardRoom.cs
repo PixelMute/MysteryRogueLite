@@ -67,11 +67,17 @@ public class StandardRoom : Room
     public override void Paint(Level level)
     {
         var painter = new RoomPainter(level, this);
+        PaintOutsideWalls(level);
+        painter.PaintFloorArea(Bounds.Left + 1, Bounds.Right - 2, Bounds.Bottom + 1, Bounds.Top - 2);
+    }
+
+    protected void PaintOutsideWalls(Level level)
+    {
+        var painter = new RoomPainter(level, this);
         painter.PaintBottomWall(Bounds.Left, Bounds.Right - 1, Bounds.Bottom);
         painter.PaintTopWall(Bounds.Left, Bounds.Right - 1, Bounds.Top - 1);
         painter.PaintLeftWall(Bounds.Bottom, Bounds.Top, Bounds.Left);
         painter.PaintRightWall(Bounds.Bottom, Bounds.Top, Bounds.Right - 1);
-        painter.PaintFloorArea(Bounds.Left + 1, Bounds.Right - 2, Bounds.Bottom + 1, Bounds.Top - 2);
         painter.PaintBottomLeftCorner(Bounds.Left, Bounds.Bottom);
         painter.PaintBottomRightCorner(Bounds.Right - 1, Bounds.Bottom);
         Corners.Add(new Vector2Int(Bounds.Left, Bounds.Bottom));

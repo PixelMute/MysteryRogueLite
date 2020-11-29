@@ -145,10 +145,11 @@ public class Level
         rooms.Add(Entrance);
         rooms.Add(Exit);
 
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 5; i++)
         {
             rooms.Add(new StandardRoom());
         }
+        rooms.Add(new LargeSqaureRoom());
         for (int i = 0; i < 2; i++)
         {
             rooms.Add(new SpecialRoom());

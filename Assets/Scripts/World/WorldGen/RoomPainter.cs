@@ -87,6 +87,83 @@ public class RoomPainter
         Level.Terrain.SetTile(new Vector3Int(x, y, 0), tile);
     }
 
+    public void AutoPaintWalls()
+    {
+        for (int i = Room.Bounds.Left; i < Room.Bounds.Right; i++)
+        {
+            for (int j = Room.Bounds.Bottom; j < Room.Bounds.Top; j++)
+            {
+                if (!IsFloor(i, j))
+                {
+                    var tile = GetWallTile(i, j);
+                    if (tile != null)
+                    {
+                        Level.Terrain.SetTile(new Vector3Int(i, j, 0), tile);
+                    }
+                }
+            }
+        }
+    }
+
+    private Tile GetWallTile(int x, int y)
+    {
+        //This is terrible but no super easy way of doing it right now
+        int maxX = Room.Bounds.Right;
+        int maxY = Room.Bounds.Top;
+        if (IsFloor(x, y - 1))
+        {
+            return Painter.TopWallTiles.PickRandom();
+        }
+        if (IsFloor(x + 1, y) && IsFloor(x, y + 1))
+        {
+            return Painter.TurnRightTiles.PickRandom();
+        }
+        if (IsFloor(x - 1, y) && IsFloor(x, y + 1))
+        {
+            return Painter.TurnLeftTiles.PickRandom();
+        }
+        if (IsFloor(x - 1, y))
+        {
+            return Painter.RightWallTiles.PickRandom();
+        }
+        if (IsFloor(x + 1, y))
+        {
+            return Painter.LeftWallTiles.PickRandom();
+        }
+        if (IsFloor(x, y + 1))
+        {
+            return Painter.BottomWallTiles.PickRandom();
+        }
+        if (IsFloor(x + 1, y - 1))
+        {
+            Room.Corners.Add(new Vector2Int(x, y));
+            return Painter.LeftWallTiles.PickRandom();
+        }
+        if (IsFloor(x - 1, y - 1))
+        {
+            Room.Corners.Add(new Vector2Int(x, y));
+            return Painter.RightWallTiles.PickRandom();
+        }
+        if (IsFloor(x + 1, y + 1))
+        {
+            Room.Corners.Add(new Vector2Int(x, y));
+            return Painter.BottomLeftCorner;
+        }
+        if (IsFloor(x - 1, y + 1))
+        {
+            Room.Corners.Add(new Vector2Int(x, y));
+            return Painter.BottomRightCorner;
+        }
+
+        return null;
+    }
+
+    private bool IsFloor(int x, int y)
+    {
+        var tile = Level.Terrain.GetTile(new Vector3Int(x, y, 0));
+        return tile != null && tile.name.Contains("Floor");
+    }
+
 
 }
 

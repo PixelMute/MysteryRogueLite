@@ -72,7 +72,7 @@ public abstract class Room
 
     public bool SetSizeWithLimit(int width, int height)
     {
-        if (width <= Info.MinWidth || height <= Info.MinHeight)
+        if (width < Info.MinWidth || height < Info.MinHeight)
         {
             return false;
         }

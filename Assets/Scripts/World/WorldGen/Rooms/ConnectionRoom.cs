@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.Tilemaps;
 
 class ConnectionRoom : Room
 {
@@ -57,20 +56,7 @@ class ConnectionRoom : Room
             painter.PaintFloorArea(secondHalf);
         }
 
-        for (int i = Bounds.Left; i < Bounds.Right; i++)
-        {
-            for (int j = Bounds.Bottom; j < Bounds.Top; j++)
-            {
-                if (!IsFloor(i, j, level))
-                {
-                    var tile = GetWallTile(i, j, level);
-                    if (tile != null)
-                    {
-                        level.Terrain.SetTile(new Vector3Int(i, j, 0), tile);
-                    }
-                }
-            }
-        }
+        painter.AutoPaintWalls();
     }
 
     private Vector2Int GetCenterPoint()
@@ -106,63 +92,8 @@ class ConnectionRoom : Room
         return center;
     }
 
-    private Tile GetWallTile(int x, int y, Level level)
-    {
-        //This is terrible but no super easy way of doing it right now
-        int maxX = Bounds.Right;
-        int maxY = Bounds.Top;
-        if (IsFloor(x, y - 1, level))
-        {
-            return Painter.TopWallTiles.PickRandom();
-        }
-        if (IsFloor(x + 1, y, level) && IsFloor(x, y + 1, level))
-        {
-            return Painter.TurnRightTiles.PickRandom();
-        }
-        if (IsFloor(x - 1, y, level) && IsFloor(x, y + 1, level))
-        {
-            return Painter.TurnLeftTiles.PickRandom();
-        }
-        if (IsFloor(x - 1, y, level))
-        {
-            return Painter.RightWallTiles.PickRandom();
-        }
-        if (IsFloor(x + 1, y, level))
-        {
-            return Painter.LeftWallTiles.PickRandom();
-        }
-        if (IsFloor(x, y + 1, level))
-        {
-            return Painter.BottomWallTiles.PickRandom();
-        }
-        if (IsFloor(x + 1, y - 1, level))
-        {
-            Corners.Add(new Vector2Int(x, y));
-            return Painter.LeftWallTiles.PickRandom();
-        }
-        if (IsFloor(x - 1, y - 1, level))
-        {
-            Corners.Add(new Vector2Int(x, y));
-            return Painter.RightWallTiles.PickRandom();
-        }
-        if (IsFloor(x + 1, y + 1, level))
-        {
-            Corners.Add(new Vector2Int(x, y));
-            return Painter.BottomLeftCorner;
-        }
-        if (IsFloor(x - 1, y + 1, level))
-        {
-            Corners.Add(new Vector2Int(x, y));
-            return Painter.BottomRightCorner;
-        }
 
-        return null;
-    }
 
-    private bool IsFloor(int x, int y, Level level)
-    {
-        var tile = level.Terrain.GetTile(new Vector3Int(x, y, 0));
-        return tile != null && tile.name.Contains("Floor");
-    }
+
 }
 

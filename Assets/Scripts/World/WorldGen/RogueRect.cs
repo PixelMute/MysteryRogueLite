@@ -21,6 +21,14 @@ public class RogueRect
         Bottom = Math.Min(otherPoint.y, point.y);
     }
 
+    public RogueRect(RogueRect other)
+    {
+        Left = other.Left;
+        Right = other.Right;
+        Top = other.Top;
+        Bottom = other.Bottom;
+    }
+
     /// <summary>
     /// Sets the rect to have the new bounds
     /// </summary>
