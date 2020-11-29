@@ -1,10 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using UnityEngine;
 
 public static class Helpers
 {
+    public static void DrawDebugLine(int x, int z)
+    {
+        var rng = UnityEngine.Random.ColorHSV();
+        DrawDebugLine(x, z, rng);
+    }
+
+    public static void DrawDebugLine(int x, int z, Color color)
+    {
+        UnityEngine.Debug.DrawLine(new Vector3(x, 0, z), new Vector3(x, 10, z), color, 1000f);
+    }
+
     public static T PickRandom<T>(this List<T> source)
     {
         return source[Random.Range(0, source.Count())];

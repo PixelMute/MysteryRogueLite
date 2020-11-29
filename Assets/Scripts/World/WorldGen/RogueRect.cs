@@ -78,7 +78,7 @@ public class RogueRect
     /// <returns></returns>
     public bool IsColliding(RogueRect other)
     {
-        return !(Math.Max(Left, other.Left) >= Math.Min(Right, other.Right) || Math.Max(Top, other.Top) >= Math.Min(Bottom, other.Bottom));
+        return !(Math.Max(Left, other.Left) >= Math.Min(Right, other.Right) || Math.Min(Top, other.Top) <= Math.Max(Bottom, other.Bottom));
     }
 
     /// <summary>

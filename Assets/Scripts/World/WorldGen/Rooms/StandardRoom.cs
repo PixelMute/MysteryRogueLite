@@ -17,7 +17,7 @@ public class StandardRoom : Room
     {
         base.PaintDoors(level);
         var painter = new RoomPainter(level, this);
-        foreach (var door in ConnectionPoints)
+        foreach (var door in ConnectionPoints.Values)
         {
             if (door.x == Bounds.Right || door.x == Bounds.Left)
             {

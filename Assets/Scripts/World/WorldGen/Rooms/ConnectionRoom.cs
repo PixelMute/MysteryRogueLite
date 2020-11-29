@@ -6,9 +6,9 @@ class ConnectionRoom : Room
     public static RoomInfo ConnectionRoomInfo = new RoomInfo()
     {
         MaxConnections = 16,
-        MinWidth = 3,
+        MinWidth = 4,
         MaxWidth = 10,
-        MinHeight = 3,
+        MinHeight = 4,
         MaxHeight = 10,
         RoomType = RoomType.CONNECTION,
         MinConnections = 2,
@@ -21,18 +21,15 @@ class ConnectionRoom : Room
         var painter = new RoomPainter(level, this);
         var center = GetCenterPoint();
 
-        foreach (var door in ConnectionPoints)
+        Helpers.DrawDebugLine(center.x, center.y);
+        foreach (var door in ConnectionPoints.Values)
         {
 
             var start = new Vector2Int(door.x, door.y);
-            //if (start.x == Bounds.Left)
-            //    start.x++;
-            //else if (start.y == Bounds.Top)
-            //    start.y--;
-            //else if (start.x == Bounds.Right)
-            //    start.x--;
-            //else if (start.y == Bounds.Bottom)
-            //    start.y++;
+            if (start.y == Bounds.Top)
+                start.y--;
+            else if (start.x == Bounds.Right)
+                start.x--;
 
             int rightShift = (int)center.x - start.x;
             int downShift = (int)center.y - start.y;
@@ -79,7 +76,7 @@ class ConnectionRoom : Room
     private Vector2Int GetCenterPoint()
     {
         var center = new Vector2Int();
-        foreach (var door in ConnectionPoints)
+        foreach (var door in ConnectionPoints.Values)
         {
             center.x += door.x;
             center.y += door.y;
@@ -94,6 +91,10 @@ class ConnectionRoom : Room
         //This is terrible but no super easy way of doing it right now
         int maxX = Bounds.Right;
         int maxY = Bounds.Top;
+        if (IsFloor(x, y - 1, level))
+        {
+            return Painter.TopWallTiles.PickRandom();
+        }
         if (IsFloor(x + 1, y, level) && IsFloor(x, y + 1, level))
         {
             return Painter.TurnRightTiles.PickRandom();
@@ -101,10 +102,6 @@ class ConnectionRoom : Room
         if (IsFloor(x - 1, y, level) && IsFloor(x, y + 1, level))
         {
             return Painter.TurnLeftTiles.PickRandom();
-        }
-        if (IsFloor(x, y - 1, level))
-        {
-            return Painter.TopWallTiles.PickRandom();
         }
         if (IsFloor(x - 1, y, level))
         {

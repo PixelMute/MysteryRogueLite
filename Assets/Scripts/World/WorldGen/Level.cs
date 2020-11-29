@@ -50,18 +50,35 @@ public class Level
     public void Build()
     {
         var rooms = InitRooms();
-        var builder = new Builder();
+        var builder = new LoopBuilder();
+        int count = 0;
         do
         {
             foreach (var room in rooms)
             {
                 room.Reset();
             }
+            count++;
         } while (!builder.Build(rooms));
+        Debug.Log($"Took {count} attempts to correctly build the level");
         Rooms = builder.PlacedRooms;
         CenterRooms();
         Paint();
         HasBeenBuilt = true;
+
+        DebugRooms();
+    }
+
+    private void DebugRooms()
+    {
+        foreach (var room in Rooms)
+        {
+            var rng = UnityEngine.Random.ColorHSV();
+            Helpers.DrawDebugLine(room.Bounds.Left, room.Bounds.Bottom, rng);
+            Helpers.DrawDebugLine(room.Bounds.Right, room.Bounds.Bottom, rng);
+            Helpers.DrawDebugLine(room.Bounds.Left, room.Bounds.Top, rng);
+            Helpers.DrawDebugLine(room.Bounds.Right, room.Bounds.Top, rng);
+        }
     }
 
     public void Paint()
@@ -128,7 +145,7 @@ public class Level
         rooms.Add(Entrance);
         rooms.Add(Exit);
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 7; i++)
         {
             rooms.Add(new StandardRoom());
         }
@@ -145,9 +162,9 @@ public class Level
         foreach (var room in Rooms)
         {
             room.Bounds.Shift(-xOffset, -yOffset);
-            for (int i = 0; i < room.ConnectionPoints.Count; i++)
+            foreach (var neighbor in room.Neighbors)
             {
-                room.ConnectionPoints[i] += new Vector2Int(-xOffset, -yOffset);
+                room.ConnectionPoints[neighbor] += new Vector2Int(-xOffset, -yOffset);
             }
         }
     }

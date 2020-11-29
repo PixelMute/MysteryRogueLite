@@ -54,5 +54,15 @@ public static class Random
     {
         return rand.Next(min, max);
     }
+
+    /// <summary>
+    /// Returns true randomly based on the given percent
+    /// </summary>
+    /// <param name="percent">Percent of the time it will return true</param>
+    /// <returns></returns>
+    public static bool RandBool(float percent)
+    {
+        return rand.NextDouble() <= percent;
+    }
 }
 

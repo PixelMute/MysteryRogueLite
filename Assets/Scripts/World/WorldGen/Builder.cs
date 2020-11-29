@@ -4,11 +4,16 @@ using UnityEngine;
 
 public class Builder
 {
-    private Room entrance;
-    private Room exit;
+    protected Room entrance;
+    protected Room exit;
 
-    private List<Room> singleConnections;
-    private List<Room> multiConnnections;
+    protected List<Room> singleConnections;
+    protected List<Room> multiConnections;
+    protected List<Room> branchable;
+    protected List<int> branchConnectionLength = new List<int> { 0, 0, 1, 1, 2 };
+    protected List<int> pathConnectionLength = new List<int> { 0, 1, 1, 1, 2 };
+    protected List<int> pathLengthJitters = new List<int> { 0, 1, 1 };
+    protected float pathLengthPercentage = .5f;
 
     public List<Room> Rooms { get; set; }
     public List<Room> PlacedRooms;
@@ -21,7 +26,7 @@ public class Builder
         BOTTOM
     }
 
-    public bool Build(List<Room> rooms)
+    public virtual bool Build(List<Room> rooms)
     {
         this.Rooms = rooms;
         InitBuilder();
@@ -35,33 +40,39 @@ public class Builder
         entrance.SetSize();
         entrance.Bounds.SetPosition(0, 0);
         PlacedRooms.Add(entrance);
+        branchable.Add(entrance);
 
-        int roomsOnPath = multiConnnections.Count;
+        int roomsOnPath = (int)(multiConnections.Count * pathLengthPercentage) + pathLengthJitters.PickRandom();
+        roomsOnPath = Math.Min(roomsOnPath, multiConnections.Count);
         float pathVariance = 15;
-
 
         var curr = entrance;
         float res;
         int rejected = 0;
+        Debug.Log($"Number of rooms on path: {roomsOnPath}");
         for (int i = 0; i < roomsOnPath; i++)
         {
-            var connectionRoom = new ConnectionRoom();
-            res = AttemptToPlaceRoom(curr, connectionRoom, direction + Random.Range(-pathVariance, pathVariance));
-            if (res != -1)
+            for (int j = 0; j < pathConnectionLength.PickRandom(); j++)
             {
-                rooms.Add(connectionRoom);
-                PlacedRooms.Add(connectionRoom);
-                curr = connectionRoom;
+                var connectionRoom = new ConnectionRoom();
+                res = AttemptToPlaceRoom(curr, connectionRoom, direction + Random.Range(-pathVariance, pathVariance));
+                if (res != -1)
+                {
+                    PlacedRooms.Add(connectionRoom);
+                    branchable.Add(connectionRoom);
+                    curr = connectionRoom;
+                }
+                else
+                {
+                    rejected++;
+                }
             }
-            else
-            {
-                rejected++;
-            }
-            var next = multiConnnections[i];
+            var next = multiConnections[i];
             res = AttemptToPlaceRoom(curr, next, direction + Random.Range(-pathVariance, pathVariance));
             if (res != -1)
             {
                 PlacedRooms.Add(next);
+                branchable.Add(next);
                 curr = next;
             }
             else
@@ -69,7 +80,7 @@ public class Builder
                 rejected++;
             }
         }
-        Debug.Log($"Number of rooms rejected: {rejected} out of {rooms.Count}");
+        Debug.Log($"Number of rooms on path rejected: {rejected} out of {roomsOnPath}");
         res = AttemptToPlaceRoom(curr, exit, direction + Random.Range(-pathVariance, pathVariance));
         if (res != -1)
         {
@@ -80,11 +91,23 @@ public class Builder
             return false;
         }
 
+        var roomsToBranch = GetRoomsToBranch(roomsOnPath);
+        CreateBranches(roomsToBranch);
+
         FindNeighbours();
 
-
-
         return true;
+    }
+
+    protected List<Room> GetRoomsToBranch(int numRoomsOnPath)
+    {
+        var res = new List<Room>();
+        for (int i = numRoomsOnPath; i < multiConnections.Count; i++)
+        {
+            res.Add(multiConnections[i]);
+        }
+        res.AddRange(singleConnections);
+        return res;
     }
 
     protected void FindNeighbours()
@@ -98,7 +121,106 @@ public class Builder
         }
     }
 
-    private float AttemptToPlaceRoom(Room previousRoom, Room nextRoom, float angle)
+    protected void CreateBranches(List<Room> roomsToBranch)
+    {
+        Debug.Log($"Number of rooms to branch: {roomsToBranch.Count}");
+        var currentBranch = new List<Room>();
+        var i = 0;
+        while (i < roomsToBranch.Count)
+        {
+            currentBranch.Clear();
+            var room = roomsToBranch[i];
+            var curr = branchable.PickRandom();
+            var numConnections = branchConnectionLength.PickRandom();
+            currentBranch = TryCreateBranch(room, curr, numConnections);
+            if (currentBranch.Count != numConnections + 1)
+            {
+                continue;
+            }
+
+            foreach (var branched in currentBranch)
+            {
+                if (branched.Info.MaxConnections > 1 && Random.RandBool(.3f))
+                {
+                    if (branched is StandardRoom)
+                    {
+                        for (int j = 0; j < Random.Range(1, 4); j++)
+                        {
+                            branchable.Add(branched);
+                        }
+                    }
+                    else
+                    {
+                        branchable.Add(branched);
+                    }
+                }
+            }
+            i++;
+        }
+    }
+
+    private List<Room> TryCreateBranch(Room roomToBranch, Room currentRoom, int numConnRooms)
+    {
+        int tries;
+        float angle;
+        var currentBranch = new List<Room>();
+        for (int j = 0; j < numConnRooms; j++)
+        {
+            var connRoom = new ConnectionRoom();
+            tries = 3;
+            do
+            {
+                tries--;
+                angle = AttemptToPlaceRoom(currentRoom, connRoom, Random.RandomDirection());
+            } while (tries > 0 && angle == -1);
+
+            if (angle == -1)    //If we failed to place the connecting room, remove all rooms on this branch
+            {
+                foreach (var branchRoom in currentBranch)
+                {
+                    branchRoom.Reset();
+                    PlacedRooms.Remove(branchRoom);
+                    Rooms.Remove(branchRoom);
+                }
+                currentBranch.Clear();
+                return currentBranch;
+            }
+            else
+            {
+                currentRoom = connRoom;
+                currentBranch.Add(connRoom);
+                PlacedRooms.Add(connRoom);
+            }
+        }
+
+        tries = 10;
+        do
+        {
+            tries--;
+            angle = AttemptToPlaceRoom(currentRoom, roomToBranch, Random.RandomDirection());
+        } while (tries > 0 && angle == -1);
+
+        if (angle == -1)
+        {
+            roomToBranch.Reset();
+            foreach (var branchRoom in currentBranch)
+            {
+                branchRoom.Reset();
+                PlacedRooms.Remove(branchRoom);
+                Rooms.Remove(branchRoom);
+            }
+            currentBranch.Clear();
+            return currentBranch;
+        }
+        else
+        {
+            currentBranch.Add(roomToBranch);
+            PlacedRooms.Add(roomToBranch);
+        }
+        return currentBranch;
+    }
+
+    protected float AttemptToPlaceRoom(Room previousRoom, Room nextRoom, float angle)
     {
         angle %= 360f;
         if (angle < 0)
@@ -191,13 +313,12 @@ public class Builder
         };
     }
 
-
-    private float GetAngleBetweenRooms(Room one, Room two)
+    protected float GetAngleBetweenRooms(Room one, Room two)
     {
         var centerOne = one.Bounds.Center;
         var centerTwo = two.Bounds.Center;
-        float xDiff = centerOne.x - centerTwo.x;
-        float yDiff = centerOne.y - centerTwo.y;
+        float xDiff = centerTwo.x - centerOne.x;
+        float yDiff = centerTwo.y - centerOne.y;
         return ((float)Math.Atan2(yDiff, xDiff)).RadiansToDegrees();
     }
 
@@ -252,11 +373,12 @@ public class Builder
         return targetCenter;
     }
 
-    private void InitBuilder()
+    protected void InitBuilder()
     {
         singleConnections = new List<Room>();
-        multiConnnections = new List<Room>();
+        multiConnections = new List<Room>();
         PlacedRooms = new List<Room>();
+        branchable = new List<Room>();
 
         foreach (var room in Rooms)
         {
@@ -271,7 +393,7 @@ public class Builder
             }
             else if (room.Info.MaxConnections > 1)
             {
-                multiConnnections.Add(room);
+                multiConnections.Add(room);
             }
             else if (room.Info.MaxConnections == 1)
             {

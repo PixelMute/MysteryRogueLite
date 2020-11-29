@@ -38,7 +38,7 @@ public abstract class Room
 
     public List<Room> Neighbors { get; private set; }
 
-    public List<Vector2Int> ConnectionPoints { get; private set; }
+    public Dictionary<Room, Vector2Int> ConnectionPoints { get; private set; }
     public List<Vector2Int> Corners { get; private set; }
 
     public Room(RoomInfo info)
@@ -46,15 +46,20 @@ public abstract class Room
         Info = info;
         Bounds = new RogueRect();
         Neighbors = new List<Room>();
-        ConnectionPoints = new List<Vector2Int>();
+        ConnectionPoints = new Dictionary<Room, Vector2Int>();
         Corners = new List<Vector2Int>();
     }
 
     public void Reset()
     {
         Bounds = new RogueRect();
-        ConnectionPoints = new List<Vector2Int>();
+        ConnectionPoints = new Dictionary<Room, Vector2Int>();
         Corners = new List<Vector2Int>();
+        foreach (var room in Neighbors)
+        {
+            room.Neighbors.Remove(this);
+            room.ConnectionPoints.Remove(this);
+        }
         Neighbors = new List<Room>();
     }
 
@@ -87,20 +92,23 @@ public abstract class Room
         {
             return true;
         }
-        var intersection = Bounds.Intersect(room.Bounds);
-        if (intersection == null || (intersection.Width == 0 && intersection.Height >= 2) || (intersection.Height == 0 && intersection.Width >= 2))
+        if (room.Neighbors.Count < Info.MaxConnections && room.Neighbors.Count < room.Info.MaxConnections)
         {
-            var connectionPoint = GetConnectionPoint(room);
-            if (connectionPoint == null)
+            var intersection = Bounds.Intersect(room.Bounds);
+            if (intersection == null || (intersection.Width == 0 && intersection.Height >= 2) || (intersection.Height == 0 && intersection.Width >= 2))
             {
-                return false;
-            }
-            ConnectionPoints.Add(connectionPoint.Value);
-            room.ConnectionPoints.Add(connectionPoint.Value);
-            Neighbors.Add(room);
-            room.Neighbors.Add(this);
+                var connectionPoint = GetConnectionPoint(room);
+                if (connectionPoint == null)
+                {
+                    return false;
+                }
+                ConnectionPoints.Add(room, connectionPoint.Value);
+                room.ConnectionPoints.Add(this, connectionPoint.Value);
+                Neighbors.Add(room);
+                room.Neighbors.Add(this);
 
-            return true;
+                return true;
+            }
         }
         return false;
     }
@@ -138,7 +146,7 @@ public abstract class Room
         }
         else if (point.y == Bounds.Top || point.y == Bounds.Bottom)
         {
-            return point.x < Bounds.Right - 1 && point.y > Bounds.Left;
+            return point.x < Bounds.Right - 1 && point.x > Bounds.Left;
         }
         return false;
     }
@@ -146,7 +154,7 @@ public abstract class Room
     public virtual void PaintDoors(Level level)
     {
         var painter = new RoomPainter(level, this);
-        foreach (var door in ConnectionPoints)
+        foreach (var door in ConnectionPoints.Values)
         {
             if (door.x == Bounds.Right)
             {
