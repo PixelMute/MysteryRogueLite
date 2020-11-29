@@ -180,7 +180,6 @@ public class Builder
                 {
                     branchRoom.Reset();
                     PlacedRooms.Remove(branchRoom);
-                    Rooms.Remove(branchRoom);
                 }
                 currentBranch.Clear();
                 return currentBranch;
@@ -207,7 +206,6 @@ public class Builder
             {
                 branchRoom.Reset();
                 PlacedRooms.Remove(branchRoom);
-                Rooms.Remove(branchRoom);
             }
             currentBranch.Clear();
             return currentBranch;
@@ -250,11 +248,11 @@ public class Builder
         {
             if (freeSpace == null)
             {
-                Debug.Log("Reason for rejection: free space was null");
+                //Debug.Log("Reason for rejection: free space was null");
             }
             else
             {
-                Debug.Log("Reason for rejection: free space too small for room");
+                //Debug.Log("Reason for rejection: free space too small for room");
             }
             //If there is no free space or the free space is too small for the room
             return -1;
@@ -289,7 +287,7 @@ public class Builder
         }
         if (!nextRoom.Bounds.IsInside(freeSpace))
         {
-            Debug.Log("Reason for rejection: Room not inside of free space");
+            //Debug.Log("Reason for rejection: Room not inside of free space");
             //Something went wrong
             return -1;
         }
@@ -298,7 +296,7 @@ public class Builder
         {
             return GetAngleBetweenRooms(nextRoom, previousRoom);
         }
-        Debug.Log("Reason for rejection: Couldn't connect to previous room");
+        //Debug.Log("Reason for rejection: Couldn't connect to previous room");
         return -1;
     }
 

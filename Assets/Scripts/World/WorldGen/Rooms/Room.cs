@@ -92,7 +92,7 @@ public abstract class Room
         {
             return true;
         }
-        if (room.Neighbors.Count < Info.MaxConnections && room.Neighbors.Count < room.Info.MaxConnections)
+        if (Neighbors.Count < Info.MaxConnections && room.Neighbors.Count < room.Info.MaxConnections)
         {
             var intersection = Bounds.Intersect(room.Bounds);
             if (intersection == null || (intersection.Width == 0 && intersection.Height >= 2) || (intersection.Height == 0 && intersection.Width >= 2))

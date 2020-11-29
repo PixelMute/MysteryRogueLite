@@ -83,6 +83,26 @@ class ConnectionRoom : Room
         }
         center.x /= ConnectionPoints.Count;
         center.y /= ConnectionPoints.Count;
+        //Adjust the center so it isn't too close to any of the connection points causing weird visual things
+        foreach (var connection in ConnectionPoints.Values)
+        {
+            if (connection.x == Bounds.Left && center.x <= Bounds.Left + 1)
+            {
+                center.x = Bounds.Left + 2;
+            }
+            if (connection.x == Bounds.Right && center.x >= Bounds.Right - 1)
+            {
+                center.x = Bounds.Right - 2;
+            }
+            if (connection.y == Bounds.Bottom && center.y <= Bounds.Bottom + 1)
+            {
+                center.y = Bounds.Bottom + 2;
+            }
+            if (connection.y == Bounds.Top && center.y >= Bounds.Top - 1)
+            {
+                center.y = Bounds.Top - 2;
+            }
+        }
         return center;
     }
 

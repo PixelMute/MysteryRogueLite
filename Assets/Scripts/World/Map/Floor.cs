@@ -1,5 +1,6 @@
 ﻿using DungeonGenerator;
 using NesScripts.Controls.PathFind;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -86,7 +87,10 @@ public class Floor
     //Builds the floor from the dungeon data
     public void BuildFloor()
     {
+        var now = DateTime.Now;
         Level.Build();
+        var end = DateTime.Now;
+        Debug.Log($"It took {(end - now).TotalSeconds} to generate the level");
         ConstructTiles();
         //CalculateRoomAreas();
 

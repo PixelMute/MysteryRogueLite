@@ -25,6 +25,15 @@ class LoopBuilder : Builder
         curveOffset = offset % 0.5f;
     }
 
+    public LoopBuilder(int curveExponent, float curveIntensity, float curveOffset)
+    {
+        this.curveExponent = Math.Abs(curveExponent);
+        this.curveIntensity = curveIntensity % 1f;
+        this.curveOffset = curveOffset % 0.5f;
+    }
+
+    public LoopBuilder() { }
+
     private float TargetAngle(float percentAlong)
     {
         percentAlong += curveOffset;
