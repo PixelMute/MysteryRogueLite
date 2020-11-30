@@ -106,17 +106,35 @@ public class RoomPainter
         }
     }
 
-    public void Decorate()
+    public void AutoDecorate()
     {
-        Room.Decorate();
         for (int i = Room.Bounds.Left; i < Room.Bounds.Right; i++)
         {
             for (int j = Room.Bounds.Bottom; j < Room.Bounds.Top; j++)
             {
                 var type = GetTypeOfWall(i, j);
-                if (type == TypeOfTile.Top && Random.RandBool(.25f))
+                if (type == TypeOfTile.Top)
                 {
-                    Level.DecorativeTileMap.SpawnTorch(i, j);
+                    if (Random.RandBool(.125f))
+                    {
+                        Level.DecorativeTileMap.SpawnTorch(i, j);
+                    }
+                    else if (Random.RandBool(.125f))
+                    {
+                        Level.Decorations.SetTile(new Vector3Int(i, j, 0), Painter.GetRandomTopWallDecoration());
+                    }
+                }
+                if (type == TypeOfTile.Left && Random.RandBool(.125f) && IsFloor(i + 1, j))
+                {
+                    Level.DecorativeTileMap.SpawnSideTorch(i + 1, j, true);
+                }
+                if (type == TypeOfTile.Right && Random.RandBool(.125f) && IsFloor(i - 1, j))
+                {
+                    Level.DecorativeTileMap.SpawnSideTorch(i - 1, j, false);
+                }
+                if (type == TypeOfTile.Floor && Random.RandBool(.02f))
+                {
+                    Level.Decorations.SetTile(new Vector3Int(i, j, 0), Painter.GetRandomFloorDecoration());
                 }
             }
         }
@@ -175,7 +193,7 @@ public class RoomPainter
         return null;
     }
 
-    private bool IsFloor(int x, int y)
+    public bool IsFloor(int x, int y)
     {
         var tile = Level.Terrain.GetTile(new Vector3Int(x, y, 0));
         return tile != null && tile.name.Contains("Floor");
@@ -209,6 +227,15 @@ public class RoomPainter
             return TypeOfTile.Right;
         }
         return TypeOfTile.None;
+    }
+
+    public void PlaceCobwebs(int x, int y, bool right)
+    {
+        Level.Decorations.SetTile(new Vector3Int(x, y, 0), Painter.Cobwebs);
+        if (right)
+        {
+            Level.Decorations.SetTransformMatrix(new Vector3Int(x, y, 0), Matrix4x4.Scale(new Vector3(-1, 1, 1)));
+        }
     }
 }
 

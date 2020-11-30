@@ -65,7 +65,6 @@ public class Level
         Debug.Log($"Took {count} attempts to correctly build the level");
         Rooms = builder.PlacedRooms;
         CenterRooms();
-        Paint();
         HasBeenBuilt = true;
 
         //DebugRooms();
@@ -89,6 +88,7 @@ public class Level
         {
             room.Paint(this);
             room.PaintDoors(this);
+            room.Decorate(this);
         }
         var stairsLoc = Exit.StairsLocation;
         if (stairsLoc != null)
@@ -99,7 +99,6 @@ public class Level
         {
             Debug.LogError("Exit doesn't have valid space for stairs down. This is very bad");
         }
-
     }
 
     public void ClearAllTiles()
@@ -152,10 +151,11 @@ public class Level
             rooms.Add(new StandardRoom());
         }
         rooms.Add(new LargeSqaureRoom());
-        for (int i = 0; i < 2; i++)
-        {
-            rooms.Add(new SpecialRoom());
-        }
+        rooms.Add(new CoinRoom());
+        //for (int i = 0; i < 2; i++)
+        //{
+        //    rooms.Add(new SpecialRoom());
+        //}
         return rooms;
     }
 

@@ -15,6 +15,10 @@ class ConnectionRoom : Room
 
     public ConnectionRoom() : base(ConnectionRoomInfo) { }
 
+    public override void PaintDoors(Level level)
+    {
+        return;
+    }
     public override void Paint(Level level)
     {
         var painter = new RoomPainter(level, this);

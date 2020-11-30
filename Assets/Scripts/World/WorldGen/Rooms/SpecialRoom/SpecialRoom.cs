@@ -10,11 +10,5 @@
         MaxConnections = 1,
     })
     { }
-
-    public override void Paint(Level level)
-    {
-        var painter = new RoomPainter(level, this);
-        painter.PaintFloorArea(Bounds.Left + 1, Bounds.Right - 2, Bounds.Bottom + 1, Bounds.Top - 2);
-    }
 }
 

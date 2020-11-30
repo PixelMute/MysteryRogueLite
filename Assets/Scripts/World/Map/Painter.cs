@@ -17,10 +17,49 @@ class Painter
     public static Tile BottomRightCorner { get; set; }
     public static Tile EmptySpace { get; set; }
     public static Tile LadderDown { get; set; }
+    public static Tile Flag { get; set; }
+    public static Tile Bones { get; set; }
+    public static List<Tile> Boxes { get; set; }
+    public static Tile Skull { get; set; }
+    public static List<Tile> Ring { get; set; }
+    public static Tile Cobwebs { get; set; }
+
     private static bool HaveTilesBeenLoaded { get; set; } = false;
 
     private static string Path = "Tiles/";
     private DecorativeTileMap decorations;
+
+    public static Tile GetRandomFloorDecoration()
+    {
+        int rand = Random.Range(0, 4);
+        switch (rand)
+        {
+            case 0:
+                return Bones;
+            case 1:
+                return Boxes[0];
+            case 2:
+                return Boxes[1];
+            case 3:
+            default:
+                return Skull;
+        }
+    }
+
+    public static Tile GetRandomTopWallDecoration()
+    {
+        int rand = Random.Range(0, 3);
+        switch (rand)
+        {
+            case 0:
+                return Ring[0];
+            case 1:
+                return Ring[1];
+            case 2:
+            default:
+                return Flag;
+        }
+    }
 
     public Painter(DecorativeTileMap decorativeTileMap)
     {
@@ -44,7 +83,12 @@ class Painter
         BottomRightCorner = LoadTile("BottomRightCorner");
         EmptySpace = LoadTile("EmptySpace");
         LadderDown = LoadTile("LadderDown");
-
+        Flag = LoadTile("Decorations/Flag");
+        Boxes = LoadTilesWithName("Decorations/Boxes", 2);
+        Skull = LoadTile("Decorations/Skull");
+        Ring = LoadTilesWithName("Decorations/Ring", 2);
+        Bones = LoadTile("Decorations/Bones");
+        Cobwebs = LoadTile("Decorations/Cobwebs");
         HaveTilesBeenLoaded = true;
     }
 

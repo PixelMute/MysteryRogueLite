@@ -21,6 +21,15 @@ public class DecorativeTileMap : MonoBehaviour
 
     public void SpawnTorch(int x, int y)
     {
-        var torch = Instantiate(Torch, new Vector3(x, .01f, y), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
+        Instantiate(Torch, new Vector3(x, .01f, y), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
+    }
+
+    public void SpawnSideTorch(int x, int y, bool facingRight)
+    {
+        var sideTorch = Instantiate(SideTorch, new Vector3(x, .01f, y), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
+        if (!facingRight)
+        {
+            sideTorch.GetComponent<SpriteRenderer>().flipX = true;
+        }
     }
 }

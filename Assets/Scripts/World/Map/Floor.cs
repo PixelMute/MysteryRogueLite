@@ -18,6 +18,7 @@ public class FloorManager
         //CurrentFloor = GenerateRandomFloor(CurrentFloorNumber);
         CurrentFloor = new Floor(new Level(BattleGrid.instance.tileMap, BattleGrid.instance.DecorativeTileMap), CurrentFloorNumber, 0);
         AllFloors.Append(CurrentFloor);
+        CurrentFloor.BuildFloor();
         CurrentFloor.InstantiateFloor();
     }
 
@@ -73,7 +74,6 @@ public class Floor
         //tileMap = BattleGrid.instance.tileMap;
         this.seed = seed;
         FloorNumber = floorNumber;
-        BuildFloor();
     }
 
     public Floor(Level level, int floorNumber, int seed)
@@ -81,7 +81,6 @@ public class Floor
         Level = level;
         FloorNumber = floorNumber;
         this.seed = seed;
-        BuildFloor();
     }
 
     //Builds the floor from the dungeon data
@@ -91,6 +90,17 @@ public class Floor
         Level.Build();
         var end = DateTime.Now;
         Debug.Log($"It took {(end - now).TotalSeconds} to generate the level");
+        sizeX = Level.Bounds.Width;
+        sizeZ = Level.Bounds.Height;
+        map = new Roguelike.Tile[sizeX, sizeZ];
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeZ; j++)
+            {
+                map[i, j] = new Roguelike.Tile();
+            }
+        }
+        Level.Paint();
         ConstructTiles();
         //CalculateRoomAreas();
 
@@ -132,14 +142,10 @@ public class Floor
 
     private void ConstructTiles()
     {
-        sizeX = Level.Bounds.Width;
-        sizeZ = Level.Bounds.Height;
-        map = new Roguelike.Tile[sizeX, sizeZ];
         for (int i = 0; i < sizeX; i++)
         {
             for (int j = 0; j < sizeZ; j++)
             {
-                map[i, j] = new Roguelike.Tile();
                 var tile = Level.Terrain.GetTile(new Vector3Int(i, j, 0));
                 if (IsTileAWall(tile))
                 {
