@@ -364,11 +364,11 @@ public class PlayerUIManager : MonoBehaviour
         Debug.Log("Selected tile entity: " + BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType.ToString());
         Debug.Log("Selected terrain: " + BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileTerrainType.ToString());
 
-        TileItem item = BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].ItemOnTile;
+        TileItem item = BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetItemOnTile();
         if (item != null)
         {
             if (item is DroppedMoney)
-                Debug.Log("Selected item: Money, value of " + (item as DroppedMoney)?.Value);
+                Debug.Log("Selected item: Money, value of " + (item as DroppedMoney).Value);
             else
                 Debug.Log("Selected item: Unknown. Please update this in PlayerUIManager.");
         }
@@ -913,7 +913,6 @@ public class PlayerUIManager : MonoBehaviour
             GameObject newCard = GameObject.Instantiate(cardPrefab, cardRewardHorizontalLayout.transform);
             CardInterface ci = newCard.GetComponent<CardInterface>();
             ci.cardData = CardFactory.GetCardByID(pickedCard);
-            Debug.Log("Picked card number " + pickedCard);
             Debug.Log("Picked number " + pickedCard + ", which is card " + ci.cardData.CardInfo.Name);
             ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardReward);
         }

@@ -151,15 +151,15 @@ public class PlayerController : TileCreature
 
         if (true) // Debugging testing certain cards.
         {
-            Card card1 = CardFactory.GetCard("Rebound");
+            Card card1 = CardFactory.GetCard("rockfall");
             playerDeck.InsertCardAtEndOfDrawPile(card1);
             playerDeck.InsertCardAtEndOfDrawPile(card1);
 
-            Card card2 = CardFactory.GetCard("Horn Lance");
+            Card card2 = CardFactory.GetCard("thousand talons");
             playerDeck.InsertCardAtEndOfDrawPile(card2);
             playerDeck.InsertCardAtEndOfDrawPile(card2);
 
-            Card card3 = CardFactory.GetCard("ebb and flow");
+            Card card3 = CardFactory.GetCard("blockade");
             playerDeck.InsertCardAtEndOfDrawPile(card3);
             playerDeck.InsertCardAtEndOfDrawPile(card3);
         }
@@ -449,7 +449,7 @@ public class PlayerController : TileCreature
     // Returns true if we should still move.
     private bool ActivateMoveOntoEffects(Vector2Int newMoveTarget)
     {
-        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
+        //var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
         // First, check things that will not end your turn.
 
         //Moved picking up money to end of turn because it matches sprites more. Need to move it to after movement not after turn?
@@ -571,10 +571,11 @@ public class PlayerController : TileCreature
     {
         //Pick up any money that we ended our turn on top of
         var tile = BattleManager.instance.GetTileAtLocation((int)transform.position.x, (int)transform.position.z);
+        var item = tile.GetItemOnTile();
 
-        if (tile.ItemOnTile != null)
+        if (item != null)
         {
-            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
+            DroppedMoney moneyobj = item as DroppedMoney;
             if (moneyobj != null)
             {
                 Debug.Log("Picked up money");

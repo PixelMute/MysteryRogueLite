@@ -248,13 +248,12 @@
 <spiritcost val="5"/>
 <energycost val="1"/>
 <name>Needles</name>
-<description>Deal 4 damage five times. Range 3-5. Line.</description>
+<description>Deal 5 damage four times. Range 3-5. Line.</description>
 <effects>
-	<strike dmg="4"/>
-	<strike dmg="4"/>
-	<strike dmg="4"/>
-	<strike dmg="4"/>
-	<strike dmg="4"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
 </effects>
 <minrange val="3"/>
 <maxrange val="5"/>
@@ -876,6 +875,193 @@
 </playconditions>
 <prompts><defense/><banish/></prompts>
 <banishafterplay val="2"/>
+</card>
+
+<!--Card41:Double Down-->
+<card>
+<id val="41"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Double Down</name>
+<description>Gain momentum equal to your current momentum. Banish 1.</description>
+<effects>
+	<applystatuseffect status="momentum" self="true">
+		<getstatuseffectval status="momentum" selftar="true"/>
+	</applystatuseffect>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+<prompts><momentum/></prompts>
+<banishafterplay val="1"/>
+</card>
+
+<!--Card42:Ready for Anything-->
+<card>
+<id val="42"/>
+<spiritcost val="6"/>
+<energycost val="2"/>
+<name>Ready for Anything</name>
+<description>Gain 1 momentum per card in hand, then draw a card.</description>
+<effects>
+	<applystatuseffect status="momentum" self="true">
+		<getplayerval tar="hand"/>
+	</applystatuseffect>
+	<drawcards val="1"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+<prompts><momentum/></prompts>
+</card>
+
+<!--Card43:Peerless Hunter-->
+<card>
+<id val="43"/>
+<spiritcost val="6"/>
+<energycost val="1"/>
+<name>Peerless Hunter</name>
+<description>Deal 10 damage. Range 1-4. Does not need LOS. Echo: Draw a card.</description>
+<effects>
+	<strike dmg="10"/>
+</effects>
+<discardeffects>
+	<drawcards val="1"/>
+</discardeffects>
+<minrange val="1"/>
+<maxrange val="4"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+</playconditions>
+<prompts><echo/></prompts>
+</card>
+
+<!--Card44:Recalled Strike-->
+<card>
+<id val="44"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Recalled Strike</name>
+<description>Discard the card to the right of this one. Deal 1 damage per card in your discard twice. Range 1-2.</description>
+<effects>
+	<maniphand tar="right" op="discard"/>
+	<strike>
+		<getplayerval tar="discard"/>
+	</strike>
+	<strike>
+		<getplayerval tar="discard"/>
+	</strike>
+</effects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card45:Shatter-->
+<card>
+<id val="45"/>
+<spiritcost val="7"/>
+<energycost val="2"/>
+<name>Shatter</name>
+<description>Deal 20 damage to target, then deal 1 damage to all enemies in range 3. Range 1-2.</description>
+<effects>
+	<strike dmg="20"/>
+	<aoe selftar="true" radius="1" hitempty="false">
+		<strike dmg="20"/>
+	</aoe>
+</effects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+<prompts><aoe/></prompts>
+</card>
+
+<!--Card46:Solemnity-->
+<card>
+<id val="46"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Solemnity</name>
+<description>Draw a card. If you have at least 10 defense, draw another.</description>
+<effects>
+	<drawcards val="1"/>
+	<loopeffect max="1">
+		<drawcards val="1"/>
+		<var_compareop op=">" const="9">
+			<getstatuseffectval status="defense" selftar="true"/>
+		</var_compareop>
+	</loopeffect>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Draconic</theme>
+<playconditions>
+</playconditions>
+<prompts><defense/></prompts>
+</card>
+
+<!--Card47:Rockfall-->
+<card>
+<id val="47"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Rockfall</name>
+<description>Deal 20 damage and discard your rightmost card. Range 1-2. &lt;b&gt;Echo&lt;/b&gt;: Gain one energy.</description>
+<effects>
+	<strike dmg="20"/>
+	<maniphand tar="rightmost" op="discard"/>
+</effects>
+<discardeffects>
+	<gainenergy val="2"/>
+</discardeffects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<needsLOS/>
+	<mustHitCreature/>
+</playconditions>
+<prompts><echo/></prompts>
+</card>
+
+<!--Card48:Thousand Talons-->
+<card>
+<id val="48"/>
+<spiritcost val="7"/>
+<energycost val="2"/>
+<name>Thousand Talons</name>
+<description>Deal damage equal to the number of cards in your draw pile, then repeat for hand and discard pile. Range 1-1.</description>
+<effects>
+	<strike>
+		<getplayerval tar="draw"/>
+	</strike>
+	<strike>
+		<getplayerval tar="hand"/>
+	</strike>
+	<strike>
+		<getplayerval tar="discard"/>
+	</strike>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
 </card>
 
 </cardList>

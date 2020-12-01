@@ -46,8 +46,10 @@ public class Deck
             }
         }
         Card drawnCard = drawPile[0];
+        Debug.Log("Drawing card " + drawnCard.CardInfo.Name);
         drawPile.RemoveAt(0);
         hand.Add(drawnCard);
+        
         drawnCard.OnDraw();
         return drawnCard;
     }

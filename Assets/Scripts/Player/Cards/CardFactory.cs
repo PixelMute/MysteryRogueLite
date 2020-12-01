@@ -296,6 +296,12 @@ public class CardFactory
                 return ParseHeal(effect);
             case "maniphand":
                 return ParseManipHand(effect);
+            case "getstatuseffectval":
+                return ParseGetStatusEffectVal(effect);
+            case "getplayerval":
+                return ParseGetPlayerValue(effect);
+            case "loopeffect":
+                return ParseLoopEffect(effect);
             default:
                 Debug.LogWarning("Unknown card effect with the name " + effect.Name);
                 return null;
@@ -326,15 +332,21 @@ public class CardFactory
     #region ParsingIndividualEffects
     private static IEffect ParseStrike(XmlNode effectNode)
     {
-        if (!int.TryParse(effectNode.Attributes["dmg"]?.Value, out int damage))
-        {
-            damage = 10; // Default
-            Debug.LogWarning("No value 'dmg' found for this strike node. Using default value.");
-        }
-
-         
         if (!bool.TryParse(effectNode.Attributes["rawdamage"]?.Value, out bool rawDamage))
             rawDamage = false;
+
+        if (!int.TryParse(effectNode.Attributes["dmg"]?.Value, out int damage))
+        {
+            XmlNodeList subnodes = effectNode.ChildNodes;
+            if (subnodes == null)
+            {
+                throw new Exception("CardFactory::ParseStrike(" + effectNode.Name + ") -- This strike node has neither a static damage nor an effect to take damage from.");
+            }
+            else
+            {
+                return new Strike(ParseSingleEffect(subnodes[0]), rawDamage);
+            }
+        }
         return new Strike(damage, rawDamage);
     }
 
@@ -596,6 +608,96 @@ public class CardFactory
             if (!int.TryParse(effect.Attributes["val"]?.Value, out int cons))
                 cons = 1;
             return new ManipulateHand(cons, target, discardOrBanish);
+        }
+    }
+
+    //<getstatuseffectval val="defense" selftar="true"/>
+    private static IEffect ParseGetStatusEffectVal(XmlNode effect)
+    {
+        if (!Enum.TryParse(effect.Attributes["status"]?.Value, out BattleManager.StatusEffectEnum res))
+        {
+            Debug.LogWarning("No value 'status' found for this getstatuseffect node. Using default value.");
+            res = BattleManager.StatusEffectEnum.defense;
+        }
+        if (!bool.TryParse(effect.Attributes["selftar"]?.Value, out bool selfTar))
+            selfTar = true;
+        return new GetStatusEffectVal(res, selfTar);
+    }
+
+    // <getplayervalue tar="banishcount"/>
+    private static IEffect ParseGetPlayerValue(XmlNode effect)
+    {
+        GetPlayerValue.GetPlayerValueEnum target;
+        if (effect.Attributes["tar"] == null)
+        {
+            Debug.LogWarning("No value 'tar' found for this getplayervalue node. Using default value.");
+            target = GetPlayerValue.GetPlayerValueEnum.cardsInHand;
+        }
+        else
+        {
+            string tarString = effect.Attributes["tar"].Value;
+            switch (tarString)
+            {
+                case "handcount":
+                case "hand":
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInHand;
+                    break;
+                case "drawcount":
+                case "draw":
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInDraw;
+                    break;
+                case "banishcount":
+                case "banish":
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInBanish;
+                    break;
+                case "discardcount":
+                case "discard":
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInDiscard;
+                    break;
+                case "health":
+                case "hp":
+                    target = GetPlayerValue.GetPlayerValueEnum.health;
+                    break;
+                default:
+                    Debug.LogWarning("Unknown value " + tarString + " for attribute 'tar' in this getplayervalue node. Using default.");
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInHand;
+                    break;
+            }
+        }
+
+        return new GetPlayerValue(target);
+    }
+
+    //<loopeffect max="1" val="1">
+    //  <loopedEffect/>
+    //  <timesToLoopEffect/> (if not using val)
+    //</loopeffect>
+    private static IEffect ParseLoopEffect(XmlNode effect)
+    {
+        XmlNodeList subnodes = effect.ChildNodes;
+        if (subnodes != null && subnodes.Count == 1)
+        {
+            IEffect subeffect = ParseSingleEffect(subnodes[0]);
+            if (!int.TryParse(effect.Attributes["val"]?.Value, out int cons))
+                throw new Exception("CardFactory::ParseLoopEffect(" + effect.Name + ")--This node has one subnode, but no constant attribute 'val' for the number of loops.");
+            if (!int.TryParse(effect.Attributes["max"]?.Value, out int maxloops))
+                maxloops = -1;
+
+            return new LoopEffect(subeffect, cons, maxloops);
+        }
+        else if (subnodes != null && subnodes.Count == 2)
+        {
+            if (!int.TryParse(effect.Attributes["max"]?.Value, out int maxloops))
+            {
+                Debug.LogWarning("CardFactory::ParseLoopEffect(" + effect.Name + ")--No attribute 'maxloops' for this LoopEffect node. Using default value.");
+                maxloops = -1;
+            }
+
+            return new LoopEffect(ParseSingleEffect(subnodes[0]), ParseSingleEffect(subnodes[1]), maxloops);
+        }
+        else
+        {
+            throw new Exception("CardFactory::ParseLoopEffect(" + effect.Name + ")--Wrong number of subnodes. Expected 2.");
         }
     }
 

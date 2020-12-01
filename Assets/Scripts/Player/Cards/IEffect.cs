@@ -16,7 +16,7 @@ namespace Roguelike
         public int Damage { get; set; }
         public bool RawDamage { get; private set; }
 
-
+        public IEffect DamageFromEffect { get; private set; }
 
         public Strike(int damage, bool rawDamage = false) // if rawdamage is set, don't apply bonuses from things like status effects.
         {
@@ -24,13 +24,28 @@ namespace Roguelike
             RawDamage = rawDamage;
         }
 
+        public Strike(IEffect damageEffect, bool rawDamage = false) // if rawdamage is set, don't apply bonuses from things like status effects.
+        {
+            DamageFromEffect = damageEffect;
+            RawDamage = rawDamage;
+        }
+
         public int Activate(Vector2Int player, Vector2Int target)
         {
-            int newDamage = Damage;
+            int newDamage;
+            if (DamageFromEffect == null)
+            {
+                newDamage = Damage;
+            }
+            else
+            {
+                newDamage = DamageFromEffect.Activate(player, target);
+            }
+
             if (!RawDamage) // If we want bonuses
             {
                 int momentiumBonus = BattleManager.cardResolveStack.GetMomentumBonus();
-                newDamage = (int)((Damage + momentiumBonus) * BattleManager.cardResolveStack.GetInsightBonus());
+                newDamage = (int)((newDamage + momentiumBonus) * BattleManager.cardResolveStack.GetInsightBonus());
             }
 
             return BattleGrid.instance.StrikeTile(target, player, newDamage);
@@ -317,6 +332,113 @@ namespace Roguelike
                 return 1;
             else
                 return 0;
+        }
+    }
+
+    public class GetStatusEffectVal : IEffect
+    {
+        public BattleManager.StatusEffectEnum StatusEffect { get; private set; } // Get the value from this effect.
+        public bool SelfTar { get; private set; }
+
+        public GetStatusEffectVal(BattleManager.StatusEffectEnum effect, bool selfTar = true)
+        {
+            StatusEffect = effect;
+            SelfTar = selfTar;
+        }
+
+        public int Activate(Vector2Int player, Vector2Int target)
+        {
+            if (SelfTar)
+            {
+                return BattleManager.player.GetStatusEffectValue(StatusEffect);
+            }
+            else
+            {
+                TileCreature tc = BattleManager.instance.map.map[target.x, target.y].GetEntityOnTile() as TileCreature;
+                if (tc != null)
+                    return tc.GetStatusEffectValue(StatusEffect);
+                else
+                    return 0;
+            }
+        }
+    }
+
+    // Gets some value about the player and returns it in the activation effect.
+    public class GetPlayerValue : IEffect
+    {
+        public enum GetPlayerValueEnum { cardsInHand, cardsInDraw, cardsInDiscard, cardsInBanish, health};
+        public GetPlayerValueEnum TargetedVal { get; private set; }
+
+        public GetPlayerValue(GetPlayerValueEnum tar)
+        {
+            TargetedVal = tar;
+        }
+
+        public int Activate(Vector2Int player, Vector2Int target)
+        {
+            switch (TargetedVal)
+            {
+                case GetPlayerValueEnum.cardsInHand:
+                    return PlayerController.playerDeck.hand.Count;
+                case GetPlayerValueEnum.cardsInDraw:
+                    return PlayerController.playerDeck.drawPile.Count;
+                case GetPlayerValueEnum.cardsInDiscard:
+                    return PlayerController.playerDeck.discardPile.Count;
+                case GetPlayerValueEnum.cardsInBanish:
+                    return PlayerController.playerDeck.banishPile.Count;
+                case GetPlayerValueEnum.health:
+                    return BattleManager.player.Health;
+                default:
+                    return 0;
+            }
+        }
+    }
+
+    // Repeats an effect a certain number of times, up to a max.
+    // Can also be used as an if statement if max loops is set to 1.
+    public class LoopEffect : IEffect
+    {
+        public IEffect EffectValue { get; private set; }
+        public int StaticValue { get; private set; }
+
+        public int MaxLoopCount { get; private set; } // -1 for unlimited.
+
+
+        public IEffect LoopedEffect { get; private set; }
+
+        public LoopEffect(IEffect looped, IEffect valueEffect, int max = -1)
+        {
+            EffectValue = valueEffect;
+            LoopedEffect = looped;
+            MaxLoopCount = max;
+        }
+
+        // If you're looping a static number of times, probably don't need max.
+        public LoopEffect(IEffect looped, int staticVal, int max = -1)
+        {
+            MaxLoopCount = max;
+            StaticValue = staticVal;
+            LoopedEffect = looped;
+        }
+
+        public int Activate(Vector2Int player, Vector2Int target)
+        {
+            int maxLoopAmount;
+
+            if (EffectValue == null)
+                maxLoopAmount = StaticValue;
+            else
+                maxLoopAmount = EffectValue.Activate(player, target);
+
+            if (MaxLoopCount > -1)
+                maxLoopAmount = Math.Min(MaxLoopCount, maxLoopAmount); // This acts as a ceiling.
+
+            int sum = 0;
+            for (int i = 0; i < maxLoopAmount; i++)
+            {
+                sum += LoopedEffect.Activate(player, target);
+            }
+            return sum;
         }
     }
 

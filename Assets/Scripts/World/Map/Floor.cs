@@ -120,6 +120,12 @@ public class Floor
             SetEnemyLocation();
         }
 
+        // Spawn treasure chests.
+        for (int i = 0; i < 20; i++)
+        {
+            SetTreasureLocation(TreasureChest.TreasureChestTypeEnum.small);
+        }
+
         SetStairsLocation();
     }
 
@@ -182,6 +188,17 @@ public class Floor
                         //    break;
                 }
 
+                // Determine items on the tile.
+                switch (map[i,j].tileItemType)
+                {
+                    case Roguelike.Tile.TileItemType.money:
+                        SpawnMoneyAt(i, j);
+                        break;
+                    case Roguelike.Tile.TileItemType.smallChest:
+                        SpawnChestAt(i, j, TreasureChest.TreasureChestTypeEnum.small);
+                        break;
+                }
+
                 //// Determine terrain
                 //if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.wall)
                 //{
@@ -223,6 +240,7 @@ public class Floor
                 if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.player)
                 {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetEntityOnTile()?.gameObject);
+                    BattleGrid.instance.DestroyGameObject(map[i, j].GetItemOnTile()?.gameObject);
                 }
             }
         }
@@ -262,6 +280,19 @@ public class Floor
         map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.player;
         BattleManager.player.xPos = spawnLoc.x;
         BattleManager.player.zPos = spawnLoc.y;
+    }
+
+    // Sets the location. Does not directly spawn it yet.
+    private void SetTreasureLocation(TreasureChest.TreasureChestTypeEnum type = TreasureChest.TreasureChestTypeEnum.small)
+    {
+        Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom);
+        switch (type)
+        {
+            case TreasureChest.TreasureChestTypeEnum.small:
+                map[spawnLoc.x, spawnLoc.y].tileItemType = Roguelike.Tile.TileItemType.smallChest;
+                break;
+        }
+        
     }
 
     public void PlacePlayerInDungeon()
@@ -375,6 +406,8 @@ public class Floor
             if (needEmpty)
             {
                 if (map[triedX, triedY].tileEntityType != Roguelike.Tile.TileEntityType.empty)
+                    flag = false;
+                if (map[triedX, triedY].tileItemType != Roguelike.Tile.TileItemType.empty)
                     flag = false;
             }
 
@@ -491,6 +524,22 @@ public class Floor
         PlaceObjectOn(spawnLoc.x, spawnLoc.y, enemyBody);
     }
 
+    private void SpawnMoneyAt(int x, int z)
+    {
+        GameObject moneyObj = ItemSpawner.SpawnMoney(new Vector2Int(x, z));
+        DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
+        int amount = Random.Range(10, 20); // Technically, the amount of money can change if you swap floors. Hopefully nobody notices.
+        newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
+        map[x, z].SetItemOnTile(newMoneyBloodMoney);
+    }
+
+    private void SpawnChestAt(int x, int z, TreasureChest.TreasureChestTypeEnum type)
+    {
+        GameObject treasureObj = ItemSpawner.SpawnSmallChest(new Vector2Int(x, z));
+        TreasureChest treasure = treasureObj.GetComponent<TreasureChest>();
+        map[x, z].SetItemOnTile(treasure);
+    }
+
     // Recalculates what is walkable and what is not.
     private void GenerateWalkableMap()
     {
@@ -536,7 +585,7 @@ public class Floor
         //item.xPos = baseTarget.x;
         //item.zPos = baseTarget.y;
 
-        if (map[baseTarget.x, baseTarget.y].ItemOnTile == null || bounceBehavior <= -1)
+        if (map[baseTarget.x, baseTarget.y].tileItemType == Roguelike.Tile.TileItemType.empty || bounceBehavior <= -1)
         {
             // Target tile is empty, or we need to force spawn item. Spawn the item on it.
             //map[baseTarget.x, baseTarget.y].SetItemOnTile(item);
