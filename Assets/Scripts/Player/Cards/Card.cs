@@ -104,5 +104,7 @@ public class CardInfo
 
     public ResolveBehaviorEnum ResolveBehavior { get; set; } = ResolveBehaviorEnum.discard;
     public int BanishAmount { get; set; } = 0;
+
+    public string FlavorText { get; set; } = null;
 }
 

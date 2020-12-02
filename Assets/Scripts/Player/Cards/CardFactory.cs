@@ -191,6 +191,11 @@ public class CardFactory
                 case "prompts":
                     promptList = ParsePrompts(subnode);
                     break;
+                case "lore":
+                case "flavortext":
+                case "flavor":
+                    cardInfo.FlavorText = subnode.InnerText;
+                    break;
                 default:
                     Debug.LogWarning("CardFactory::ParseCardXML() -- Unknown node: " + subnode.Name);
                     break;

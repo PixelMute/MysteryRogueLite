@@ -52,7 +52,6 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField] private GameObject tooltipView;
     [SerializeField] private GameObject tooltipCardHolder;
     [SerializeField] private GameObject tooltipContent;
-    [SerializeField] private GameObject tooltipTextPrefab;
 
     private PlayerController pc;
 
@@ -631,7 +630,7 @@ public class PlayerUIManager : MonoBehaviour
     // Calls 'ExitState' on the state we leave, and 'EnterState' on the state we enter.
     public bool MoveToState(PlayerUIState state)
     {
-        Debug.Log("Attempting to move from " + playerUIState.ToString() + " to " + state.ToString());
+        Debug.Log("Attempting to move from " + playerUIState.internalUIState.ToString() + " to " + state.ToString());
         if (CanMoveToState(state))
         {
             Debug.Log("Moving states");
@@ -736,6 +735,7 @@ public class PlayerUIManager : MonoBehaviour
     /// </summary>
     public void CloseOutOfWindows()
     {
+        Debug.Log("Backshading clicked.");
         if (playerUIState.tooltipOpen) // Closing the tooltip takes priority
         {
             CloseToolTip();
@@ -978,10 +978,6 @@ public class PlayerUIManager : MonoBehaviour
     /// </summary>
     private void ClearToolTip()
     {
-        foreach (Transform t in tooltipContent.transform)
-        {
-            BattleManager.RecursivelyEliminateObject(t);
-        }
         foreach (Transform t in tooltipCardHolder.transform)
         {
             BattleManager.RecursivelyEliminateObject(t);
@@ -1004,69 +1000,87 @@ public class PlayerUIManager : MonoBehaviour
         newCard.transform.localScale = new Vector3(3, 3, 1);
         newCard.transform.localPosition = new Vector3(-280, 0, 0);
 
+        TextMeshProUGUI tooltipText = tooltipContent.GetComponentInChildren<TextMeshProUGUI>();
+        string promptText = "";
+
         // Fill prompt box.
         if (cardInfo.Prompts != null)
         {
             foreach (Card.CardTooltipPrompts x in cardInfo.Prompts)
             {
-                string promptText = "This should never appear.";
+                if (promptText != "")
+                {
+                    promptText += "\n\n";
+                }
+
                 switch (x)
                 {
                     case Card.CardTooltipPrompts.line:
-                        promptText = "<b>Line</b>: This card must target a space in a straight line in one of the eight cardinal directions.";
+                        promptText += "<b>Line</b>: This card must target a space in a straight line in one of the eight cardinal directions.";
                         break;
                     case Card.CardTooltipPrompts.cutscorners:
-                        promptText = "<b>Corner Cutting</b>: This card uses a more forgiving line of sight calculation, allowing you to target across corners.";
+                        promptText += "<b>Corner Cutting</b>: This card uses a more forgiving line of sight calculation, allowing you to target across corners.";
                         break;
                     case Card.CardTooltipPrompts.move:
-                        promptText = "<b>Move</b>: This card will move you to the targeted tile. Does not end your turn, and must target an empty tile.";
+                        promptText += "<b>Move</b>: This card will move you to the targeted tile. Does not end your turn, and must target an empty tile.";
                         break;
                     case Card.CardTooltipPrompts.defense:
-                        promptText = "<b>Defense</b>: Defense is a status condition that takes damage before your health does. Decays at a rate of one per turn.";
+                        promptText += "<b>Defense</b>: Defense is a status condition that takes damage before your health does. Decays at a rate of one per turn.";
                         break;
                     case Card.CardTooltipPrompts.momentum:
-                        promptText = "<b>Momentum</b>: Momentum boosts the damage of your next played card. Works well with multi-hit cards. Decays while not in combat.";
+                        promptText += "<b>Momentum</b>: Momentum boosts the damage of your next played card. Works well with multi-hit cards. Decays while not in combat.";
                         break;
                     case Card.CardTooltipPrompts.insight:
-                        promptText = "<b>Insight</b>: Each point of insight boosts your next <i>instance</i> of damage by 100%. Works well with big single-hit cards. Decays while not in combat.";
+                        promptText += "<b>Insight</b>: Each point of insight boosts your next <i>instance</i> of damage by 100%. Works well with big single-hit cards. Decays while not in combat.";
                         break;
                     case Card.CardTooltipPrompts.aoe:
-                        promptText = "<b>AOE</b>: Means Area of Effect. Targets everything in a square of some radius. If it is centered on you, you don't get hit by it.";
+                        promptText += "<b>AOE</b>: Means Area of Effect. Targets everything in a square of some radius. If it is centered on you, you don't get hit by it.";
                         break;
                     case Card.CardTooltipPrompts.lifesteal:
-                        promptText = "<b>Lifesteal</b>: Any damage you deal with this card is gained as health.";
+                        promptText += "<b>Lifesteal</b>: Any damage you deal with this card is gained as health.";
                         break;
                     case Card.CardTooltipPrompts.banish:
-                        promptText = "<b>Banish</b>: Banish X means that after you play this card, it is unavailable for X floors, after which it is shuffled back into your discard pile.";
+                        promptText += "<b>Banish</b>: Banish X means that after you play this card, it is unavailable for X floors, after which it is shuffled back into your discard pile.";
                         break;
                     case Card.CardTooltipPrompts.echo:
-                        promptText = "<b>Echo</b>: This Echo effect will trigger if this card is discarded by another card's effect. Echo effects do not cost energy or spirit.";
+                        promptText += "<b>Echo</b>: This Echo effect will trigger if this card is discarded by another card's effect. Echo effects do not cost energy or spirit.";
                         break;
                 }
-                GameObject setPrompt = GameObject.Instantiate(tooltipTextPrefab, tooltipContent.transform);
-                setPrompt.GetComponent<TextMeshProUGUI>().SetText(promptText);
             }
         }
 
         // Next, add a prompt based on the theme.
-        string setPromptText;
+        if (promptText != "")
+        {
+            promptText += "\n\n";
+        }
+
         switch (cardInfo.CardInfo.ThemeName)
         {
             case "Draconic":
-                setPromptText = "This card is in the Draconic set, which focuses on defense and devastating heavy strikes.<br>Ancient and powerful, these creatures command respect and fear";
+                promptText += "This card is in the Draconic set, which focuses on defense and devastating heavy strikes.<br>Ancient and powerful, these creatures command respect and fear";
                 break;
             case "Impundulu":
-                setPromptText = "This card is in the Impundulu set, which focuses on momentum, multihit cards, and lifesteal.<br>These vampiric thunderbirds are devious and relentless beasts.";
+                promptText += "This card is in the Impundulu set, which focuses on momentum, multihit cards, and lifesteal.<br>These vampiric thunderbirds are devious and relentless beasts.";
                 break;
             case "AlMiraj":
-                setPromptText = "This card is in the Al-Mi'raj set, which focuses on discard and Echo effects.<br>Deceptively vicious, these horned beasts devourer all in their path.";
+                promptText += "This card is in the Al-Mi'raj set, which focuses on discard and Echo effects.<br>Deceptively vicious, these horned beasts devourer all in their path.";
                 break;
             default:
-                setPromptText = "This card isn't part of any set. Maybe it's because the developers forgot to assign it one.";
+                promptText += "This card isn't part of any set. Maybe it's because the developers forgot to assign it one.";
                 break;
         }
-        GameObject newPrompt = GameObject.Instantiate(tooltipTextPrefab, tooltipContent.transform);
-        newPrompt.GetComponent<TextMeshProUGUI>().SetText(setPromptText);
+
+        // Add a prompt based on lore.
+        if (cardInfo.CardInfo.FlavorText != "")
+        {
+            if (promptText != "")
+            {
+                promptText += "\n\n";
+            }
+            promptText += "<i>" + cardInfo.CardInfo.FlavorText + "</i>";
+        }
+        tooltipText.SetText(promptText);
     }
 
     #endregion

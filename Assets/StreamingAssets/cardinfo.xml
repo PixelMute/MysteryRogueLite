@@ -17,6 +17,7 @@
 	<needsLOS/>
 	<mustHitCreature/>
 </playconditions>
+<flavor>A humble strike, refined over days, weeks, years... lifetimes.</flavor>
 </card>
 
 <!--Card2: Cinders-->
@@ -37,6 +38,7 @@
 	<mustHitCreature/>
 </playconditions>
 <prompts><line/></prompts>
+<flavor>Some of the most basic ancient magic, and most reliable.</flavor>
 </card>
 
 <!--Card3: Footwork-->
@@ -58,6 +60,7 @@
 </playconditions>
 <theme>Impundulu</theme>
 <prompts><move/><cutscorners/></prompts>
+<flavor>A moving adventurer is an alive adventurer.</flavor>
 </card>
 
 <!--Card4:DragonHeart-->
@@ -78,6 +81,7 @@
 	<mustHitCreature/>
 </playconditions>
 <prompts><defense/></prompts>
+<flavor>Some might still claim some bond to the ancient creatures.</flavor>
 </card>
 
 <!--Card5:Jackpot-->
@@ -123,6 +127,7 @@
 	<needsLOS/>
 </playconditions>
 <prompts><line/><momentum/><move/></prompts>
+<flavor>Useful for not taking things personally.</flavor>
 </card>
 
 <!--Card7:ThunderStep-->
@@ -140,10 +145,12 @@
 </effects>
 <minrange val="1"/>
 <maxrange val="1"/>
+<theme>Draconic</theme>
 <playconditions>
 	<emptyTile/>
 </playconditions>
 <prompts><move/><aoe/></prompts>
+<flavor>The sky itself heralds me.</flavor>
 </card>
 
 <!--Card8:Composure-->
@@ -163,6 +170,7 @@
 <playconditions>
 </playconditions>
 <prompts><defense/></prompts>
+<flavor>Breathe. I will not fall. Not now, not ever. Now breathe.</flavor>
 </card>
 
 <!--Card9:Slice-->
@@ -184,6 +192,7 @@
 	<needsLOS/>
 </playconditions>
 <prompts><momentum/></prompts>
+<flavor>They never seem to expect the third knife.</flavor>
 </card>
 
 <!--Card10:Celerity-->
@@ -202,6 +211,7 @@
 <playconditions>
 </playconditions>
 <prompts><momentum/></prompts>
+<flavor>I may not strike first, but I will strike fast, and I will strike last.</flavor>
 </card>
 
 <!--Card11:Sagacity-->
@@ -221,6 +231,7 @@
 <playconditions>
 </playconditions>
 <prompts><insight/></prompts>
+<flavor>Observe, reflect, attack.</flavor>
 </card>
 
 <!--Card12:Crusading Savagery-->
@@ -240,6 +251,7 @@
 	<needsLOS/>
 	<mustHitCreature/>
 </playconditions>
+<flavor>A... revived technique from a now fossilized age.</flavor>
 </card>
 
 <!--Card13:Needles-->
@@ -344,6 +356,7 @@
 	<mustHitCreature/>
 </playconditions>
 <prompts><momentum/></prompts>
+<flavor>Give them no quarter.</flavor>
 </card>
 
 <!--Card18:ElectroLance-->
@@ -393,6 +406,7 @@
 <playconditions>
 </playconditions>
 <prompts><aoe/></prompts>
+<flavor>Yes, this does mean enemies in range 1 take 30, but split over 3 hits.</flavor>
 </card>
 
 <!--Card20:Firestorm-->
@@ -416,6 +430,7 @@
 	<needsLOS/>
 </playconditions>
 <prompts><aoe/></prompts>
+<flavor>Play with fire, get burned.</flavor>
 </card>
 
 <!--Card21:Kindle-->
@@ -433,6 +448,7 @@
 <maxrange val="0"/>
 <playconditions>
 </playconditions>
+<flavor>We kindle a fire in our hearts, and lead that to action.</flavor>
 </card>
 
 <!--Card22:Majesty's Strike-->
@@ -476,6 +492,7 @@
 <playconditions>
 </playconditions>
 <prompts><aoe/><defense/></prompts>
+<flavor>Defiance to the defender is simply arrogance to the attacker.</flavor>
 </card>
 
 <!--Card24:Blood Strike-->
@@ -524,12 +541,12 @@
 <prompts><aoe/><lifesteal/><banish/></prompts>
 </card>
 
-<!--Card26:Void's Cackle-->
+<!--Card26:Dark Cackle-->
 <card>
 <id val="26"/>
 <spiritcost val="4"/>
 <energycost val="0"/>
-<name>Void's Cackle</name>
+<name>Dark Cackle</name>
 <description>Take 5 damage. Gain momentum 7.</description>
 <effects>
 	<heal selftar="true" val="-5"/>
@@ -541,6 +558,7 @@
 <playconditions>
 </playconditions>
 <prompts><momentum/></prompts>
+<flavor>Some may disparage witchcraft, but why not use what works?</flavor>
 </card>
 
 <!--Card27:Geomancy-->
@@ -561,6 +579,7 @@
 </playconditions>
 <banishafterplay val="2"/>
 <prompts><insight/><banish/></prompts>
+<flavor>Focused through a very specific type of white herb.</flavor>
 </card>
 
 <!--Card28:Crushing Pommel-->
@@ -584,6 +603,7 @@
 </playconditions>
 <banishafterplay val="1"/>
 <prompts><defense/></prompts>
+<flavor>Overwhelming force of might and magic.</flavor>
 </card>
 
 <!--Card29:Fulgurite-->
@@ -613,6 +633,7 @@
 </playconditions>
 <banishafterplay val="2"/>
 <prompts><lifesteal/><banish/></prompts>
+<flavor>Veins of needle-like red glass shoot through the sky and sand.</flavor>
 </card>
 
 <!--Card30:Rebound-->
@@ -632,6 +653,7 @@
 <theme>AlMiraj</theme>
 <playconditions>
 </playconditions>
+<flavor>New ideas are always a gamble.</flavor>
 </card>
 
 <!--Card31:Second Wind-->
@@ -653,6 +675,7 @@
 <playconditions>
 </playconditions>
 <prompts><echo/></prompts>
+<flavor>As one option closes, you realize another.</flavor>
 </card>
 
 <!--Card32:Reckless Strike-->
@@ -696,6 +719,7 @@
 <playconditions>
 </playconditions>
 <prompts><insight/><momentum/></prompts>
+<flavor>Lash out before the rage consumes you instead.</flavor>
 </card>
 
 <!--Card33:Ebb and Flow-->
@@ -704,12 +728,12 @@
 <spiritcost val="2"/>
 <energycost val="1"/>
 <name>Ebb and Flow</name>
-<description>Deal 15 damage. Range 1. Cuts Corners. &lt;b&gt;Echo&lt;/b&gt;: Gain 10 defense.</description>
+<description>Deal 15 damage. Range 1. Cuts Corners. &lt;b&gt;Echo&lt;/b&gt;: Gain 12 defense.</description>
 <effects>
 	<strike dmg="15"/>
 </effects>
 <discardeffects>
-	<applystatuseffect status="defense" power="10" self="true"/>
+	<applystatuseffect status="defense" power="12" self="true"/>
 </discardeffects>
 <minrange val="1"/>
 <maxrange val="1"/>
@@ -743,6 +767,7 @@
 	<straightLine/>
 </playconditions>
 <prompts><line/></prompts>
+<flavor>A real heartbreaker.</flavor>
 </card>
 
 <!--Card35:Whirling Rage-->
@@ -769,6 +794,7 @@
 </playconditions>
 <banishafterplay val="1"/>
 <prompts><aoe/><banish/></prompts>
+<flavor>Forgetting things tends to make you angry.</flavor>
 </card>
 
 <!--Card36:Stalker's Strike-->
@@ -793,6 +819,7 @@
 	<musthitCreature/>
 </playconditions>
 <prompts><line/><cutscorners/></prompts>
+<flavor>The most important thing is to relax, and fire in one, smooth motion.</flavor>
 </card>
 
 <!--Card37:Springfooted-->
@@ -817,6 +844,7 @@
 	<emptyTile/>
 </playconditions>
 <prompts><move/><echo/></prompts>
+<flavor>Agility, both mental and physical.</flavor>
 </card>
 
 <!--Card38:Plated Skin-->
@@ -856,6 +884,7 @@
 	<mustHitCreature/>
 </playconditions>
 <prompts><defense/></prompts>
+<flavor>Funny how this exact kind of card appears in so many different card games.</flavor>
 </card>
 
 <!--Card40:Blockade-->
@@ -917,6 +946,7 @@
 <playconditions>
 </playconditions>
 <prompts><momentum/></prompts>
+<flavor>It counts itself for 'cards in hand'.</flavor>
 </card>
 
 <!--Card43:Peerless Hunter-->
@@ -964,6 +994,7 @@
 	<mustHitCreature/>
 	<needsLOS/>
 </playconditions>
+<flavor>A card with discard effects cannot discard itself.</flavor>
 </card>
 
 <!--Card45:Shatter-->
@@ -1011,6 +1042,7 @@
 <playconditions>
 </playconditions>
 <prompts><defense/></prompts>
+<flavor>Much easier to think when you're protected.</flavor>
 </card>
 
 <!--Card47:Rockfall-->
@@ -1037,13 +1069,13 @@
 <prompts><echo/></prompts>
 </card>
 
-<!--Card48:Thousand Talons-->
+<!--Card48:Reminiscence-->
 <card>
 <id val="48"/>
 <spiritcost val="7"/>
 <energycost val="2"/>
-<name>Thousand Talons</name>
-<description>Deal damage equal to the number of cards in your draw pile, then repeat for hand and discard pile. Range 1-1.</description>
+<name>Reminiscence</name>
+<description>Deal 1 damage per card in your draw, then repeat for hand, discard, and banish. Range 1-1.</description>
 <effects>
 	<strike>
 		<getplayerval tar="draw"/>
@@ -1054,14 +1086,18 @@
 	<strike>
 		<getplayerval tar="discard"/>
 	</strike>
+	<strike>
+		<getplayerval tar="banish"/>
+	</strike>
 </effects>
 <minrange val="1"/>
 <maxrange val="1"/>
-<theme>Impundulu</theme>
+<theme>AlMiraj</theme>
 <playconditions>
 	<mustHitCreature/>
 	<needsLOS/>
 </playconditions>
+<flavor>All that I am, is here.</flavor>
 </card>
 
 </cardList>

@@ -90,6 +90,8 @@ public class CardInterface : MonoBehaviour, IPointerClickHandler
             case CardInterfaceLocations.cardReward:
                 BattleManager.player.TriggerCardReward(cardData);
                 break;
+            default:
+                return;
         }
 
     }
@@ -112,7 +114,9 @@ public class CardInterface : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Right && location != CardInterfaceLocations.tooltip)
+        if (eventData.button == PointerEventData.InputButton.Left)
+            RegisterClick();
+        else if (eventData.button == PointerEventData.InputButton.Right && location != CardInterfaceLocations.tooltip)
         {
             BattleManager.player.puim.ToolTipRequest(cardData);
         }

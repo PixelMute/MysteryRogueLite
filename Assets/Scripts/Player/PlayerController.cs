@@ -152,14 +152,17 @@ public class PlayerController : TileCreature
         if (true) // Debugging testing certain cards.
         {
             Card card1 = CardFactory.GetCard("rockfall");
+            card1.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card1);
             playerDeck.InsertCardAtEndOfDrawPile(card1);
 
-            Card card2 = CardFactory.GetCard("thousand talons");
+            Card card2 = CardFactory.GetCard("Reminiscence");
+            card2.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card2);
             playerDeck.InsertCardAtEndOfDrawPile(card2);
 
-            Card card3 = CardFactory.GetCard("blockade");
+            Card card3 = CardFactory.GetCard("shield slam");
+            card3.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card3);
             playerDeck.InsertCardAtEndOfDrawPile(card3);
         }
@@ -367,6 +370,12 @@ public class PlayerController : TileCreature
                 puim.MoveToState(PlayerUIManager.PlayerUIState.standardCardDrawer);
             else
                 puim.MoveToState(PlayerUIManager.PlayerUIState.controllingCamera);
+
+        // Cheat key to give you gold.
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            Money += 20;
+        }
     }
 
     /// <summary>
