@@ -17,7 +17,8 @@ public enum RoomType
     ENTRANCE,
     EXIT,
     CONNECTION,
-    SPECIAL
+    SPECIAL,
+    BOSS
 }
 
 public class RoomInfo

@@ -52,7 +52,7 @@ public class Level
     public void Build()
     {
         var rooms = InitRooms();
-        var builder = new LoopBuilder();
+        var builder = GetBuilder();
         int count = 0;
         do
         {
@@ -68,6 +68,13 @@ public class Level
         HasBeenBuilt = true;
 
         //DebugRooms();
+    }
+
+    protected virtual Builder GetBuilder()
+    {
+        var res = new BossLevelBuilder();
+        res.BossRoom = new BossRoom();
+        return res;
     }
 
     private void DebugRooms()
@@ -138,7 +145,7 @@ public class Level
         return bounds;
     }
 
-    private List<Room> InitRooms()
+    protected virtual List<Room> InitRooms()
     {
         var rooms = new List<Room>();
         Entrance = new Entrance();
