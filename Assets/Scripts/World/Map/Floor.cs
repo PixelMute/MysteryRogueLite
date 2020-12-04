@@ -509,31 +509,33 @@ public class Floor
     }
 
     /// <summary>
-    /// Spawns an item on or around the given tile. Does the backend style stuff, not spawning the gameobject.
-    /// This also does not prevent you from spawningan item in a wall. Returns true if placed.
+    /// Finds a spot to place an item. Does not actually place it.
     /// </summary>
-    /// <param name="target">Where to try and place the item</param>
+    /// <param name="baseTarget">Where to try and place the item</param>
     /// <param name="item">What item to place</param>
     /// <param name="bounceBehavior">Use -1 to force place the item on this tile. Otherwise, this is the number of random bounces this item can take before not being placed.
-    /// An item will bounce if the targetted tile is taken.</param>
-    public bool TryPlaceTileItemOn(Vector2Int target, TileItem item, int bounceBehavior)
+    /// An item will bounce if the targetted tile is taken.
+    /// Returns (-1,-1) when it doesn't find a spot.</param>
+    public Vector2Int FindSpotForItem(Vector2Int baseTarget, int bounceBehavior)
     {
         // Make sure we're inside the map.
-        if (target.x >= BattleGrid.instance.map.GetLength(0) || target.x < 0 || target.y >= BattleGrid.instance.map.GetLength(1) || target.y < 0)
-            return false; // Lost to the either.
+        if (baseTarget.x >= BattleGrid.instance.map.GetLength(0) || baseTarget.x < 0 || baseTarget.y >= BattleGrid.instance.map.GetLength(1) || baseTarget.y < 0)
+            return new Vector2Int(-1,-1); // Lost to the either.
+        if (map[baseTarget.x, baseTarget.y].tileEntityType == Roguelike.Tile.TileEntityType.wall)
+            return new Vector2Int(-1, -1); // Can't stick it in a wall.
 
-        item.xPos = target.x;
-        item.zPos = target.y;
+        //item.xPos = baseTarget.x;
+        //item.zPos = baseTarget.y;
 
-        if (map[target.x, target.y].ItemOnTile == null || bounceBehavior <= -1)
+        if (map[baseTarget.x, baseTarget.y].ItemOnTile == null || bounceBehavior <= -1)
         {
             // Target tile is empty, or we need to force spawn item. Spawn the item on it.
-            map[target.x, target.y].SetItemOnTile(item);
-            return true;
+            //map[baseTarget.x, baseTarget.y].SetItemOnTile(item);
+            return baseTarget;
         }
         else if (bounceBehavior == 0)
         { // This item is lost to the ether.
-            return false;
+            return new Vector2Int(-1, -1);
         }
         else
         { // Bounce and reduce bounce behavior by 1.
@@ -541,14 +543,15 @@ public class Floor
             {
                 for (int j = 1; j >= -1; j--)
                 {
-                    if (TryPlaceTileItemOn(new Vector2Int(target.x + i, target.y + j), item, bounceBehavior - 1))
+                    Vector2Int recVec = FindSpotForItem(new Vector2Int(baseTarget.x + i, baseTarget.y + j), bounceBehavior - 1);
+                    if (recVec.x > -1 && recVec.y > -1)
                     {
-                        return true; // Found a place for this item.
+                        return recVec; // Found a place for this item.
                     }
                 }
             }
             // Didn't find a place.
-            return false;
+            return new Vector2Int(-1, -1);
         }
     }
 

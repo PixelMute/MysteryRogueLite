@@ -5,7 +5,7 @@
 <card>
 <id val="1"/>
 <spiritcost val="3"/>
-<energycost val="1"/>
+<energycost val="1"/>  
 <name>Slash</name>
 <description>Deal 15 damage. &lt;br&gt;Range 1-1.</description>
 <effects>
@@ -140,12 +140,12 @@
 </playconditions>
 </card>
 
-<!--Card8:Backflip-->
+<!--Card8:Composure-->
 <card>
 <id val="8"/>
 <spiritcost val="8"/>
 <energycost val="2"/>
-<name>Backflip</name>
+<name>Composure</name>
 <description>Gain 8 defense. Draw 2 cards.</description>
 <effects>
 	<applystatuseffect status="defence" power="8" self="true"/>
@@ -374,6 +374,7 @@
 </effects>
 <minrange val="0"/>
 <maxrange val="0"/>
+<theme>Impundulu</theme>
 <playconditions>
 </playconditions>
 </card>
@@ -393,6 +394,7 @@
 </effects>
 <minrange val="1"/>
 <maxrange val="3"/>
+<theme>Draconic</theme>
 <playconditions>
 	<mustHitCreature/>
 	<needsLOS/>
@@ -409,18 +411,19 @@
 <effects>
 	<gainenergy val="1"/>
 </effects>
+<theme>Impundulu</theme>
 <minrange val="0"/>
 <maxrange val="0"/>
 <playconditions>
 </playconditions>
 </card>
 
-<!--Card22:Wardance-->
+<!--Card22:Majesty's Strike-->
 <card>
 <id val="22"/>
 <spiritcost val="6"/>
 <energycost val="2"/>
-<name>Wardance</name>
+<name>Majesty's Strike</name>
 <description>Deal 5 damage. Gain Insight 1. Draw 2 cards. Range 1-1. Cuts corners.</description>
 <effects>
 	<strike dmg="5"/>
@@ -429,6 +432,7 @@
 </effects>
 <minrange val="1"/>
 <maxrange val="1"/>
+<theme>Draconic</theme>
 <playconditions>
 	<mustHitCreature/>
 	<needsLOS/>
@@ -442,7 +446,7 @@
 <spiritcost val="4"/>
 <energycost val="1"/>
 <name>Defiance</name>
-<description>Gain 4 defense per creature within 3 tiles.</description>
+<description>Gain 4 defense per enemy within 3 tiles.</description>
 <effects>
 	<aoe selftar="true" radius="3" hitempty="false">
 		<applystatuseffect status="defence" power="4" self="true"/>
@@ -458,19 +462,148 @@
 <!--Card24:Blood Strike-->
 <card>
 <id val="24"/>
-<spiritcost val="8"/>
+<spiritcost val="6"/>
 <energycost val="1"/>
 <name>Blood Strike</name>
-<description>Deal 5 damage. Range 1-1. Banish 1.</description>
+<description>Deal 10 damage. Lifesteal. Range 1-1. Banish 1.</description>
 <effects>
-	<strike dmg="5"/>
+	<heal selftar="true">
+		<strike dmg="10"/>
+	</heal>
 </effects>
 <minrange val="1"/>
 <maxrange val="1"/>
 <theme>Impundulu</theme>
 <playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
 </playconditions>
 <banishafterplay val="1"/>
+</card>
+
+<!--Card25:Blood and Thunder-->
+<card>
+<id val="25"/>
+<spiritcost val="10"/>
+<energycost val="2"/>
+<name>Blood and Thunder</name>
+<description>Deal 5 damage to all enemies in range 1-2. Lifesteal. Banish 2.</description>
+<effects>
+	<aoe selftar="true" radius="2" hitempty="false">
+		<heal selftar="true">
+			<strike dmg="5"/>
+		</heal>
+	</aoe>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+<banishafterplay val="2"/>
+</card>
+
+<!--Card26:Void's Cackle-->
+<card>
+<id val="26"/>
+<spiritcost val="4"/>
+<energycost val="0"/>
+<name>Void's Cackle</name>
+<description>Take 5 damage. Gain momentum 7.</description>
+<effects>
+	<heal selftar="true" val="-5"/>
+	<applystatuseffect status="momentum" power="7" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+</card>
+
+<!--Card27:Geomancy-->
+<card>
+<id val="27"/>
+<spiritcost val="3"/>
+<energycost val="3"/>
+<name>Geomancy</name>
+<description>Gain Insight 3. Banish 2.</description>
+<effects>
+	<applystatuseffect status="insight" power="3" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Draconic</theme>
+<playconditions>
+</playconditions>
+<banishafterplay val="2"/>
+</card>
+
+<!--Card28:Crushing Pommel-->
+<card>
+<id val="28"/>
+<spiritcost val="8"/>
+<energycost val="2"/>
+<name>Crushing Pommel</name>
+<description>Deal 15 damage. Gain defense equal to damage dealt. Range 1-1.</description>
+<effects>
+	<applystatuseffect status="defence" self="true">
+		<strike dmg="15"/>
+	</applystatuseffect>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>Draconic</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card29:Fulgurite-->
+<card>
+<id val="29"/>
+<spiritcost val="8"/>
+<energycost val="2"/>
+<name>Fulgurite</name>
+<description>Deal 1 damage three times. Range 1-3. Lifesteal. Banish 2.</description>
+<effects>
+	<heal selftar="true">
+		<strike dmg="1"/>
+	</heal>
+	<heal selftar="true">
+		<strike dmg="1"/>
+	</heal>
+	<heal selftar="true">
+		<strike dmg="1"/>
+	</heal>
+</effects>
+<minrange val="1"/>
+<maxrange val="3"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card30:Rebound-->
+<card>
+<id val="30"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Rebound</name>
+<description>Discard your leftmost and rightmost cards. Draw 2 cards.</description>
+<effects>
+	<maniphand tar="leftmost" op="discard"/>
+	<maniphand tar="rightmost" op="discard"/>
+	<drawcards val="2"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
+<playconditions>
+</playconditions>
 </card>
 
 </cardList>

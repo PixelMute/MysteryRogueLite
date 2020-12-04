@@ -107,6 +107,15 @@ class BasicEnemyAI : EnemyBrain
         //If close enough to attack, then attack
         if (Body.Attack.IsTargetInRange(BattleManager.ConvertVector(engagedTarget.transform.position)))
         {
+            Body.Animation.Attack();
+            if (engagedTarget.transform.position.x > transform.position.x)
+            {
+                Body.Animation.TurnRight();
+            }
+            else if (engagedTarget.transform.position.x < transform.position.x)
+            {
+                Body.Animation.TurnLeft();
+            }
             Body.Attack.ActivateAttack(BattleManager.ConvertVector(engagedTarget.transform.position));
         }
         //Else move closer to enemy
@@ -129,6 +138,15 @@ class BasicEnemyAI : EnemyBrain
         if (BattleGrid.instance.IsMoveValid(nextStepVector, Body))
         {
             // Take this step.
+            Body.Animation.Move();
+            if (nextStepVector.x > transform.position.x)
+            {
+                Body.Animation.TurnRight();
+            }
+            else if (nextStepVector.x < transform.position.x)
+            {
+                Body.Animation.TurnLeft();
+            }
             Body.MoveToPosition(nextStepVector);
             path.RemoveAt(0);
         }

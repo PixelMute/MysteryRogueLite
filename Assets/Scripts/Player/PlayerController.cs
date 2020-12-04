@@ -1,5 +1,6 @@
 ﻿using Roguelike;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -31,6 +32,8 @@ public class PlayerController : TileCreature
     private int maxHealth = 100;
 
     private int money;
+
+    public BloodSplatter Splatter;
 
     // LOS
     public bool[,] LoSGrid; // A grid that shows which tiles the player has LOS to relative to themselves. Used for un-obscuring the camera.
@@ -136,7 +139,6 @@ public class PlayerController : TileCreature
         Card dragonheart = CardFactory.GetCard("dragonheart");
         dragonheart.Owner = this;
         playerDeck.InsertCardAtEndOfDrawPile(slash);
-        Card bloodStrike = CardFactory.GetCard("blood strike");
         playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(slash);
         playerDeck.InsertCardAtEndOfDrawPile(slash);
@@ -147,8 +149,21 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
-        playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
-        playerDeck.InsertCardAtEndOfDrawPile(bloodStrike);
+        if (false) // Debugging testing certain cards.
+        {
+            Card card1 = CardFactory.GetCard("Rebound");
+            playerDeck.InsertCardAtEndOfDrawPile(card1);
+            playerDeck.InsertCardAtEndOfDrawPile(card1);
+
+            Card card2 = CardFactory.GetCard("Rebound");
+            playerDeck.InsertCardAtEndOfDrawPile(card2);
+            playerDeck.InsertCardAtEndOfDrawPile(card2);
+
+            Card card3 = CardFactory.GetCard("geomancy");
+            playerDeck.InsertCardAtEndOfDrawPile(card3);
+            playerDeck.InsertCardAtEndOfDrawPile(card3);
+        }
+        
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -322,14 +337,14 @@ public class PlayerController : TileCreature
     }
 
     // Discards this card and fixes the indexes for the others.
-    private void DiscardCardIndex(int index, bool fromEffect = false)
+    public void DiscardCardIndex(int index, bool fromEffect = false)
     {
         // Discard card data
         playerDeck.DiscardCardAtIndex(index, fromEffect);
         puim.DestroyCardAtIndex(index);
     }
 
-    private void BanishCardIndex(int index, int amount)
+    public void BanishCardIndex(int index, int amount)
     {
         playerDeck.BanishCardAtIndex(index, amount);
         puim.DestroyCardAtIndex(index);
@@ -507,7 +522,7 @@ public class PlayerController : TileCreature
     }
 
     // Applies incoming damage
-    public override int TakeDamage(int damage)
+    public override int TakeDamage(Vector2Int locationOfAttack, int damage)
     {
         int oldHealth = Health;
         if (damage >= 0) // Damage
@@ -522,6 +537,8 @@ public class PlayerController : TileCreature
 
             if (damage > 0)
             {
+                Splatter.Play(locationOfAttack);
+                StartCoroutine(HitColoration());
                 Health -= damage;
             }
         }
@@ -538,6 +555,15 @@ public class PlayerController : TileCreature
         }
 
         return (oldHealth - Health);
+    }
+
+    private IEnumerator HitColoration(float timeToWait = .05f)
+    {
+        Sprite.material.shader = BattleManager.instance.ShaderGUItext;
+        Sprite.color = Color.white;
+        yield return new WaitForSeconds(timeToWait);
+        Sprite.material.shader = BattleManager.instance.ShaderSpritesDefault;
+        Sprite.color = Color.white;
     }
 
     // Handles stuff that happens at the end of the player turn.

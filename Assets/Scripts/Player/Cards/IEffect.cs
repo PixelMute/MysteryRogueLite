@@ -1,9 +1,5 @@
-﻿using Roguelike;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 
@@ -37,7 +33,7 @@ namespace Roguelike
                 newDamage = (int)((Damage + momentiumBonus) * BattleManager.cardResolveStack.GetInsightBonus());
             }
 
-            return BattleGrid.instance.StrikeTile(target, newDamage);
+            return BattleGrid.instance.StrikeTile(target, player, newDamage);
         }
     }
 
@@ -56,7 +52,7 @@ namespace Roguelike
             int momentiumBonus = BattleManager.cardResolveStack.GetMomentumBonus();
             float insightBonus = BattleManager.cardResolveStack.GetInsightBonus();
             int endDamage = (int)((BattleManager.player.GetStatusEffectValue(StatusEffect) + momentiumBonus) * insightBonus);
-            return BattleGrid.instance.StrikeTile(target, endDamage);
+            return BattleGrid.instance.StrikeTile(target, player, endDamage);
         }
     }
 
@@ -78,28 +74,42 @@ namespace Roguelike
     /// </summary>
     public class ApplyStatusEffect : IEffect
     {
-        public int Power { get; private set; }
+        public int StaticPower { get; private set; }
+        public IEffect PowerFromEffect { get; private set; } = null;
         public BattleManager.StatusEffectEnum StatusEffect { get; private set; }
         public bool SelfTar { get; private set; }
 
         public ApplyStatusEffect(int initPower, BattleManager.StatusEffectEnum initStatusEffect, bool selfTar)
         {
-            Power = initPower;
+            StaticPower = initPower;
+            StatusEffect = initStatusEffect;
+            SelfTar = selfTar;
+        }
+
+        public ApplyStatusEffect(IEffect powerFromEffect, BattleManager.StatusEffectEnum initStatusEffect, bool selfTar)
+        {
+            PowerFromEffect = powerFromEffect;
             StatusEffect = initStatusEffect;
             SelfTar = selfTar;
         }
 
         public int Activate(Vector2Int player, Vector2Int target)
         {
-            Debug.Log("Apply status effect activated. " + StatusEffect.ToString() + ", " + Power + ", self: " + SelfTar);
+            Debug.Log("Apply status effect activated. " + StatusEffect.ToString() + ", " + StaticPower + ", self: " + SelfTar);
+            int value;
+            if (PowerFromEffect != null)
+                value = PowerFromEffect.Activate(player, target);
+            else
+                value = StaticPower;
+
             if (SelfTar)
             {
-                BattleManager.player.ApplyStatusEffect(StatusEffect, Power);
+                BattleManager.player.ApplyStatusEffect(StatusEffect, value);
                 return 1;
             }
             else
             {
-                bool flag = BattleGrid.instance.ApplyStatusEffectOnTile(target, StatusEffect, Power);
+                bool flag = BattleGrid.instance.ApplyStatusEffectOnTile(target, StatusEffect, value);
                 if (flag) return 1; else return 0;
             }
         }
@@ -126,15 +136,13 @@ namespace Roguelike
         /// <returns>Returns the number of targets hit.</returns>
         public int Activate(Vector2Int player, Vector2Int target)
         {
-            if (TarCentered)
+            if (!TarCentered)
             {
-                EffectFactory.SquareAOE(Radius, target, player, true, AppliedEffect, HitEmpty);
-                return 1;
+                return EffectFactory.SquareAOE(Radius, target, player, true, AppliedEffect, HitEmpty);
             }
             else
             {
-                EffectFactory.SquareAOE(Radius, player, player, false, AppliedEffect, HitEmpty);
-                return 1;
+                return EffectFactory.SquareAOE(Radius, player, player, false, AppliedEffect, HitEmpty);
             }
         }
     }
@@ -183,21 +191,21 @@ namespace Roguelike
     //A 'utility' effect whose Activate function will do some operation on two values.
     // Can be given either two effects or an effect and an int.
     // And int takes priority over an effect.
-    public class UtilEffectCompare : IEffect
+    public class Var_CompareOp : IEffect
     {
-        public enum UtilEffectCompareOperation { equals, lessThan, greaterThan, notEquals, max, min}
-        private UtilEffectCompareOperation op;
+        public enum CompareOperation { equals, lessThan, greaterThan, notEquals, max, min}
+        private CompareOperation op;
         public int ConstantInt { get; private set; }
         private IEffect EffectA { get; set; }
         private IEffect EffectB { get; set; }
 
-        public UtilEffectCompare(IEffect effectA, IEffect effectB, UtilEffectCompareOperation op)
+        public Var_CompareOp(IEffect effectA, IEffect effectB, CompareOperation op)
         {
             EffectA = effectA;
             EffectB = effectB;
             this.op = op;
         }
-        public UtilEffectCompare(IEffect effectA, int con, UtilEffectCompareOperation op)
+        public Var_CompareOp(IEffect effectA, int con, CompareOperation op)
         {
             EffectA = effectA;
             EffectB = null;
@@ -217,21 +225,98 @@ namespace Roguelike
 
             switch (op)
             {
-                case UtilEffectCompareOperation.equals:
+                case CompareOperation.equals:
                     if (valA == valB) return 1; else return 0;
-                case UtilEffectCompareOperation.greaterThan:
+                case CompareOperation.greaterThan:
                     if (valA > valB) return 1; else return 0;
-                case UtilEffectCompareOperation.lessThan:
+                case CompareOperation.lessThan:
                     if (valA < valB) return 1; else return 0;
-                case UtilEffectCompareOperation.notEquals:
+                case CompareOperation.notEquals:
                     if (valA != valB) return 1; else return 0;
-                case UtilEffectCompareOperation.max:
+                case CompareOperation.max:
                     return Math.Max(valA, valB);
-                case UtilEffectCompareOperation.min:
+                case CompareOperation.min:
                     return Math.Min(valA, valB);
                 default:
                     return 0;
             }
+        }
+    }
+
+    public class Heal : IEffect
+    {
+        public int StaticVal { get; set; } = -1;
+        public IEffect DamageFromEffect { get; set; } = null; // Get the value from this effect.
+        public bool healSelf = true; // If true, always heal the player. Otherwise, heal the target.
+
+        public Heal(int staticVal, bool healSelf = true)
+        {
+            StaticVal = staticVal;
+            this.healSelf = healSelf;
+        }
+        public Heal (IEffect effect, bool healSelf = true)
+        {
+            DamageFromEffect = effect;
+            this.healSelf = healSelf;
+        }
+
+        public int Activate(Vector2Int player, Vector2Int target)
+        {
+            int value;
+            if (DamageFromEffect != null) // Use value from this effect
+                value = DamageFromEffect.Activate(player, target);
+            else // Use static value
+                value = StaticVal;
+
+            Debug.Log("Heal effect activated with a value of " + value);
+
+            if (healSelf)
+            {
+                return BattleManager.player.TakeDamage(player, -1 * value);
+            }
+            else
+            {
+                return BattleGrid.instance.StrikeTile(player, target, -1 * value);
+            }
+        }
+    }
+
+    public class ManipulateHand : IEffect
+    {
+        public int StaticVal { get; private set; } = -1;
+        public IEffect ValEffect { get; private set; } = null; // Get the value from this effect.
+
+        public enum ManipulateHandTargetEnum { leftCard, rightCard, leftMostCard, rightMostCard, random };
+        public enum ManipulateHandEffectEnum { discard, banish };
+
+        public ManipulateHandTargetEnum Target { get; private set; } = ManipulateHandTargetEnum.leftCard;
+        public ManipulateHandEffectEnum Effect { get; private set; } = ManipulateHandEffectEnum.discard;
+
+        public ManipulateHand(int staticVal, ManipulateHandTargetEnum target, ManipulateHandEffectEnum effect)
+        {
+            StaticVal = staticVal;
+            Target = target;
+            Effect = effect;
+        }
+        public ManipulateHand(IEffect valeffect, ManipulateHandTargetEnum target, ManipulateHandEffectEnum effect)
+        {
+            ValEffect = valeffect;
+            Target = target;
+            Effect = effect;
+        }
+
+        public int Activate(Vector2Int player, Vector2Int target)
+        {
+            int value;
+            if (ValEffect != null) // Use value from this effect
+                value = ValEffect.Activate(player, target);
+            else // Use static value
+                value = StaticVal;
+
+            if (BattleManager.cardResolveStack.MakeHandManipulateRequest(Target, Effect, value))
+                return 1;
+            else
+                return 0;
         }
     }
 

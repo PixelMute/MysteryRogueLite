@@ -1,11 +1,7 @@
-﻿using DG.Tweening.Plugins;
-using NesScripts.Controls.PathFind;
+﻿using NesScripts.Controls.PathFind;
 using Roguelike;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 // Global level manager. Should be attached to an empty object or the camera.
 // The all seeing camera shall judge your sins.
@@ -48,8 +44,13 @@ public class BattleManager : MonoBehaviour
         mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
     }
 
+    public Shader ShaderGUItext;
+    public Shader ShaderSpritesDefault;
+
     private void Start()
     {
+        ShaderGUItext = Shader.Find("GUI/Text Shader");
+        ShaderSpritesDefault = Shader.Find("Sprites/Default");
         CreateFloor();
     }
 
