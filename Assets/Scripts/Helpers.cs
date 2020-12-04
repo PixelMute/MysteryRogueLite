@@ -18,6 +18,10 @@ public static class Helpers
 
     public static T PickRandom<T>(this List<T> source)
     {
+        if (source.Count == 0)
+        {
+            return default(T);
+        }
         return source[Random.Range(0, source.Count())];
     }
 

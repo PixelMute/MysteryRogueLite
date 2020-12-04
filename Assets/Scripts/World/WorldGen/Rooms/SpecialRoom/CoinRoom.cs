@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 class CoinRoom : SpecialRoom
@@ -48,6 +49,18 @@ class CoinRoom : SpecialRoom
             }
             BattleGrid.instance.SpawnMoneyOnTile(moneyLocation, 10);
         }
+    }
+
+    public override List<EnemyBody> GetAnyRequiredEnemies(Level level)
+    {
+        var possibleSpawnLocations = GetPossibleSpawnLocations(level);
+        var spawnLoc = possibleSpawnLocations.PickRandom();
+        if (spawnLoc != null)
+        {
+            var brute = EnemySpawner.SpawnBrute(spawnLoc);
+            return new List<EnemyBody> { brute.GetComponent<EnemyBody>() };
+        }
+        return new List<EnemyBody>();
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Entrance : StandardRoom
 {
@@ -17,6 +18,12 @@ public class Entrance : StandardRoom
     public Entrance() : base()
     {
         Info.RoomType = RoomType.ENTRANCE;
+    }
+
+    public override List<Vector2Int> GetPossibleSpawnLocations(Level level)
+    {
+        //Entrance should have no enemies that spawn
+        return new List<Vector2Int>();
     }
 
     private Vector2Int? FindPlayerSpawn()

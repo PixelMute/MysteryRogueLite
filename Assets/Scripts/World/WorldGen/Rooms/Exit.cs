@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Exit : StandardRoom
 {
@@ -17,6 +18,17 @@ public class Exit : StandardRoom
     public Exit() : base()
     {
         Info.RoomType = RoomType.EXIT;
+    }
+
+    public override List<Vector2Int> GetPossibleSpawnLocations(Level level)
+    {
+        var baseLocations = base.GetPossibleSpawnLocations(level);
+        if (StairsLocation != null)
+        {
+            //Don't spawn any enemies on the exit stairs
+            baseLocations.Remove(StairsLocation.Value);
+        }
+        return baseLocations;
     }
 
     private Vector2Int? FindStairsLocation()

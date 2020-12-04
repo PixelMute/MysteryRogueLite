@@ -102,40 +102,8 @@ public class Floor
         }
         Level.Paint();
         ConstructTiles();
-        //CalculateRoomAreas();
-
-        //DunNode[][] nodes = dungeonData.getNodes();
-
-        //sizeX = nodes.Length;
-        //sizeZ = nodes[0].Length;
-
-        //map = new Roguelike.Tile[sizeX, sizeZ];
-
-        //// Fill in the map
-        //for (int i = 0; i < sizeX; i++)
-        //{
-        //    for (int j = 0; j < sizeZ; j++)
-        //    {
-        //        map[i, j] = new Roguelike.Tile();
-        //        // If it isn't an empty space, it should be a wall
-        //        if (!nodes[i][j].open())
-        //        {
-        //            map[i, j].tileEntityType = Roguelike.Tile.TileEntityType.wall;
-        //            //Color rng = UnityEngine.Random.ColorHSV();
-        //            //UnityEngine.Debug.DrawLine(new Vector3(i, 0, j), new Vector3(i, 10, j), rng, 100f);
-        //        }
-        //    }
-        //}
 
         AssignPlayerLocation();
-
-
-        //int numEnemies = FloorNumber + 1 == 5 ? 25 : 5 + (FloorNumber * 3);
-        //// Set the enemies locations
-        //for (int i = 0; i < numEnemies; i++)
-        //{
-        //    SetEnemyLocation();
-        //}
 
         SetStairsLocation();
     }
@@ -171,44 +139,40 @@ public class Floor
                     case Roguelike.Tile.TileEntityType.wall:
                         SpawnWallAt(i, j);
                         break;
-                    case Roguelike.Tile.TileEntityType.enemy:
-                        UnityEngine.Debug.Log("Floor spawning enemy");
-                        SpawnEnemyAt(i, j);
-                        break;
-                        //case Roguelike.Tile.TileEntityType.stairsUp:
-                        //    var spawnLoc = new Vector2Int(i, j);
-                        //    var stairsUp = BattleGrid.instance.SpawnStairsUp(spawnLoc);
-                        //    PlaceObjectOn(spawnLoc.x, spawnLoc.y, stairsUp);
-                        //    break;
                 }
-
-                //// Determine terrain
-                //if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.wall)
-                //{
-                //    Tile tile;
-                //    if (i % 2 == 0)
-                //    {
-                //        tile = j % 2 == 0 ? topLeft : topRight;
-                //    }
-                //    else
-                //    {
-                //        tile = j % 2 == 0 ? bottomLeft : bottomRight;
-                //    }
-
-                //    if (map[i, j].tileTerrainType == Roguelike.Tile.TileTerrainType.stairsDown)
-                //    {
-                //        var spawnLoc = new Vector2Int(i, j);
-                //        var stairsDown = BattleGrid.instance.SpawnStairsDown(spawnLoc);
-                //        PlaceTerrainOn(spawnLoc.x, spawnLoc.y, stairsDown);
-                //    }
-
-                //    tileMap.SetTile(new Vector3Int(i, j, 0), tile);
-                //}
             }
         }
 
+        SpawnEnemies();
+
         PlacePlayerInDungeon();
         GenerateWalkableMap();
+    }
+
+    private void SpawnEnemies()
+    {
+        var numEnemies = GetNumberOfEnemiesForFloor();
+        enemies = Level.GetRequiredEnemies();
+        var spawnLocations = Level.GetPossibleSpawnLocations();
+        foreach (var enemy in enemies)
+        {
+            var enemyLocation = BattleManager.ConvertVector(enemy.transform.position);
+            spawnLocations.Remove(enemyLocation);
+            map[enemyLocation.x, enemyLocation.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
+            PlaceObjectOn(enemyLocation.x, enemyLocation.y, enemy);
+        }
+        while (enemies.Count < numEnemies)
+        {
+            var location = spawnLocations.PickRandom();
+            spawnLocations.Remove(location);
+            map[location.x, location.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
+            SpawnEnemyAt(location.x, location.y);
+        }
+    }
+
+    private int GetNumberOfEnemiesForFloor()
+    {
+        return FloorNumber + 4;
     }
 
     public void DespawnFloor()
@@ -296,123 +260,6 @@ public class Floor
         BattleManager.player.EstablishSelf(spawnLocation.x, spawnLocation.y);
         BattleManager.player.transform.position = new Vector3(spawnLocation.x, 0.05f, spawnLocation.y);
     }
-
-    public enum FindTileCondition { notPlayersRoom, evenRoomWeighting, offWall, onWall, empty, abort };
-    //public Vector2Int FindTileInRoom(params FindTileCondition[] conds)
-    //{
-    //    bool forbidPlayer = conds.Contains(FindTileCondition.notPlayersRoom);
-    //    bool weightEven = conds.Contains(FindTileCondition.evenRoomWeighting);
-    //    bool allowEdges = !conds.Contains(FindTileCondition.offWall);
-    //    bool requireEdge = conds.Contains(FindTileCondition.onWall);
-    //    bool needEmpty = conds.Contains(FindTileCondition.empty);
-
-    //    List<DungeonGenerator.core.Room> rooms = dungeonData.getRooms();
-
-    //    int pickedRoom = -1;
-    //    bool flag = false;
-    //    int tryNum = 0;
-    //    do
-    //    {
-    //        flag = true; // Does this room fit our criteria?
-    //        pickedRoom = -1;
-    //        tryNum++;
-    //        if (weightEven)
-    //        {
-    //            pickedRoom = UnityEngine.Random.Range(0, rooms.Count);
-    //        }
-    //        else
-    //        {
-    //            int randomVal = UnityEngine.Random.Range(0, roomAreaSum);
-    //            do
-    //            {
-    //                pickedRoom++;
-    //                randomVal -= roomsArea[pickedRoom];
-    //            } while (randomVal > 0);
-    //        }
-
-    //        // Have picked a random room. Check if it meets our criteria.
-    //        if (forbidPlayer)
-    //        {
-    //            //UnityEngine.Debug.Log("Player is at " + BattleManager.player.xPos + ", " + BattleManager.player.zPos);
-    //            //UnityEngine.Debug.DrawLine(new Vector3(BattleManager.player.xPos, 0, BattleManager.player.zPos), new Vector3(BattleManager.player.xPos, 10, BattleManager.player.zPos), Color.cyan, 100f);
-    //            // UnityEngine.Debug.Log("Room bounded by " + rooms[pickedRoom].topLeft().x() + ", " + rooms[pickedRoom].topLeft().y() + ", and " + rooms[pickedRoom].bottomRight().x() + ", " + rooms[pickedRoom].bottomRight().y());
-    //            // Check if this is the same room as the player.
-    //            Position playerPos = new Position(BattleManager.player.zPos, BattleManager.player.xPos);
-    //            if (rooms[pickedRoom].inRoom(playerPos))
-    //            {
-    //                //UnityEngine.Debug.Log("Player is in this room, room: " + pickedRoom);
-    //                flag = false;
-    //            }
-    //        }
-    //    } while (!flag && tryNum < 20);
-
-    //    if (tryNum >= 20)
-    //    {
-    //        UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Took 20+ tries to find a room. Going with an arbitrary one.");
-    //    }
-
-    //    // Now we know which room we're going to. Find a tile in it.
-    //    tryNum = 0;
-
-    //    do
-    //    {
-    //        flag = true;
-    //        tryNum++;
-
-    //        int triedX = UnityEngine.Random.Range(rooms[pickedRoom].topLeft().y(), rooms[pickedRoom].bottomRight().y());
-    //        int triedY = UnityEngine.Random.Range(rooms[pickedRoom].topLeft().x(), rooms[pickedRoom].bottomRight().x());
-
-    //        // Check conditions.
-    //        if (needEmpty)
-    //        {
-    //            if (map[triedX, triedY].tileEntityType != Roguelike.Tile.TileEntityType.empty)
-    //                flag = false;
-    //        }
-
-    //        if (!allowEdges && flag) // check if this is next to a wall.
-    //        {
-    //            if (map[triedX + 1, triedY + 1].tileEntityType == Roguelike.Tile.TileEntityType.wall || map[triedX - 1, triedY + 1].tileEntityType == Roguelike.Tile.TileEntityType.wall
-    //                || map[triedX - 1, triedY - 1].tileEntityType == Roguelike.Tile.TileEntityType.wall || map[triedX + 1, triedY - 1].tileEntityType == Roguelike.Tile.TileEntityType.wall)
-    //                flag = false;
-    //        }
-    //        if (requireEdge && flag)
-    //        {
-    //            if (map[triedX + 1, triedY + 1].tileEntityType != Roguelike.Tile.TileEntityType.wall && map[triedX - 1, triedY + 1].tileEntityType != Roguelike.Tile.TileEntityType.wall
-    //                && map[triedX - 1, triedY - 1].tileEntityType != Roguelike.Tile.TileEntityType.wall && map[triedX + 1, triedY - 1].tileEntityType != Roguelike.Tile.TileEntityType.wall)
-    //            {
-    //                flag = false;
-    //            }
-    //        }
-
-    //        if (flag)
-    //        {// This position works.
-    //            UnityEngine.Debug.DrawLine(new Vector3(triedX, 0, triedY), new Vector3(triedX, 10, triedY), Color.green, 100f);
-    //            return new Vector2Int(triedX, triedY);
-    //        }
-
-    //    } while (!flag && tryNum < 40);
-
-
-    //    if (conds.Contains(FindTileCondition.abort))
-    //    {
-    //        UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Could not find suitable tile. Aborting and returning (-1, -1).");
-    //        return new Vector2Int(-1, -1);
-    //    }
-    //    UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Could not find suitable tile. Loosening restrictions.");
-    //    //SpawnEnemyAt(rooms[pickedRoom].topLeft().x(), rooms[pickedRoom].topLeft().y(), pickedRoom.ToString());
-    //    //SpawnEnemyAt(rooms[pickedRoom].bottomRight().x(), rooms[pickedRoom].bottomRight().y(), pickedRoom.ToString());
-    //    if (conds.Length <= 1)
-    //    {
-    //        UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Returning a random empty tile.");
-    //        return PickRandomEmptyTile();
-    //    }
-    //    else
-    //    {
-    //        UnityEngine.Debug.LogWarning("Floor::FindTileInRoom() -- Returning an empty tile in a room.");
-    //        return FindTileInRoom(FindTileCondition.empty);
-    //    }
-
-    //}
 
     // Picks a random empty tile out of the map.
     public Vector2Int PickRandomEmptyTile()
@@ -520,7 +367,7 @@ public class Floor
     {
         // Make sure we're inside the map.
         if (baseTarget.x >= BattleGrid.instance.map.GetLength(0) || baseTarget.x < 0 || baseTarget.y >= BattleGrid.instance.map.GetLength(1) || baseTarget.y < 0)
-            return new Vector2Int(-1,-1); // Lost to the either.
+            return new Vector2Int(-1, -1); // Lost to the either.
         if (map[baseTarget.x, baseTarget.y].tileEntityType == Roguelike.Tile.TileEntityType.wall)
             return new Vector2Int(-1, -1); // Can't stick it in a wall.
 

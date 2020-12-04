@@ -225,6 +225,28 @@ public abstract class Room
         painter.AutoDecorate();
     }
 
+    public virtual List<Vector2Int> GetPossibleSpawnLocations(Level level)
+    {
+        var res = new List<Vector2Int>();
+        var painter = new RoomPainter(level, this);
+        for (int i = Bounds.Left + 1; i < Bounds.Right - 1; i++)
+        {
+            for (int j = Bounds.Bottom + 1; j < Bounds.Top - 1; j++)
+            {
+                if (painter.IsFloor(i, j))
+                {
+                    res.Add(new Vector2Int(i, j));
+                }
+            }
+        }
+        return res;
+    }
+
+    public virtual List<EnemyBody> GetAnyRequiredEnemies(Level level)
+    {
+        return new List<EnemyBody>();
+    }
+
     protected void PaintOutsideWalls(Level level)
     {
         var painter = new RoomPainter(level, this);

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 class ConnectionRoom : Room
 {
@@ -14,6 +15,12 @@ class ConnectionRoom : Room
     };
 
     public ConnectionRoom() : base(ConnectionRoomInfo) { }
+
+    public override List<Vector2Int> GetPossibleSpawnLocations(Level level)
+    {
+        //Don't spawn any enemies in the connection rooms
+        return new List<Vector2Int>();
+    }
 
     public override void PaintDoors(Level level)
     {

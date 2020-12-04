@@ -114,6 +114,34 @@ public class Level
         Decorations.ClearAllTiles();
     }
 
+    public List<Vector2Int> GetPossibleSpawnLocations()
+    {
+        var res = new List<Vector2Int>();
+        foreach (var room in Rooms)
+        {
+            var roomLocations = room.GetPossibleSpawnLocations(this);
+            if (roomLocations != null)
+            {
+                res.AddRange(roomLocations);
+            }
+        }
+        return res;
+    }
+
+    public List<EnemyBody> GetRequiredEnemies()
+    {
+        var res = new List<EnemyBody>();
+        foreach (var room in Rooms)
+        {
+            var enemies = room.GetAnyRequiredEnemies(this);
+            if (enemies != null)
+            {
+                res.AddRange(enemies);
+            }
+        }
+        return res;
+    }
+
     private RogueRect GetBoundary()
     {
         var bounds = new RogueRect()
