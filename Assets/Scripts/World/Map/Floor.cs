@@ -121,7 +121,7 @@ public class Floor
         }
 
         // Spawn treasure chests.
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 5; i++)
         {
             SetTreasureLocation(TreasureChest.TreasureChestTypeEnum.small);
         }
@@ -240,6 +240,9 @@ public class Floor
                 if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.player)
                 {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetEntityOnTile()?.gameObject);
+                }
+                if (map[i,j].tileItemType != Roguelike.Tile.TileItemType.empty)
+                {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetItemOnTile()?.gameObject);
                 }
             }
@@ -256,7 +259,7 @@ public class Floor
 
     private void SetStairsLocation()
     {
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 4; i++)
         {
             Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom, FindTileCondition.offWall);
             //Vector2Int spawnLoc = PickRandomEmptyTile();
@@ -530,6 +533,10 @@ public class Floor
         DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
         int amount = Random.Range(10, 20); // Technically, the amount of money can change if you swap floors. Hopefully nobody notices.
         newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
+
+        newMoneyBloodMoney.xPos = x;
+        newMoneyBloodMoney.zPos = z;
+
         map[x, z].SetItemOnTile(newMoneyBloodMoney);
     }
 
@@ -537,6 +544,8 @@ public class Floor
     {
         GameObject treasureObj = ItemSpawner.SpawnSmallChest(new Vector2Int(x, z));
         TreasureChest treasure = treasureObj.GetComponent<TreasureChest>();
+        treasure.xPos = x;
+        treasure.zPos = z;
         map[x, z].SetItemOnTile(treasure);
     }
 

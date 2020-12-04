@@ -376,6 +376,18 @@ public class PlayerController : TileCreature
         {
             Money += 20;
         }
+
+        // Press C to open up card view.
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            puim.ToggleShowMassCardView();
+        }
+
+        // Press V to buy a card.
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            GetCardReward(30);
+        }
     }
 
     /// <summary>
@@ -580,18 +592,46 @@ public class PlayerController : TileCreature
     {
         //Pick up any money that we ended our turn on top of
         var tile = BattleManager.instance.GetTileAtLocation((int)transform.position.x, (int)transform.position.z);
-        var item = tile.GetItemOnTile();
+        var itemType = tile.tileItemType;
 
-        if (item != null)
+        switch (itemType)
         {
-            DroppedMoney moneyobj = item as DroppedMoney;
-            if (moneyobj != null)
-            {
-                Debug.Log("Picked up money");
-                Money += moneyobj.Value;
-                moneyobj.Pickup();
-            }
+            case Tile.TileItemType.money:
+                DroppedMoney moneyobj = tile.GetItemOnTile() as DroppedMoney;
+                if (moneyobj != null)
+                {
+                    Debug.Log("Picked up money");
+                    Money += moneyobj.Value;
+                    moneyobj.DestroySelf();
+                    tile.tileItemType = Tile.TileItemType.empty;
+                }
+                break;
+            case Tile.TileItemType.smallChest:
+                TreasureChest treasureObj = tile.GetItemOnTile() as TreasureChest;
+                if (treasureObj != null)
+                { // loot boxes babbbyyyyyyyyy
+                    int randomTreasurePull = UnityEngine.Random.Range(0,3);
+                    switch (randomTreasurePull)
+                    {
+                        case 0: // coins
+                            int randomAmountOfCoins = UnityEngine.Random.Range(18, 33);
+                            puim.ShowAlert("You found " + randomAmountOfCoins + " coins in the chest.");
+                            Money += randomAmountOfCoins;
+                            break;
+                        case 1:
+                            puim.ShowAlert("You found a card reward in this chest.");
+                            GetCardReward(0);
+                            break;
+                        case 2:
+                            puim.ShowAlert("You found a hanafuda card. ... Which isn't implemented yet.");
+                            break;
+                    }
+                    treasureObj.DestroySelf();
+                    tile.tileItemType = Tile.TileItemType.empty;
+                }
+                break;
         }
+
 
 
         //Debug.Log("Player Controller end of turn");
@@ -698,15 +738,23 @@ public class PlayerController : TileCreature
     }
 
     // Right now, this is called by a button.
-    public void GetCardReward()
+    public void GetCardReward(int price)
     {
-        if (Money < 20)
-            puim.ShowAlert("Need 20 coins for a card.");
-        else
+        if (price > 0)
         {
-            puim.OpenCardRewardView();
-            Money -= 20;
+            if (Money <= price)
+            {
+                puim.ShowAlert("Need to pay " + price + " for a card.");
+                return;
+            }
+            else
+            {
+                Money -= price;
+            }
         }
+
+        puim.OpenCardRewardView();
+
 
     }
 

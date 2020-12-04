@@ -147,6 +147,8 @@ public class BattleGrid : MonoBehaviour
         GameObject moneyObj = ItemSpawner.SpawnMoney(adjustedSpawnLoc);
         DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
         newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
+        newMoneyBloodMoney.xPos = spawnLoc.x;
+        newMoneyBloodMoney.zPos = spawnLoc.y;
         map[adjustedSpawnLoc.x, adjustedSpawnLoc.y].SetItemOnTile(newMoneyBloodMoney);
     }
 

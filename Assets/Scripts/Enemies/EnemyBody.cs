@@ -131,9 +131,6 @@ public class EnemyBody : TileCreature
         }
         //Remove object
         BattleManager.RecursivelyEliminateObject(transform);
-
-
-
     }
 
     public void OnDeath()
@@ -141,7 +138,7 @@ public class EnemyBody : TileCreature
         Animation.Die();
         // Spawn some money
         Debug.Log("Spawning monies");
-        BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int(xPos, zPos), UnityEngine.Random.Range(10, 22));
+        BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int(xPos, zPos), UnityEngine.Random.Range(10, 15));
     }
 
     public override void ApplyStatusEffect(BattleManager.StatusEffectEnum status, int amount)
