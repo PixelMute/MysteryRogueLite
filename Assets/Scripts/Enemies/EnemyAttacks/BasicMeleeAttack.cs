@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-class BasicMeleeAttack : Attack
+public class BasicMeleeAttack : Attack
 {
     public int MaxDamage;
     public int MinDamage;

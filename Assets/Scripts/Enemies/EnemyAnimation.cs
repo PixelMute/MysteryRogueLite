@@ -36,22 +36,22 @@ public class EnemyAnimation : MonoBehaviour
         return false;
     }
 
-    public void Idle()
+    public virtual void Idle()
     {
         Animator.Play("Idle");
     }
 
-    public void Move()
+    public virtual void Move()
     {
         Animator.Play("Moving");
     }
 
-    public void Die()
+    public virtual void Die()
     {
         Animator.Play("Die");
     }
 
-    public void Attack()
+    public virtual void Attack()
     {
         Animator.Play("Attack");
     }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-class BasicEnemyAI : EnemyBrain
+public class BasicEnemyAI : EnemyBrain
 {
     private EnemyBody Body;
 

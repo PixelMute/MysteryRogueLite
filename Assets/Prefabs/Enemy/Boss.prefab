@@ -10,9 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4376830779705786979}
   - component: {fileID: 2723190958542824598}
-  - component: {fileID: 7229939966557515063}
   - component: {fileID: 8241596885462619045}
-  - component: {fileID: 668038562130186651}
+  - component: {fileID: 1093379184620064269}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -86,18 +85,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &7229939966557515063
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3196963497795960565}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68b2dd398233a6942b26b99562fae1ed, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!95 &8241596885462619045
 Animator:
   serializedVersion: 3
@@ -117,7 +104,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &668038562130186651
+--- !u!114 &1093379184620064269
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -126,7 +113,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 3196963497795960565}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1001df53faa34144ad70e5424b3b10b, type: 3}
+  m_Script: {fileID: 11500000, guid: 32834e8b2425ae24285dab9f190d04e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Splatter: {fileID: 6511497849312395707}
@@ -144,8 +131,8 @@ GameObject:
   - component: {fileID: 6376111280425497438}
   - component: {fileID: 4708224225759287368}
   - component: {fileID: 1779214802309844719}
-  - component: {fileID: 7239461249682904784}
   - component: {fileID: -7686432410359031548}
+  - component: {fileID: 8552328026636344824}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -180,7 +167,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.9, y: 8.440616, z: 0.9}
+  m_Size: {x: 2.9, y: 8.440616, z: 2.9}
   m_Center: {x: 0, y: 3.720307, z: 0}
 --- !u!54 &2535026014540561121
 Rigidbody:
@@ -226,7 +213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7da723e47d6771545a874c6982211526, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 150
+  maxHealth: 20
 --- !u!114 &1779214802309844719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243,28 +230,12 @@ MonoBehaviour:
   zPos: 0
   visionRange: 5
   TimeToMove: 0.25
-  Animation: {fileID: 668038562130186651}
-  FadeAwayTime: 1
+  Animation: {fileID: 1093379184620064269}
+  FadeAwayTime: 5
   MinMoneySpawned: 10
   MaxMoneySpawned: 22
   enemyColor: {r: 0, g: 0, b: 0, a: 0}
   enemyLineY: 0
---- !u!114 &7239461249682904784
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4685347585978527987}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cc129c6cc2b435142959fa459e21fd5a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MinDamage: 5
-  MaxDamage: 7
-  Range: 3
-  Arrow: {fileID: 4041377456279305103, guid: 19bc970ac72e23a40982d66a45b6215a, type: 3}
 --- !u!114 &-7686432410359031548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,6 +252,20 @@ MonoBehaviour:
   shoutRange: 10
   hearingRange: 8
   Activated: 0
+--- !u!114 &8552328026636344824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4685347585978527987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 502c7bf9bd8529449917eabb02129572, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MaxDamage: 20
+  MinDamage: 15
 --- !u!1001 &6158561274722323319
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -357,6 +342,11 @@ PrefabInstance:
         type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.3207547
+      objectReference: {fileID: 0}
+    - target: {fileID: 2423451127037781022, guid: f4924dfc2abbf1e459077e70bd89f6f9,
+        type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 9126679725265644834, guid: f4924dfc2abbf1e459077e70bd89f6f9,
         type: 3}

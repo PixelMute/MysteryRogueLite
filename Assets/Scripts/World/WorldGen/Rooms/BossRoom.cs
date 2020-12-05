@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-class BossRoom : Room
+public class BossRoom : Room
 {
+    public static EnemyBody Boss;
     public BossRoom() : base(new RoomInfo()
     {
         MaxConnections = 2,
@@ -22,8 +23,24 @@ class BossRoom : Room
 
     public override List<EnemyBody> GetAnyRequiredEnemies(Level level)
     {
-        var boss = EnemySpawner.SpawnBoss(GetBossSpawnLocation());
-        return new List<EnemyBody> { boss.GetComponent<EnemyBody>() };
+        var spawnLoc = GetBossSpawnLocation();
+        Boss = EnemySpawner.SpawnBoss(spawnLoc).GetComponent<EnemyBody>();
+        Boss.xPos = spawnLoc.x;
+        Boss.zPos = spawnLoc.y;
+        (Boss.AI as BossBrain).BossRoom = this;
+        return new List<EnemyBody> { Boss.GetComponent<EnemyBody>() };
+    }
+
+    public bool ActivateBoss()
+    {
+        var x = BattleManager.player.xPos;
+        var z = BattleManager.player.zPos;
+        if (x >= Bounds.Left + 1 && x <= Bounds.Right - 2 && z <= Bounds.Top - 2 && z >= Bounds.Bottom + 1)
+        {
+            Debug.Log("Activating boss");
+            return true;
+        }
+        return false;
     }
 
     private Vector2Int GetBossSpawnLocation()

@@ -158,6 +158,7 @@ class TurnManager : MonoBehaviour
 
             if (enemies.All(enemy => enemy.AI.IsDoneWithEndOfTurn()))
             {
+                waiting = false;
                 //Start player's turn right away so there isn't a delay when we are walking
                 CurrentTurn = WhoseTurn.player;
                 CurrentPhase = TurnPhase.start;

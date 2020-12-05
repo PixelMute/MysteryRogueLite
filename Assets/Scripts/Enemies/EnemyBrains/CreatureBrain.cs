@@ -33,5 +33,7 @@ public abstract class EnemyBrain : CreatureBrain
     {
         return EndOfTurnOver;
     }
+
+    public virtual void OnDeath() { return; }
 }
 

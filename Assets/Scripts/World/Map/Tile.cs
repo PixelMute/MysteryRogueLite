@@ -30,7 +30,7 @@ namespace Roguelike
                 tileEntityType = TileEntityType.empty;
             else if (entityOnTile is Wall)
                 tileEntityType = TileEntityType.wall;
-            else if (entityOnTile is EnemyBody)
+            else if (entityOnTile is EnemyBody && !(((EnemyBody)entityOnTile).AI is BossBrain))
                 tileEntityType = TileEntityType.enemy;
             else if (entityOnTile is PlayerController)
                 tileEntityType = TileEntityType.player;
@@ -45,6 +45,10 @@ namespace Roguelike
 
         public TileEntity GetEntityOnTile()
         {
+            if (tileEntityType == TileEntityType.boss)
+            {
+                return BossRoom.Boss;
+            }
             return entityOnTile;
         }
 
@@ -85,6 +89,10 @@ namespace Roguelike
         {
             if (entityOnTile == null)
             {
+                if (tileEntityType == TileEntityType.boss)
+                {
+                    return false;
+                }
                 return true; // Empty tile.
             }
             else
@@ -96,7 +104,7 @@ namespace Roguelike
         // Returns true if there's a moving character on this tile
         public bool IsCreatureOnTile()
         {
-            if (tileEntityType == TileEntityType.enemy || tileEntityType == TileEntityType.player)
+            if (tileEntityType == TileEntityType.enemy || tileEntityType == TileEntityType.player || tileEntityType == TileEntityType.boss)
                 return true;
             else
                 return false;

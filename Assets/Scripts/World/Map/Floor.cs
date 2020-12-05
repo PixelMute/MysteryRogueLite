@@ -161,10 +161,13 @@ public class Floor
             //If this is the boss
             if (enemy.AI is BossBrain)
             {
-
+                PlaceBoss(enemy);
             }
-            map[enemyLocation.x, enemyLocation.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
-            PlaceObjectOn(enemyLocation.x, enemyLocation.y, enemy);
+            else
+            {
+                map[enemyLocation.x, enemyLocation.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
+                PlaceObjectOn(enemyLocation.x, enemyLocation.y, enemy);
+            }
         }
         while (enemies.Count < numEnemies)
         {
@@ -175,9 +178,17 @@ public class Floor
         }
     }
 
-    private void PlaceBoss()
+    public void PlaceBoss(EnemyBody boss)
     {
-
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                var x = boss.xPos + i;
+                var z = boss.zPos + j;
+                map[x, z].tileEntityType = Roguelike.Tile.TileEntityType.boss;
+            }
+        }
     }
 
     private int GetNumberOfEnemiesForFloor()
@@ -448,6 +459,20 @@ public class Floor
         // Remove it from its previous location.
         map[obj.xPos, obj.zPos].SetEntityOnTile(null);
         PlaceObjectOn(tar.x, tar.y, obj);
+    }
+
+    public void ClearBossTiles()
+    {
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeZ; j++)
+            {
+                if (map[i, j].tileEntityType == Roguelike.Tile.TileEntityType.boss)
+                {
+                    map[i, j].tileEntityType = Roguelike.Tile.TileEntityType.empty;
+                }
+            }
+        }
     }
 }
 

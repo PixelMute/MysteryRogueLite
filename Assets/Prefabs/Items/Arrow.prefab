@@ -96,4 +96,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DistanceToStop: 0.01
-  Speed: 0.125
+  Speed: 0.2

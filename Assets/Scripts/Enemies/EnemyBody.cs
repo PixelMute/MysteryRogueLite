@@ -18,7 +18,7 @@ public class EnemyBody : TileCreature
     public int MaxMoneySpawned = 22;
 
 
-    public void Start()
+    public void Awake()
     {
         AI = GetComponent<EnemyBrain>();
         EnemyUI = GetComponent<EnemyUI>();
@@ -128,13 +128,11 @@ public class EnemyBody : TileCreature
         }
         //Remove object
         BattleManager.RecursivelyEliminateObject(transform);
-
-
-
     }
 
     public void OnDeath()
     {
+        AI.OnDeath();
         Animation.Die();
         // Spawn some money
         Debug.Log("Spawning monies");

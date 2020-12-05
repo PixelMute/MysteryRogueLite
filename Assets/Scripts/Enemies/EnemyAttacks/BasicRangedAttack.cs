@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 class BasicRangedAttack : Attack
 {
@@ -19,9 +18,7 @@ class BasicRangedAttack : Attack
 
     public override bool IsTargetInRange(Vector2Int target)
     {
-        var xPos = transform.position.x;
-        var zPos = transform.position.z;
-        return Math.Abs(xPos - target.x) <= Range && Math.Abs(zPos - target.y) <= Range && BattleGrid.instance.CheckLoS(transform.position, BattleManager.ConvertVector(target, .05f));
+        return IsTargetInRange(target, Range);
     }
 
     public override void ActivateAttack(Vector2Int target)
