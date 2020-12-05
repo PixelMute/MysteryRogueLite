@@ -31,6 +31,16 @@ class BossAnimation : EnemyAnimation
         Animator.Play("Glowing");
     }
 
+    public void BecomeInvincible()
+    {
+        Animator.Play("InToRock");
+    }
+
+    public void BecomeVincible()
+    {
+        Animator.Play("OutOfRock");
+    }
+
     public void MinionSpawnEffect(Vector2Int location)
     {
         minionEffect = Instantiate(MinionParticleSystem, BattleManager.ConvertVector(location, 0), Quaternion.identity).GetComponent<ParticleSystem>();

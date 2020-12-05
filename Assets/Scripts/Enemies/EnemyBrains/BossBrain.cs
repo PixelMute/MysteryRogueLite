@@ -12,6 +12,11 @@ public class BossBrain : EnemyBrain
     private BossBody Body;
     private bool IsSpawningMinion = false;
 
+    public bool HasBeenInvincible = false;
+    public int InvincibleTurns = 15;
+    public int NumberMinionsInWave = 10;
+    private int InvincibleTurnsLeft;
+
     public void Awake()
     {
         Body = GetComponent<BossBody>();
@@ -19,7 +24,7 @@ public class BossBrain : EnemyBrain
 
     public override void ActionPhase()
     {
-        if (Activated)
+        if (Activated && !Body.Invincible)
         {
             var player = BattleManager.player;
             //If close enough to attack, then attack
@@ -126,10 +131,23 @@ public class BossBrain : EnemyBrain
     {
         if (Activated)
         {
-            if (Random.RandBool(ChanceOfSpawningMinion))
+            if (InvincibleTurnsLeft > 0)
             {
-                SpawnMinion();
+                if (InvincibleTurnsLeft == 1)
+                {
+                    Body.Animation.BecomeVincible();
+                    Body.Invincible = false;
+                }
+                InvincibleTurnsLeft--;
             }
+            else
+            {
+                if (Random.RandBool(ChanceOfSpawningMinion))
+                {
+                    SpawnMinion();
+                }
+            }
+
         }
     }
 
@@ -139,7 +157,28 @@ public class BossBrain : EnemyBrain
         {
             Activated = BossRoom.ActivateBoss();
         }
+        if (InvincibleTurnsLeft == InvincibleTurns)
+        {
+            Body.Animation.BecomeInvincible();
+            Body.Invincible = true;
+            SpawnWaveOfMinions(NumberMinionsInWave);
+        }
+    }
 
+    private void SpawnWaveOfMinions(int numMinions)
+    {
+        var spawnLocations = BossRoom.GetPossibleSpawnLocations();
+        spawnLocations.RemoveAll(spawnLoc =>
+        {
+            var tile = BattleGrid.instance.CurrentFloor.map[spawnLoc.x, spawnLoc.y];
+            return tile.tileEntityType != Roguelike.Tile.TileEntityType.empty;
+        });
+        for (int i = 0; i < numMinions; i++)
+        {
+            var spawnLoc = spawnLocations.PickRandom();
+            spawnLocations.Remove(spawnLoc);
+            SpawnMinion(spawnLoc, false);
+        }
     }
 
     private void SpawnMinion()
@@ -148,15 +187,18 @@ public class BossBrain : EnemyBrain
         SpawnMinion(spawnLoc);
     }
 
-    private void SpawnMinion(Vector2Int spawnLoc)
+    private void SpawnMinion(Vector2Int spawnLoc, bool glowingAnimation = true)
     {
         IsSpawningMinion = true;
-        StartCoroutine(SpawnMinionCoroutine(spawnLoc));
+        StartCoroutine(SpawnMinionCoroutine(spawnLoc, glowingAnimation));
     }
 
-    IEnumerator SpawnMinionCoroutine(Vector2Int spawnLoc)
+    IEnumerator SpawnMinionCoroutine(Vector2Int spawnLoc, bool glowingAnimation)
     {
-        Body.Animation.Glowing();
+        if (glowingAnimation)
+        {
+            Body.Animation.Glowing();
+        }
         Body.Animation.MinionSpawnEffect(spawnLoc);
         yield return new WaitForSeconds(.25f);
         var minion = EnemySpawner.SpawnMinion(spawnLoc);
@@ -195,16 +237,31 @@ public class BossBrain : EnemyBrain
     public override void OnDeath()
     {
         BattleGrid.instance.CurrentFloor.ClearBossTiles();
+        BattleGrid.instance.CurrentFloor.enemies.Remove(Body);
+        var enemies = BattleGrid.instance.CurrentFloor.enemies;
+        for (int i = enemies.Count - 1; i >= 0; i--)
+        {
+            if (enemies[i].AI is MinionBrain)
+            {
+                enemies[i].Eliminate();
+            }
+        }
     }
 
     public override bool IsDoneWithAction()
     {
-        return Body.Melee.IsAttackDone && (Body.Animation.IsIdle() || Body.Animation.IsMoving());
+        return Body.Melee.IsAttackDone && (Body.Animation.IsIdle() || Body.Animation.IsMoving() || Body.Invincible);
     }
 
     public override bool IsDoneWithEndOfTurn()
     {
         return !IsSpawningMinion;
+    }
+
+    public void BecomeInvicible()
+    {
+        HasBeenInvincible = true;
+        InvincibleTurnsLeft = InvincibleTurns;
     }
 }
 

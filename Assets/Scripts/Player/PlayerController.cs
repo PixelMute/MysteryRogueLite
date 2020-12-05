@@ -163,7 +163,7 @@ public class PlayerController : TileCreature
             playerDeck.InsertCardAtEndOfDrawPile(card3);
             playerDeck.InsertCardAtEndOfDrawPile(card3);
         }
-        
+
 
         playerDeck.ShuffleDeck();
         DrawToHandLimit();
@@ -259,7 +259,7 @@ public class PlayerController : TileCreature
         }
     }
 
-    public enum AttemptToPlayCardFailReasons { success, notPlayerTurn, notEnoughEnergy };
+    public enum AttemptToPlayCardFailReasons { success, notPlayerTurn, notEnoughEnergy, bossInvincible };
     // Attempts to play that card index on given tile.
     public AttemptToPlayCardFailReasons AttemptToPlayCard(CardInterface cardToPlay, Vector2Int target)
     {
@@ -271,6 +271,13 @@ public class PlayerController : TileCreature
         if (cardToPlay.cardData.CardInfo.EnergyCost > CurrentEnergy)
         {
             return AttemptToPlayCardFailReasons.notEnoughEnergy;
+        }
+
+        var tile = BattleGrid.instance.CurrentFloor.map[target.x, target.y];
+        var boss = tile.GetEntityOnTile() as BossBody;
+        if (boss != null && boss.Invincible)
+        {
+            return AttemptToPlayCardFailReasons.bossInvincible;
         }
 
         // Play the card
@@ -320,7 +327,7 @@ public class PlayerController : TileCreature
                 DiscardCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex);
                 break;
             case CardInfo.ResolveBehaviorEnum.banish:
-                 BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex, BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.BanishAmount);
+                BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex, BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.BanishAmount);
                 break;
         }
         // cardResolveStack.PopCard(); }

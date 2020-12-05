@@ -94,7 +94,7 @@ public class EnemyBody : TileCreature
     }
 
     // Destroys this gameobject and its children. Also removes it from the battlegrid.
-    public void Eliminate()
+    public virtual void Eliminate()
     {
         // Trigger on death effects
         OnDeath();
@@ -127,7 +127,7 @@ public class EnemyBody : TileCreature
             yield return null;
         }
         //Remove object
-        BattleManager.RecursivelyEliminateObject(transform);
+        Destroy(gameObject);
     }
 
     public void OnDeath()

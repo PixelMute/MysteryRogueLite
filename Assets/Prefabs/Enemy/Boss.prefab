@@ -233,6 +233,8 @@ MonoBehaviour:
   hearingRange: 8
   Activated: 0
   ChanceOfSpawningMinion: 0.35
+  HasBeenInvincible: 0
+  InvincibleTurns: 15
 --- !u!114 &8552328026636344824
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -486,12 +486,16 @@ public class PlayerUIManager : MonoBehaviour
                 case PlayerController.AttemptToPlayCardFailReasons.notPlayerTurn:
                     ShowAlert("It's not currently your turn");
                     break;
+                case PlayerController.AttemptToPlayCardFailReasons.bossInvincible:
+                    ShowAlert("This enemy is currently invulnerable");
+                    break;
                 case PlayerController.AttemptToPlayCardFailReasons.success:
                     // Discarding is handled by ResolveCard() in the pc.
                     DestroyHighlightTiles();
                     if (cardToPlay == selectedCard)
                         DeselectCard();
                     break;
+
             }
         }
     }

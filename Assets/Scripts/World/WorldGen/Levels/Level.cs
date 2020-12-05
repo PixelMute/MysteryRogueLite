@@ -4,13 +4,13 @@ using UnityEngine.Tilemaps;
 
 public class Level
 {
-    public List<Room> Rooms { get; private set; }
-    public Entrance Entrance { get; private set; }
-    public Exit Exit { get; private set; }
-    public Tilemap Terrain { get; private set; }
-    public Tilemap Decorations { get; private set; }
-    public DecorativeTileMap DecorativeTileMap { get; private set; }
-    public bool HasBeenBuilt { get; private set; } = false;
+    public List<Room> Rooms { get; protected set; }
+    public Entrance Entrance { get; protected set; }
+    public Exit Exit { get; protected set; }
+    public Tilemap Terrain { get; protected set; }
+    public Tilemap Decorations { get; protected set; }
+    public DecorativeTileMap DecorativeTileMap { get; protected set; }
+    public bool HasBeenBuilt { get; protected set; } = false;
     private RogueRect _bounds;
     private List<Vector2Int> _corners;
     public List<Vector2Int> Corners
@@ -72,8 +72,7 @@ public class Level
 
     protected virtual Builder GetBuilder()
     {
-        var res = new BossLevelBuilder();
-        res.BossRoom = new BossRoom();
+        var res = new LoopBuilder();
         return res;
     }
 

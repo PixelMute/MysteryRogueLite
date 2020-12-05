@@ -21,6 +21,18 @@ public class BossRoom : Room
         return new List<Vector2Int>();
     }
 
+    public List<Vector2Int> GetPossibleSpawnLocations()
+    {
+        var rect = new RogueRect()
+        {
+            Left = Bounds.Left + 1,
+            Right = Bounds.Right - 2,
+            Bottom = Bounds.Bottom + 1,
+            Top = Bounds.Top - 2
+        };
+        return rect.GetPoints();
+    }
+
     public override List<EnemyBody> GetAnyRequiredEnemies(Level level)
     {
         var spawnLoc = GetBossSpawnLocation();

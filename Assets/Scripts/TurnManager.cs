@@ -140,6 +140,10 @@ class TurnManager : MonoBehaviour
 
             }
 
+            foreach (var enemy in enemies)
+            {
+                var done = enemy.AI.IsDoneWithAction();
+            }
             if (enemies.All(enemy => enemy.AI.IsDoneWithAction()))
             {
                 CurrentPhase = TurnPhase.end;

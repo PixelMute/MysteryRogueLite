@@ -135,35 +135,37 @@ public class BasicEnemyAI : EnemyBrain
     // Takes the next step in a list of points and returns the same list, minus the point at index 0 if successful
     protected List<Point> TakeStepInPath(List<Point> path, bool recalcIfFail)
     {
-        // Take the next step.
-        Point nextStep = path[0];
-        Vector2Int nextStepVector = BattleManager.ConvertPoint(nextStep);
-
-        // Is this step valid?
-        if (BattleGrid.instance.IsMoveValid(nextStepVector, Body))
+        if (path != null && path.Count > 0)
         {
-            // Take this step.
-            Body.Animation.Move();
-            if (nextStepVector.x > transform.position.x)
-            {
-                Body.Animation.TurnRight();
-            }
-            else if (nextStepVector.x < transform.position.x)
-            {
-                Body.Animation.TurnLeft();
-            }
-            Body.MoveToPosition(nextStepVector);
-            path.RemoveAt(0);
-        }
-        else
-        {
-            if (recalcIfFail)
-            {
-                // Something is blocking us. Recalculate.
-                path = Body.FindPathTo(wanderTarget.x, wanderTarget.y, Pathfinding.DistanceType.NoCornerCutting);
-            }
-        }
+            // Take the next step.
+            Point nextStep = path[0];
+            Vector2Int nextStepVector = BattleManager.ConvertPoint(nextStep);
 
+            // Is this step valid?
+            if (BattleGrid.instance.IsMoveValid(nextStepVector, Body))
+            {
+                // Take this step.
+                Body.Animation.Move();
+                if (nextStepVector.x > transform.position.x)
+                {
+                    Body.Animation.TurnRight();
+                }
+                else if (nextStepVector.x < transform.position.x)
+                {
+                    Body.Animation.TurnLeft();
+                }
+                Body.MoveToPosition(nextStepVector);
+                path.RemoveAt(0);
+            }
+            else
+            {
+                if (recalcIfFail)
+                {
+                    // Something is blocking us. Recalculate.
+                    path = Body.FindPathTo(wanderTarget.x, wanderTarget.y, Pathfinding.DistanceType.NoCornerCutting);
+                }
+            }
+        }
         return path;
     }
 
