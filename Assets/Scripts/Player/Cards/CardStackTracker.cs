@@ -98,7 +98,7 @@ public class CardStackTracker
         }
         else
         {
-            currentlyResolvingCardId = currentlyResolvingCard.cardHandIndex;
+            currentlyResolvingCardId = currentlyResolvingCard.cardIndex;
         }
             
 
@@ -128,7 +128,7 @@ public class CardStackTracker
 
         Debug.Log("Current Card Hand ID:" + targetedCardID + ", picking card " + targetedCardID);
 
-        if (targetedCardID == currentlyResolvingCard.cardHandIndex || targetedCardID < 0 || targetedCardID >= PlayerController.playerDeck.hand.Count)
+        if (targetedCardID == currentlyResolvingCard.cardIndex || targetedCardID < 0 || targetedCardID >= PlayerController.playerDeck.hand.Count)
         { // Cannot target this card
             return false;
         }

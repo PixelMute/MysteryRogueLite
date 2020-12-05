@@ -21,4 +21,14 @@ public class CardThemeHolder
     {
         CardsInTheme.Add(c);
     }
+
+    public int CountCardsInTheme()
+    {
+        return CardsInTheme.Count;
+    }
+
+    public Card GetRandomCardInTheme()
+    {
+        return CardsInTheme[Random.Range(0, CardsInTheme.Count)];
+    }
 }

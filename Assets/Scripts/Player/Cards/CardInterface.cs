@@ -19,12 +19,12 @@ public class CardInterface : MonoBehaviour, IPointerClickHandler
     private TextMeshProUGUI spiritCostTextField;
     private ParticleFollowPath[] selectionParticleSystems;
 
-    [HideInInspector] public int cardHandIndex; // Index of which card this is
+    [HideInInspector] public int cardIndex; // Index of which card this is, in either inventory or hand.
 
     [HideInInspector] public bool isHighlighted = false;
 
     // Indicates where on the ui this card is.
-    public enum CardInterfaceLocations { hand, cardView, cardReward, tooltip };
+    public enum CardInterfaceLocations { hand, cardView, cardReward, tooltip, inventory };
     private CardInterfaceLocations location;
 
     private void Awake()
@@ -85,10 +85,13 @@ public class CardInterface : MonoBehaviour, IPointerClickHandler
         switch (location)
         {
             case CardInterfaceLocations.hand:
-                BattleManager.player.puim.CardInHandClicked(cardHandIndex);
+                BattleManager.player.puim.CardInHandClicked(cardIndex);
                 break;
             case CardInterfaceLocations.cardReward:
                 BattleManager.player.TriggerCardReward(cardData);
+                break;
+            case CardInterfaceLocations.inventory:
+                BattleManager.player.puim.CardInInventoryClicked(cardIndex);
                 break;
             default:
                 return;

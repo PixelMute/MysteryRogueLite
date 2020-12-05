@@ -168,15 +168,30 @@ namespace Roguelike
     public class DrawCards : IEffect
     {
         public int Number { get; private set; }
+        public IEffect EffectVal { get; private set; } = null;
 
         public DrawCards(int number)
         {
             Number = number;
         }
 
+        public DrawCards(IEffect number)
+        {
+            EffectVal = number;
+        }
+
         public int Activate(Vector2Int player, Vector2Int target)
         {
-            for (int i = 0; i < Number; i++)
+            int cardDrawAmount;
+
+            if (EffectVal == null)
+                cardDrawAmount = Number;
+            else
+                cardDrawAmount = EffectVal.Activate(player, target);
+
+            Debug.Log("Drawing " + cardDrawAmount + " cards.");
+
+            for (int i = 0; i < cardDrawAmount; i++)
             {
                 BattleManager.player.DrawCard();
             }
@@ -366,7 +381,7 @@ namespace Roguelike
     // Gets some value about the player and returns it in the activation effect.
     public class GetPlayerValue : IEffect
     {
-        public enum GetPlayerValueEnum { cardsInHand, cardsInDraw, cardsInDiscard, cardsInBanish, health};
+        public enum GetPlayerValueEnum { cardsInHand, cardsInDraw, cardsInDiscard, cardsInBanish, health, energy};
         public GetPlayerValueEnum TargetedVal { get; private set; }
 
         public GetPlayerValue(GetPlayerValueEnum tar)
@@ -388,6 +403,9 @@ namespace Roguelike
                     return PlayerController.playerDeck.banishPile.Count;
                 case GetPlayerValueEnum.health:
                     return BattleManager.player.Health;
+                case GetPlayerValueEnum.energy:
+                    Debug.Log("Energy gaN");
+                    return BattleManager.player.CurrentEnergy;
                 default:
                     return 0;
             }
@@ -439,6 +457,34 @@ namespace Roguelike
                 sum += LoopedEffect.Activate(player, target);
             }
             return sum;
+        }
+    }
+
+    public class GainSpirit : IEffect
+    {
+        public int StaticVal { get; set; } = -1;
+        public IEffect DamageFromEffect { get; set; } = null; // Get the value from this effect.
+        // Only the player has spirit, so there's no targeting.
+
+        public GainSpirit(int staticVal)
+        {
+            StaticVal = staticVal;
+        }
+        public GainSpirit(IEffect effect)
+        {
+            DamageFromEffect = effect;
+        }
+
+        public int Activate(Vector2Int player, Vector2Int target)
+        {
+            int value;
+            if (DamageFromEffect != null) // Use value from this effect
+                value = DamageFromEffect.Activate(player, target);
+            else // Use static value
+                value = StaticVal;
+
+            BattleManager.player.GainSpirit(value);
+            return 1;
         }
     }
 

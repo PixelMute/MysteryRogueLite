@@ -208,6 +208,7 @@
 </effects>
 <minrange val="0"/>
 <maxrange val="0"/>
+<theme>Impundulu</theme>
 <playconditions>
 </playconditions>
 <prompts><momentum/></prompts>
@@ -1098,6 +1099,164 @@
 	<needsLOS/>
 </playconditions>
 <flavor>All that I am, is here.</flavor>
+</card>
+
+
+
+
+
+
+
+<!--Hanafuda Cards-->
+<!--Hanafuda Cards-->
+<!--Hanafuda Cards-->
+<!--Hanafuda Cards-->
+
+<!--Card1001:Kasu-->
+<card>
+<id val="1001"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Kasu</name>
+<description>Heal yourself for 2 health per card in hand.</description>
+<effects>
+	<heal selftar="true">
+		<getplayerval tar="hand"/>
+	</heal>
+	<heal selftar="true">
+		<getplayerval tar="hand"/>
+	</heal>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+</playconditions>
+<flavor>Value in the valueless.</flavor>
+</card>
+
+<!--Card1002:Tane-->
+<card>
+<id val="1002"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Tane</name>
+<description>Regain 5% spirit.</description>
+<effects>
+	<gainSpirit val="50"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+</playconditions>
+<flavor>Seeds of greatness.</flavor>
+</card>
+
+<!--Card1003:Akatan-->
+<card>
+<id val="1003"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Akatan</name>
+<description>Gain Momentum 10.</description>
+<effects>
+	<applystatuseffect status="momentum" power="10" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+</playconditions>
+<prompts><momentum/></prompts>
+<flavor>The summer grasses;&lt;br&gt;All that remains&lt;br&gt;Of warriors' dreams.</flavor>
+</card>
+
+<!--Card1004:Aotan-->
+<card>
+<id val="1004"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Aotan</name>
+<description>Gain Insight 2.</description>
+<effects>
+	<applystatuseffect status="insight" power="2" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+</playconditions>
+<prompts><insight/></prompts>
+<flavor>Oh, Matsuyama.&lt;br&gt;Higher than autumn,&lt;br&gt;The castle tower.</flavor>
+</card>
+
+<!--Card1005:Inoshikachō-->
+<card>
+<id val="1005"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Inoshikachō</name>
+<description>Move to targeted tile. Draw a card. Range 1-2.</description>
+<effects>
+	<teleport/>
+	<drawcards val="1"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>Hanafuda</theme>
+<playconditions>
+	<emptyTile/>
+	<needsLOS/>
+</playconditions>
+<prompts><move/></prompts>
+<flavor>The grace of the wilds.</flavor>
+</card>
+
+<!--Card1006:Gokō-->
+<card>
+<id val="1006"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Gokō</name>
+<description>Deal 5 damage five times. Range 2-3.</description>
+<effects>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+</effects>
+<minrange val="2"/>
+<maxrange val="3"/>
+<theme>Hanafuda</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+<flavor>Five shining strikes.</flavor>
+</card>
+
+<!--Card1007:Tsukimi-zake-->
+<card>
+<id val="1007"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Tsukimi-zake</name>
+<description>Draw one card per energy you have.</description>
+<effects>
+	<drawcards>
+		<getplayerval tar="energy"/>
+	</drawcards>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+<flavor>A chance to gaze over the moonlit sky.</flavor>
 </card>
 
 </cardList>

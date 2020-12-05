@@ -45,35 +45,6 @@ public class CardFactory
         CreateCardDictionaryXML();
     }
 
-    //Creates the dictionary to store the cards in memory
-    private static void CreateCardDictionary(CsvReader csv)
-    {
-        CardDictionary = new Dictionary<string, Card>();
-        csv.Read();
-        csv.ReadHeader();
-        while (csv.Read())
-        {
-            var cardInfo = new CardInfo()
-            {
-                ID = csv.GetField<int>("ID"),
-                SpiritCost = csv.GetField<int>("SpiritCost"),
-                EnergyCost = csv.GetField<int>("EnergyCost"),
-                Name = csv.GetField<string>("Name"),
-                Description = csv.GetField<string>("Description"),
-            };
-            var effectString = csv.GetField<string>("Effects");
-            var effectList = EffectFactory.GetListOfEffectsFromString(effectString);
-            var minRange = csv.GetField<int>("MinRange");
-            var maxRange = csv.GetField<int>("MaxRange");
-
-            var conditions = RangeFactory.GetPlayConditionsFromString(csv.GetField<string>("PlayConditions"));
-            var range = new Range(conditions, minRange, maxRange);
-            var card = new Card(cardInfo, range, effectList);
-            //Debug.Log("Adding card: " + cardInfo.Name.ToLower());
-            CardDictionary.Add(cardInfo.Name.ToLower(), card);
-        }
-    }
-
     public static void CreateCardDictionaryXML()
     {
         CardDictionary = new Dictionary<string, Card>();
@@ -94,15 +65,15 @@ public class CardFactory
                 // If that theme already exists, add it.
                 if (newCard.CardInfo.ThemeName != null)
                 {
-                    if (ThemeDictionary.TryGetValue(newCard.CardInfo.ThemeName, out CardThemeHolder cth))
+                    if (ThemeDictionary.TryGetValue(newCard.CardInfo.ThemeName.ToLower(), out CardThemeHolder cth))
                         cth.AddCardToTheme(newCard);
                     else
                     {
                         // Theme does not exist. Add a new theme.
                         Debug.Log("Adding a new theme called " + newCard.CardInfo.ThemeName + " for card named " + newCard.CardInfo.Name);
-                        CardThemeHolder newTheme = new CardThemeHolder(newCard.CardInfo.ThemeName);
+                        CardThemeHolder newTheme = new CardThemeHolder(newCard.CardInfo.ThemeName.ToLower());
                         newTheme.AddCardToTheme(newCard);
-                        ThemeDictionary.Add(newTheme.ThemeName, newTheme);
+                        ThemeDictionary.Add(newTheme.ThemeName.ToLower(), newTheme);
                     }
                 }
             }
@@ -307,6 +278,8 @@ public class CardFactory
                 return ParseGetPlayerValue(effect);
             case "loopeffect":
                 return ParseLoopEffect(effect);
+            case "gainspirit":
+                return ParseGainSpirit(effect);
             default:
                 Debug.LogWarning("Unknown card effect with the name " + effect.Name);
                 return null;
@@ -357,10 +330,15 @@ public class CardFactory
 
     private static IEffect ParseDrawCards(XmlNode effectNode)
     {
+
         if (!int.TryParse(effectNode.Attributes["val"]?.Value, out int num))
         {
-            Debug.LogWarning("No value 'val' found for this drawcards node. Using default value.");
-            num = 1;
+            XmlNodeList subnodes = effectNode.ChildNodes;
+            if (subnodes == null || subnodes.Count != 1)
+            {
+                throw new Exception("CardFactory::ParseDrawCards(" + effectNode.Name + ") -- Wrong number of subeffects. Wanted 1.");
+            }
+            return new DrawCards(ParseSingleEffect(subnodes[0]));
         }
         return new DrawCards(num);
     }
@@ -541,7 +519,7 @@ public class CardFactory
             XmlNodeList subnodes = effect.ChildNodes;
             if (subnodes == null || subnodes.Count != 1)
             {
-               throw new Exception("CardFactory::ParseVarCompareOp(" + effect.Name + ") -- Wrong number of subeffects. Wanted 1.");
+               throw new Exception("CardFactory::ParseHeal(" + effect.Name + ") -- Wrong number of subeffects. Wanted 1.");
             }
 
             return new Heal(ParseSingleEffect(subnodes[0]), selfTar);
@@ -629,7 +607,7 @@ public class CardFactory
         return new GetStatusEffectVal(res, selfTar);
     }
 
-    // <getplayervalue tar="banishcount"/>
+    // <getplayerval tar="banishcount"/>
     private static IEffect ParseGetPlayerValue(XmlNode effect)
     {
         GetPlayerValue.GetPlayerValueEnum target;
@@ -662,6 +640,9 @@ public class CardFactory
                 case "health":
                 case "hp":
                     target = GetPlayerValue.GetPlayerValueEnum.health;
+                    break;
+                case "energy":
+                    target = GetPlayerValue.GetPlayerValueEnum.energy;
                     break;
                 default:
                     Debug.LogWarning("Unknown value " + tarString + " for attribute 'tar' in this getplayervalue node. Using default.");
@@ -706,6 +687,29 @@ public class CardFactory
         }
     }
 
+    //<gainSpirit val="11">
+    // <effectA/> (if you don't have a const)
+    // </gainSpirit>
+    private static IEffect ParseGainSpirit(XmlNode effect)
+    {
+        bool usingConst = int.TryParse(effect.Attributes["val"]?.Value, out int cons);
+
+        if (!usingConst)
+        {
+            XmlNodeList subnodes = effect.ChildNodes;
+            if (subnodes == null || subnodes.Count != 1)
+            {
+                throw new Exception("CardFactory::ParseGainSpirit(" + effect.Name + ") -- Wrong number of subeffects. Wanted 1.");
+            }
+
+            return new GainSpirit(ParseSingleEffect(subnodes[0]));
+        }
+        else
+        {
+            return new GainSpirit(cons);
+        }
+    }
+
     #endregion
 
 
@@ -738,6 +742,20 @@ public class CardFactory
             }
         }
         return null;
+    }
+
+    public static CardThemeHolder GetCardTheme(string themeName)
+    {
+        if (ThemeDictionary.ContainsKey(themeName.ToLower()))
+        {
+            return ThemeDictionary[themeName.ToLower()];
+        }
+        return null;
+    }
+
+    public static int GetTotalCards()
+    {
+        return CardDictionary.Count;
     }
 }
 

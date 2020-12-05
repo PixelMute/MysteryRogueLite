@@ -9,6 +9,7 @@ public class Deck
     public List<Card> discardPile;
     public List<Card> hand;
     public List<(Card, int)> banishPile; // Tuples of the card and how many levels it is banished for.
+    public List<Card> inventoryCards; // Single use inventory cards.
 
     public static Deck instance; // Singleton
 
@@ -21,6 +22,7 @@ public class Deck
         discardPile = new List<Card>();
         hand = new List<Card>();
         banishPile = new List<(Card, int)>();
+        inventoryCards = new List<Card>();
     }
 
     public void InsertCardAtEndOfDrawPile(Card cardToInsert)
@@ -130,5 +132,15 @@ public class Deck
                 banishPile.RemoveAt(i);
             }
         }
+    }
+
+    public void AddCardToInventory(Card info)
+    {
+        inventoryCards.Add(info);
+    }
+
+    public void RemoveInventoryCardAtIndex(int index)
+    {
+        inventoryCards.RemoveAt(index);
     }
 }
