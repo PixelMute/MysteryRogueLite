@@ -143,9 +143,13 @@ public class Floor
             }
         }
 
+        //Generates the map twice. Not efficient but lazy and it works
+        GenerateWalkableMap();
+
         SpawnEnemies();
 
         PlacePlayerInDungeon();
+
         GenerateWalkableMap();
     }
 
@@ -187,8 +191,10 @@ public class Floor
                 var x = boss.xPos + i;
                 var z = boss.zPos + j;
                 map[x, z].tileEntityType = Roguelike.Tile.TileEntityType.boss;
+                walkCostsMap[x, z] = map[x, z].GetPathfindingCost();
             }
         }
+        walkGrid.UpdateGrid(walkCostsMap);
     }
 
     private int GetNumberOfEnemiesForFloor()
@@ -470,9 +476,11 @@ public class Floor
                 if (map[i, j].tileEntityType == Roguelike.Tile.TileEntityType.boss)
                 {
                     map[i, j].tileEntityType = Roguelike.Tile.TileEntityType.empty;
+                    walkCostsMap[i, j] = map[i, j].GetPathfindingCost();
                 }
             }
         }
+        walkGrid.UpdateGrid(walkCostsMap);
     }
 }
 

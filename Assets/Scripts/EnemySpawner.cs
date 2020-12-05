@@ -6,6 +6,7 @@ class EnemySpawner : MonoBehaviour
     public GameObject Archer;
     public GameObject Brute;
     public GameObject Boss;
+    public GameObject Minion;
 
 
     public static EnemySpawner Instance;
@@ -20,6 +21,11 @@ class EnemySpawner : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    public static GameObject SpawnMinion(Vector2Int spawnLoc)
+    {
+        return Instance.SpawnEnemy(Instance.Minion, spawnLoc);
     }
 
     public static GameObject SpawnBoss(Vector2Int spawnLoc)

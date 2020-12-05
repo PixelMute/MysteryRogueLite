@@ -1,4 +1,5 @@
 ﻿using Roguelike;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -109,7 +110,7 @@ class TurnManager : MonoBehaviour
 
     private void HandleEnemyTurn()
     {
-        var enemies = BattleGrid.instance.CurrentFloor.enemies;
+        var enemies = new List<EnemyBody>(BattleGrid.instance.CurrentFloor.enemies);
         if (CurrentPhase == TurnPhase.start)
         {
             if (!waiting)

@@ -73,6 +73,10 @@ namespace Roguelike
         {
             if (entityOnTile == null)
             {
+                if (tileEntityType == TileEntityType.boss)
+                {
+                    return 0f;
+                }
                 return 1f; // Empty tile.
             }
             else

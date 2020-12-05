@@ -6,6 +6,7 @@ public class BossBrain : EnemyBrain
 {
     public bool Activated = false;
     public BossRoom BossRoom { get; set; }
+    public float ChanceOfSpawningMinion = .25f;
 
     private EnemyBody Body;
 
@@ -40,8 +41,13 @@ public class BossBrain : EnemyBrain
             //Else move closer to enemy
             else
             {
+                BattleGrid.instance.CurrentFloor.ClearBossTiles();
+
                 List<Point> pathToCombatTarget = Body.FindPathTo(player.xPos, player.zPos, Pathfinding.DistanceType.NoCornerCutting);
                 pathToCombatTarget = TakeStepInPath(pathToCombatTarget, false);
+
+                BattleGrid.instance.CurrentFloor.PlaceBoss(Body);
+
             }
         }
     }
@@ -54,6 +60,7 @@ public class BossBrain : EnemyBrain
             // Take the next step.
             Point nextStep = path[0];
             Vector2Int nextStepVector = BattleManager.ConvertPoint(nextStep);
+
 
             // Is this step valid?
             if (IsMoveValid(nextStepVector))
@@ -85,7 +92,6 @@ public class BossBrain : EnemyBrain
 
     private void MoveTo(Vector2Int location)
     {
-        BattleGrid.instance.CurrentFloor.ClearBossTiles();
         Body.xPos = location.x;
         Body.zPos = location.y;
         BattleGrid.instance.CurrentFloor.PlaceBoss(Body);
@@ -125,7 +131,36 @@ public class BossBrain : EnemyBrain
         {
             Activated = BossRoom.ActivateBoss();
         }
-        return;
+        if (Activated)
+        {
+            if (Random.RandBool(ChanceOfSpawningMinion))
+            {
+                var spawnLoc = MinionSpawnLocations().PickRandom();
+                var minion = EnemySpawner.SpawnMinion(spawnLoc);
+                var body = minion.GetComponent<EnemyBody>();
+                BattleGrid.instance.CurrentFloor.PlaceObjectOn(spawnLoc.x, spawnLoc.y, body);
+                BattleGrid.instance.CurrentFloor.map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
+                BattleGrid.instance.CurrentFloor.enemies.Add(body);
+            }
+        }
+    }
+
+    private List<Vector2Int> MinionSpawnLocations()
+    {
+        var res = new List<Vector2Int>();
+        for (int i = -2; i <= 2; i++)
+        {
+            for (int j = -2; j <= 2; j++)
+            {
+                var x = Body.xPos + i;
+                var y = Body.zPos + j;
+                if (BattleGrid.instance.CurrentFloor.map[x, y].tileEntityType == Roguelike.Tile.TileEntityType.empty)
+                {
+                    res.Add(new Vector2Int(x, y));
+                }
+            }
+        }
+        return res;
     }
 
     public override void SummonForHelp(List<Point> pathToFollow)
@@ -137,6 +172,11 @@ public class BossBrain : EnemyBrain
     public override void OnDeath()
     {
         BattleGrid.instance.CurrentFloor.ClearBossTiles();
+    }
+
+    public override bool IsDoneWithAction()
+    {
+        return Body.Attack.IsAttackDone && (Body.Animation.IsIdle() || Body.Animation.IsMoving());
     }
 }
 
