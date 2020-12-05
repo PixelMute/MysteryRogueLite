@@ -1,4 +1,5 @@
 ﻿using NesScripts.Controls.PathFind;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,11 +9,12 @@ public class BossBrain : EnemyBrain
     public BossRoom BossRoom { get; set; }
     public float ChanceOfSpawningMinion = .25f;
 
-    private EnemyBody Body;
+    private BossBody Body;
+    private bool IsSpawningMinion = false;
 
     public void Awake()
     {
-        Body = GetComponent<EnemyBody>();
+        Body = GetComponent<BossBody>();
     }
 
     public override void ActionPhase()
@@ -21,7 +23,7 @@ public class BossBrain : EnemyBrain
         {
             var player = BattleManager.player;
             //If close enough to attack, then attack
-            if (Body.Attack.IsTargetInRange(BattleManager.ConvertVector(player.transform.position)))
+            if (Body.Melee.IsTargetInRange(BattleManager.ConvertVector(player.transform.position)))
             {
                 var animation = Body.Animation as BossAnimation;
                 if (animation != null)
@@ -122,7 +124,13 @@ public class BossBrain : EnemyBrain
 
     public override void EndOfTurn()
     {
-        return;
+        if (Activated)
+        {
+            if (Random.RandBool(ChanceOfSpawningMinion))
+            {
+                SpawnMinion();
+            }
+        }
     }
 
     public override void StartOfTurn()
@@ -131,18 +139,33 @@ public class BossBrain : EnemyBrain
         {
             Activated = BossRoom.ActivateBoss();
         }
-        if (Activated)
-        {
-            if (Random.RandBool(ChanceOfSpawningMinion))
-            {
-                var spawnLoc = MinionSpawnLocations().PickRandom();
-                var minion = EnemySpawner.SpawnMinion(spawnLoc);
-                var body = minion.GetComponent<EnemyBody>();
-                BattleGrid.instance.CurrentFloor.PlaceObjectOn(spawnLoc.x, spawnLoc.y, body);
-                BattleGrid.instance.CurrentFloor.map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
-                BattleGrid.instance.CurrentFloor.enemies.Add(body);
-            }
-        }
+
+    }
+
+    private void SpawnMinion()
+    {
+        var spawnLoc = MinionSpawnLocations().PickRandom();
+        SpawnMinion(spawnLoc);
+    }
+
+    private void SpawnMinion(Vector2Int spawnLoc)
+    {
+        IsSpawningMinion = true;
+        StartCoroutine(SpawnMinionCoroutine(spawnLoc));
+    }
+
+    IEnumerator SpawnMinionCoroutine(Vector2Int spawnLoc)
+    {
+        Body.Animation.Glowing();
+        Body.Animation.MinionSpawnEffect(spawnLoc);
+        yield return new WaitForSeconds(.25f);
+        var minion = EnemySpawner.SpawnMinion(spawnLoc);
+        var body = minion.GetComponent<EnemyBody>();
+        BattleGrid.instance.CurrentFloor.PlaceObjectOn(spawnLoc.x, spawnLoc.y, body);
+        BattleGrid.instance.CurrentFloor.map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
+        BattleGrid.instance.CurrentFloor.enemies.Add(body);
+        yield return new WaitForSeconds(.75f);
+        IsSpawningMinion = false;
     }
 
     private List<Vector2Int> MinionSpawnLocations()
@@ -176,7 +199,12 @@ public class BossBrain : EnemyBrain
 
     public override bool IsDoneWithAction()
     {
-        return Body.Attack.IsAttackDone && (Body.Animation.IsIdle() || Body.Animation.IsMoving());
+        return Body.Melee.IsAttackDone && (Body.Animation.IsIdle() || Body.Animation.IsMoving());
+    }
+
+    public override bool IsDoneWithEndOfTurn()
+    {
+        return !IsSpawningMinion;
     }
 }
 

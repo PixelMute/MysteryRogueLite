@@ -18,7 +18,7 @@ public class EnemyBody : TileCreature
     public int MaxMoneySpawned = 22;
 
 
-    public void Awake()
+    public virtual void Awake()
     {
         AI = GetComponent<EnemyBrain>();
         EnemyUI = GetComponent<EnemyUI>();

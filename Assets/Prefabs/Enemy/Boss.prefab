@@ -117,6 +117,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Splatter: {fileID: 6511497849312395707}
+  MinionParticleSystem: {fileID: 9126679725265644834, guid: c5a17aa6bc947fd439daa9a369e7ffae,
+    type: 3}
 --- !u!1 &4685347585978527987
 GameObject:
   m_ObjectHideFlags: 0
@@ -130,9 +132,9 @@ GameObject:
   - component: {fileID: 2535026014540561121}
   - component: {fileID: 6376111280425497438}
   - component: {fileID: 4708224225759287368}
-  - component: {fileID: 1779214802309844719}
   - component: {fileID: -7686432410359031548}
   - component: {fileID: 8552328026636344824}
+  - component: {fileID: 8401141407203367179}
   m_Layer: 0
   m_Name: Boss
   m_TagString: Untagged
@@ -214,28 +216,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 20
---- !u!114 &1779214802309844719
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4685347585978527987}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5108af19a0c33d74d8cc218792752b15, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  xPos: 0
-  zPos: 0
-  visionRange: 5
-  TimeToMove: 0.25
-  Animation: {fileID: 1093379184620064269}
-  FadeAwayTime: 5
-  MinMoneySpawned: 10
-  MaxMoneySpawned: 22
-  enemyColor: {r: 0, g: 0, b: 0, a: 0}
-  enemyLineY: 0
 --- !u!114 &-7686432410359031548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,6 +232,7 @@ MonoBehaviour:
   shoutRange: 10
   hearingRange: 8
   Activated: 0
+  ChanceOfSpawningMinion: 0.35
 --- !u!114 &8552328026636344824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266,6 +247,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MaxDamage: 20
   MinDamage: 15
+--- !u!114 &8401141407203367179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4685347585978527987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81e5d59b02f3825428e6820c572e6fef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  xPos: 0
+  zPos: 0
+  visionRange: 5
+  TimeToMove: 0.25
+  Animation: {fileID: 1093379184620064269}
+  FadeAwayTime: 1
+  MinMoneySpawned: 10
+  MaxMoneySpawned: 22
+  enemyColor: {r: 0, g: 0, b: 0, a: 0}
+  enemyLineY: 0
 --- !u!1001 &6158561274722323319
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -26,12 +26,12 @@ public class EnemyAnimation : MonoBehaviour
 
     }
 
-    private bool IsPlayingClip(string clipName)
+    protected bool IsPlayingClip(string clipName)
     {
         var clipInfo = Animator.GetCurrentAnimatorClipInfo(0);
-        if (clipInfo.Length > 0)
+        if (clipInfo?.Length > 0)
         {
-            return clipInfo[0].clip.name == clipName;
+            return clipInfo[0].clip?.name == clipName;
         }
         return false;
     }
