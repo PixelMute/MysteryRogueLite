@@ -14,8 +14,8 @@ public class EnemyBody : TileCreature
     public EnemyBrain AI { get; private set; }
     public EnemyAnimation Animation;
     public float FadeAwayTime = 1f;
-
-    public BloodSplatter Splatter;
+    public int MinMoneySpawned = 10;
+    public int MaxMoneySpawned = 22;
 
 
     public void Start()
@@ -28,10 +28,7 @@ public class EnemyBody : TileCreature
         Attack = GetComponent<Attack>();
     }
 
-    public bool IsDoneWithTurn()
-    {
-        return Attack.IsAttackDone && (Animation.IsIdle() || Animation.IsMoving());
-    }
+
 
     // Stuff for debugging pathfinding
     protected const bool DEBUGPATHFINDINGMODE = true;
@@ -141,7 +138,7 @@ public class EnemyBody : TileCreature
         Animation.Die();
         // Spawn some money
         Debug.Log("Spawning monies");
-        BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int(xPos, zPos), UnityEngine.Random.Range(10, 22));
+        BattleManager.instance.map.SpawnMoneyOnTile(new Vector2Int(xPos, zPos), UnityEngine.Random.Range(MinMoneySpawned, MaxMoneySpawned));
     }
 
     public override void ApplyStatusEffect(BattleManager.StatusEffectEnum status, int amount)

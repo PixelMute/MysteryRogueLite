@@ -15,6 +15,23 @@ public abstract class EnemyBrain : CreatureBrain
 {
     public int shoutRange = 10;
     public int hearingRange = 8;
+    protected bool StartOfTurnOver = true;
+    protected bool ActionPhaseOver = true;
+    protected bool EndOfTurnOver = true;
     public abstract void SummonForHelp(List<Point> pathToFollow);
+    public virtual bool IsDoneWithStart()
+    {
+        return StartOfTurnOver;
+    }
+
+    public virtual bool IsDoneWithAction()
+    {
+        return ActionPhaseOver;
+    }
+
+    public virtual bool IsDoneWithEndOfTurn()
+    {
+        return EndOfTurnOver;
+    }
 }
 

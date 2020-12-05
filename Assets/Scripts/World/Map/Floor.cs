@@ -158,6 +158,11 @@ public class Floor
         {
             var enemyLocation = BattleManager.ConvertVector(enemy.transform.position);
             spawnLocations.Remove(enemyLocation);
+            //If this is the boss
+            if (enemy.AI is BossBrain)
+            {
+
+            }
             map[enemyLocation.x, enemyLocation.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
             PlaceObjectOn(enemyLocation.x, enemyLocation.y, enemy);
         }
@@ -168,6 +173,11 @@ public class Floor
             map[location.x, location.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
             SpawnEnemyAt(location.x, location.y);
         }
+    }
+
+    private void PlaceBoss()
+    {
+
     }
 
     private int GetNumberOfEnemiesForFloor()
@@ -188,14 +198,6 @@ public class Floor
             }
         }
         Level.ClearAllTiles();
-    }
-
-    private void SetEnemyLocation()
-    {
-        Vector2Int spawnLoc = PickRandomEmptyTile();
-        Debug.Log("Placing an enemy");
-        //Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom);
-        map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
     }
 
     private void SetStairsLocation()
@@ -308,8 +310,7 @@ public class Floor
     private void SpawnEnemyAt(int x, int z, string name = "")
     {
         var spawnLoc = new Vector2Int(x, z);
-        var random = new System.Random();
-        var rand = random.Next(1, 4);
+        var rand = Random.Range(1, 4);
         GameObject newEnemy;
         switch (rand)
         {

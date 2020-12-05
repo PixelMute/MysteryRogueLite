@@ -5,6 +5,8 @@ class EnemySpawner : MonoBehaviour
     public GameObject BasicMeleeEnemy;
     public GameObject Archer;
     public GameObject Brute;
+    public GameObject Boss;
+
 
     public static EnemySpawner Instance;
 
@@ -18,6 +20,11 @@ class EnemySpawner : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    public static GameObject SpawnBoss(Vector2Int spawnLoc)
+    {
+        return Instance.SpawnEnemy(Instance.Boss, spawnLoc);
     }
 
     public static GameObject SpawnBrute(Vector2Int spawnLoc)

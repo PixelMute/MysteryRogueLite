@@ -5,6 +5,7 @@ class BasicRangedAttack : Attack
 {
     public int MinDamage;
     public int MaxDamage;
+    public int Range = 3;
     public GameObject Arrow;
     private Arrow _arrow;
 
@@ -20,7 +21,7 @@ class BasicRangedAttack : Attack
     {
         var xPos = transform.position.x;
         var zPos = transform.position.z;
-        return Math.Abs(xPos - target.x) < 3 && Math.Abs(zPos - target.y) < 3;
+        return Math.Abs(xPos - target.x) <= Range && Math.Abs(zPos - target.y) <= Range && BattleGrid.instance.CheckLoS(transform.position, BattleManager.ConvertVector(target, .05f));
     }
 
     public override void ActivateAttack(Vector2Int target)

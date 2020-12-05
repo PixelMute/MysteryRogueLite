@@ -22,12 +22,17 @@ class BasicEnemyAI : EnemyBrain
 
     public override void StartOfTurn()
     {
-        return;
+        StartOfTurnOver = true;
     }
 
     public override void EndOfTurn()
     {
-        return;
+        EndOfTurnOver = true;
+    }
+
+    public override bool IsDoneWithAction()
+    {
+        return Body.Attack.IsAttackDone && (Body.Animation.IsIdle() || Body.Animation.IsMoving());
     }
 
     public override void ActionPhase()

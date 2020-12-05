@@ -4,9 +4,9 @@
     {
         MaxConnections = 16,
         MinWidth = 6,
-        MaxWidth = 12,
+        MaxWidth = 10,
         MinHeight = 6,
-        MaxHeight = 12,
+        MaxHeight = 10,
         RoomType = RoomType.STANDARD,
     })
     { }

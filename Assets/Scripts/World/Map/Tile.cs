@@ -1,12 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 namespace Roguelike
 {
     // The BattleGrid stores a 2d array of these.
     public class Tile
     {
-        public enum TileEntityType { empty, wall, enemy, player };
+        public enum TileEntityType { empty, wall, enemy, player, boss };
         [HideInInspector] public TileEntityType tileEntityType = TileEntityType.empty;
         // This is null if there's nothing here but a floor.
         private TileEntity entityOnTile = null;
@@ -37,7 +35,7 @@ namespace Roguelike
             else if (entityOnTile is PlayerController)
                 tileEntityType = TileEntityType.player;
             //else if (entityOnTile is Stairs)
-                //tileEntityType = ((Stairs)entityOnTile).IsUp ? TileEntityType.stairsUp : TileEntityType.stairsDown;
+            //tileEntityType = ((Stairs)entityOnTile).IsUp ? TileEntityType.stairsUp : TileEntityType.stairsDown;
         }
 
         public void SetItemOnTile(TileItem item)
@@ -78,7 +76,7 @@ namespace Roguelike
                 float mult = 1f; // multiplier from terrain
                 if (terrainOnTile != null)
                     mult = terrainOnTile.GetPathfindingCost();
-                return entityOnTile.GetPathfindingCost() * mult ;
+                return entityOnTile.GetPathfindingCost() * mult;
             }
         }
 

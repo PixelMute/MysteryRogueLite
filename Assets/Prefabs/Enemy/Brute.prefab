@@ -228,7 +228,7 @@ MonoBehaviour:
   enemyCanvasPrefab: {fileID: 3622323348654068701, guid: ad9fb4eb0680ec24687d7506fc03aedd,
     type: 3}
   enemyCanvas: {fileID: 0}
-  yOffsetForCanvas: 1
+  yOffsetForCanvas: 0.75
 --- !u!114 &4708224225759287368
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,6 +260,8 @@ MonoBehaviour:
   TimeToMove: 0.25
   Animation: {fileID: 9152179173733275295}
   FadeAwayTime: 1
+  MinMoneySpawned: 10
+  MaxMoneySpawned: 22
   Splatter: {fileID: 0}
   enemyColor: {r: 0, g: 0, b: 0, a: 0}
   enemyLineY: 0

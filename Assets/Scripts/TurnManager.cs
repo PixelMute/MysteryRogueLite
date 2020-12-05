@@ -1,4 +1,5 @@
 ﻿using Roguelike;
+using System.Linq;
 using UnityEngine;
 
 class TurnManager : MonoBehaviour
@@ -10,6 +11,8 @@ class TurnManager : MonoBehaviour
     private enum TurnPhase { start, action, moving, end };
     public WhoseTurn CurrentTurn { get; private set; } = WhoseTurn.player;
     private TurnPhase CurrentPhase = TurnPhase.start;
+
+    private bool waiting = false;   //Not happy with this solution but its quick
 
     public void Awake()
     {
@@ -109,29 +112,59 @@ class TurnManager : MonoBehaviour
         var enemies = BattleGrid.instance.CurrentFloor.enemies;
         if (CurrentPhase == TurnPhase.start)
         {
-            foreach (var enemy in enemies)
+            if (!waiting)
             {
-                enemy.ProcessTurn();
+                foreach (var enemy in enemies)
+                {
+                    enemy.AI.StartOfTurn();
+                }
+                waiting = true;
             }
 
-            CurrentPhase = TurnPhase.end;
+            if (enemies.All(enemy => enemy.AI.IsDoneWithStart()))
+            {
+                CurrentPhase = TurnPhase.action;
+                waiting = false;
+            }
+        }
+        if (CurrentPhase == TurnPhase.action)
+        {
+            if (!waiting)
+            {
+                foreach (var enemy in enemies)
+                {
+                    enemy.AI.ActionPhase();
+                }
+                waiting = true;
+
+            }
+
+            if (enemies.All(enemy => enemy.AI.IsDoneWithAction()))
+            {
+                CurrentPhase = TurnPhase.end;
+                waiting = false;
+            }
         }
         if (CurrentPhase == TurnPhase.end)
         {
-            foreach (var enemy in enemies)
+            if (!waiting)
             {
-                //If the enemies aren't done attacking, then wait
-                if (!enemy.IsDoneWithTurn())
+                foreach (var enemy in enemies)
                 {
-                    return;
+                    enemy.AI.EndOfTurn();
                 }
+                waiting = true;
             }
-            //Start player's turn right away so there isn't a delay
-            CurrentTurn = WhoseTurn.player;
-            CurrentPhase = TurnPhase.start;
-            if (!BattleGrid.instance.LoadingNewFloor)
+
+            if (enemies.All(enemy => enemy.AI.IsDoneWithEndOfTurn()))
             {
-                HandlePlayerTurn();
+                //Start player's turn right away so there isn't a delay when we are walking
+                CurrentTurn = WhoseTurn.player;
+                CurrentPhase = TurnPhase.start;
+                if (!BattleGrid.instance.LoadingNewFloor)
+                {
+                    HandlePlayerTurn();
+                }
             }
         }
 

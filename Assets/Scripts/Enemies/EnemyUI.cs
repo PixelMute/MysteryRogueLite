@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyUI : MonoBehaviour
 {
@@ -21,7 +16,7 @@ public class EnemyUI : MonoBehaviour
     public void Initialize()
     {
         enemyCanvas = Instantiate(enemyCanvasPrefab, transform);
-        enemyCanvas.transform.position += new Vector3(0, yOffsetForCanvas, 0);
+        enemyCanvas.transform.position += new Vector3(0, 0, yOffsetForCanvas);
         healthBar = enemyCanvas.GetComponentInChildren<HealthBarScript>();
 
         healthBarFade = healthBar.GetComponentsInParent<FadeObjectScript>(true)[0];
