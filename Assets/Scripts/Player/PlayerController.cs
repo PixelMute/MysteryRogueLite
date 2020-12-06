@@ -18,8 +18,8 @@ public class PlayerController : TileCreature
 
     private int cardRedrawAmount = 8; // Redraw up to this number of cards.
     private int maxHandSize = 12;
-    private int maxTurnsUntilDraw = 2; // Draw a card every X turns.
-    private int turnsUntilDraw = 2;
+    private int maxTurnsUntilDraw = 1; // Draw a card every X turns.
+    private int turnsUntilDraw = 1;
 
     // Resources
     private int currentEnergy;
@@ -200,7 +200,7 @@ public class PlayerController : TileCreature
                 {
                     // Failed
                     turnsUntilDraw = 1; // Cannot draw.
-                    puim.SetTurnsUntilDrawText(1);
+                    puim.SetTurnsUntilDrawText(turnsUntilDraw);
                     return;
                 }
                 turnsUntilDraw = maxTurnsUntilDraw;

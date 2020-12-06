@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 
 public class BossLevel : Level
 {
+    public BossRoom BossRoom;
     public BossLevel(Tilemap terrain, DecorativeTileMap decorativeTileMap) : base(terrain, decorativeTileMap) { }
 
     protected override Builder GetBuilder()
@@ -12,6 +13,7 @@ public class BossLevel : Level
         {
             BossRoom = new BossRoom()
         };
+        BossRoom = res.BossRoom;
         return res;
     }
 
@@ -23,11 +25,11 @@ public class BossLevel : Level
         rooms.Add(Entrance);
         rooms.Add(Exit);
 
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < 2; i++)
         {
             rooms.Add(new StandardRoom());
         }
-        rooms.Add(new LargeSqaureRoom());
+        //rooms.Add(new LargeSqaureRoom());
         rooms.Add(new CoinRoom());
         //for (int i = 0; i < 2; i++)
         //{
@@ -51,6 +53,11 @@ public class BossLevel : Level
             }
         }
         return res;
+    }
+
+    public void LockBossRoom()
+    {
+
     }
 }
 

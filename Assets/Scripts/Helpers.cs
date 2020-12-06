@@ -5,16 +5,23 @@ using UnityEngine;
 
 public static class Helpers
 {
-    public static void DrawDebugLine(int x, int z)
+    public static float GetAngleBetween(Vector3 one, Vector3 two)
+    {
+        var angle = ((float)Mathf.Atan2(one.z - two.z, one.x - two.x) * 180 / Mathf.PI) % 360;
+        return angle < 0 ? angle + 360 : angle;
+    }
+    public static void DrawDebugLine(float x, float z)
     {
         var rng = UnityEngine.Random.ColorHSV();
         DrawDebugLine(x, z, rng);
     }
 
-    public static void DrawDebugLine(int x, int z, Color color)
+    public static void DrawDebugLine(float x, float z, Color color)
     {
         UnityEngine.Debug.DrawLine(new Vector3(x, 0, z), new Vector3(x, 10, z), color, 1000f);
     }
+
+
 
     public static T PickRandom<T>(this List<T> source)
     {

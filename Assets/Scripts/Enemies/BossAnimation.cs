@@ -41,6 +41,11 @@ class BossAnimation : EnemyAnimation
         Animator.Play("OutOfRock");
     }
 
+    public void LaserCast()
+    {
+        Animator.Play("LaserCast");
+    }
+
     public void MinionSpawnEffect(Vector2Int location)
     {
         minionEffect = Instantiate(MinionParticleSystem, BattleManager.ConvertVector(location, 0), Quaternion.identity).GetComponent<ParticleSystem>();

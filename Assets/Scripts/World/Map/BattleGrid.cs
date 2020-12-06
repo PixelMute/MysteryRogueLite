@@ -92,7 +92,7 @@ public class BattleGrid : MonoBehaviour
 
     public void GoDownFloor()
     {
-        if (floorManager.CurrentFloorNumber + 1 == 5)
+        if (floorManager.CurrentFloorNumber + 1 == FloorManager.WinningFloorNumber)
         {
             GameOverScreen.PlayerWon();
             return;
@@ -320,6 +320,19 @@ public class BattleGrid : MonoBehaviour
             // Now we need to check if we're moving diagonal.
             int xDir = mover.xPos - tileLoc.x;
             int zDir = mover.zPos - tileLoc.y;
+
+            if (CurrentFloor.Level is BossLevel)
+            {
+                var bossRoom = ((BossLevel)CurrentFloor.Level).BossRoom;
+                if (bossRoom != null && bossRoom.IsInsideRoom(tileLoc))
+                {
+                    if (!bossRoom.IsEntityAllowedIn(mover))
+                    {
+                        return false;
+                    }
+                }
+            }
+
 
             if (xDir * zDir != 0 && !(CurrentFloor.map[mover.xPos, tileLoc.y].GetPlayerWalkability() && CurrentFloor.map[tileLoc.x, mover.zPos].GetPlayerWalkability())) // Both are non-zero
                 return false;

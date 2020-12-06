@@ -3,6 +3,7 @@
 class BossBody : EnemyBody
 {
     public BossMeleeAttack Melee { get; set; }
+    public BossLaserAttack LaserAttack { get; set; }
     public bool Invincible { get; set; } = false;
     public new BossAnimation Animation
     {
@@ -28,6 +29,7 @@ class BossBody : EnemyBody
     {
         base.Awake();
         Melee = GetComponent<BossMeleeAttack>();
+        LaserAttack = GetComponent<BossLaserAttack>();
     }
 
     public override int TakeDamage(Vector2Int locationOfAttack, int amount)

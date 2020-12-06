@@ -8,6 +8,7 @@ using UnityEngine.Tilemaps;
 
 public class FloorManager
 {
+    public const int WinningFloorNumber = 2;
     public int CurrentFloorNumber { get; private set; } = 0;
     public List<Floor> AllFloors { get; private set; } = new List<Floor>();
     public Floor CurrentFloor { get; private set; }
@@ -16,7 +17,16 @@ public class FloorManager
     {
         Painter.LoadTiles();
         //CurrentFloor = GenerateRandomFloor(CurrentFloorNumber);
-        CurrentFloor = new Floor(new BossLevel(BattleGrid.instance.tileMap, BattleGrid.instance.DecorativeTileMap), CurrentFloorNumber, 0);
+        Level level;
+        if (CurrentFloorNumber == WinningFloorNumber - 1)
+        {
+            level = new BossLevel(BattleGrid.instance.tileMap, BattleGrid.instance.DecorativeTileMap);
+        }
+        else
+        {
+            level = new Level(BattleGrid.instance.tileMap, BattleGrid.instance.DecorativeTileMap);
+        }
+        CurrentFloor = new Floor(level, CurrentFloorNumber, 0);
         AllFloors.Append(CurrentFloor);
         CurrentFloor.BuildFloor();
         CurrentFloor.InstantiateFloor();
@@ -208,7 +218,7 @@ public class Floor
         {
             for (int j = 0; j < sizeZ; j++)
             {
-                if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.player)
+                if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.player && map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.boss)
                 {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetEntityOnTile()?.gameObject);
                 }
@@ -367,10 +377,20 @@ public class Floor
     }
 
     // Spawns a wall at this location for the corresponding Tile in the array.
-    private void SpawnWallAt(int x, int z)
+    public void SpawnWallAt(int x, int z)
     {
         var entityTile = BattleGrid.instance.SpawnWall(x, z);
         PlaceObjectOn(x, z, entityTile);
+    }
+
+    public void DestroyWallAt(int x, int z)
+    {
+        var entity = map[x, z].GetEntityOnTile();
+        if (entity is Wall)
+        {
+            UnityEngine.Object.Destroy(entity.gameObject);
+        }
+        map[x, z].SetEntityOnTile(null);
     }
 
     /// <summary>

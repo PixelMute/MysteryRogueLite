@@ -1,4 +1,5 @@
 ﻿using NesScripts.Controls.PathFind;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,36 +28,92 @@ public class BossBrain : EnemyBrain
         if (Activated && !Body.Invincible)
         {
             var player = BattleManager.player;
-            //If close enough to attack, then attack
+
+            if (Body.LaserAttack.IsTargetInRange(BattleManager.ConvertVector(player.transform.position)) && Random.RandBool(.4f))
+            {
+                LaserAttack();
+                return;
+            }
+            if (Random.RandBool(.33f))
+            {
+                if (SpawnMinionAttack())
+                {
+                    return;
+                }
+            }
             if (Body.Melee.IsTargetInRange(BattleManager.ConvertVector(player.transform.position)))
             {
-                var animation = Body.Animation as BossAnimation;
-                if (animation != null)
-                {
-                    animation.Melee();
-                }
-                if (player.transform.position.x > transform.position.x)
-                {
-                    Body.Animation.TurnRight();
-                }
-                else if (player.transform.position.x < transform.position.x)
-                {
-                    Body.Animation.TurnLeft();
-                }
-                Body.Attack.ActivateAttack(BattleManager.ConvertVector(player.transform.position));
+                MeleeAttack();
             }
-            //Else move closer to enemy
             else
             {
-                BattleGrid.instance.CurrentFloor.ClearBossTiles();
-
-                List<Point> pathToCombatTarget = Body.FindPathTo(player.xPos, player.zPos, Pathfinding.DistanceType.NoCornerCutting);
-                pathToCombatTarget = TakeStepInPath(pathToCombatTarget, false);
-
-                BattleGrid.instance.CurrentFloor.PlaceBoss(Body);
-
+                MoveCloserToPlayer();
             }
         }
+    }
+
+    private bool SpawnMinionAttack()
+    {
+        var playerLocation = BattleManager.ConvertVector(BattleManager.player.transform.position);
+        var spawnLocations = new List<Vector2Int>();
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                var tile = BattleGrid.instance.CurrentFloor.map[playerLocation.x + i, playerLocation.y + j];
+                if (tile.tileEntityType == Roguelike.Tile.TileEntityType.empty)
+                {
+                    spawnLocations.Add(new Vector2Int(playerLocation.x + i, playerLocation.y + j));
+                }
+            }
+        }
+        if (spawnLocations.Count < 2)
+        {
+            return false;
+        }
+        SpawnWaveOfMinions(2, spawnLocations, true);
+        return true;
+    }
+
+    private void LaserAttack()
+    {
+        Body.Animation.LaserCast();
+        Body.LaserAttack.ActivateAttack(BattleManager.ConvertVector(BattleManager.player.transform.position));
+    }
+
+    private void MeleeAttack()
+    {
+        var player = BattleManager.player;
+
+        if (Body.Melee.IsTargetInRange(BattleManager.ConvertVector(player.transform.position)))
+        {
+            var animation = Body.Animation as BossAnimation;
+            if (animation != null)
+            {
+                animation.Melee();
+            }
+            if (player.transform.position.x > transform.position.x)
+            {
+                Body.Animation.TurnRight();
+            }
+            else if (player.transform.position.x < transform.position.x)
+            {
+                Body.Animation.TurnLeft();
+            }
+            Body.Attack.ActivateAttack(BattleManager.ConvertVector(player.transform.position));
+        }
+    }
+
+    private void MoveCloserToPlayer()
+    {
+        var player = BattleManager.player;
+
+        BattleGrid.instance.CurrentFloor.ClearBossTiles();
+
+        List<Point> pathToCombatTarget = Body.FindPathTo(player.xPos, player.zPos, Pathfinding.DistanceType.NoCornerCutting);
+        pathToCombatTarget = TakeStepInPath(pathToCombatTarget, false);
+
+        BattleGrid.instance.CurrentFloor.PlaceBoss(Body);
     }
 
     // Takes the next step in a list of points and returns the same list, minus the point at index 0 if successful
@@ -173,11 +230,16 @@ public class BossBrain : EnemyBrain
             var tile = BattleGrid.instance.CurrentFloor.map[spawnLoc.x, spawnLoc.y];
             return tile.tileEntityType != Roguelike.Tile.TileEntityType.empty;
         });
-        for (int i = 0; i < numMinions; i++)
+        SpawnWaveOfMinions(numMinions, spawnLocations);
+    }
+
+    private void SpawnWaveOfMinions(int numMinions, List<Vector2Int> spawnLocations, bool glowing = false)
+    {
+        for (int i = 0; i < Math.Min(numMinions, spawnLocations.Count); i++)
         {
             var spawnLoc = spawnLocations.PickRandom();
             spawnLocations.Remove(spawnLoc);
-            SpawnMinion(spawnLoc, false);
+            SpawnMinion(spawnLoc, glowing);
         }
     }
 
@@ -246,11 +308,12 @@ public class BossBrain : EnemyBrain
                 enemies[i].Eliminate();
             }
         }
+        ((BossLevel)BattleGrid.instance.CurrentFloor.Level).BossRoom.UnlockRoom();
     }
 
     public override bool IsDoneWithAction()
     {
-        return Body.Melee.IsAttackDone && (Body.Animation.IsIdle() || Body.Animation.IsMoving() || Body.Invincible);
+        return Body.Melee.IsAttackDone && Body.LaserAttack.IsAttackDone && !IsSpawningMinion && (Body.Animation.IsIdle() || Body.Animation.IsMoving() || Body.Invincible);
     }
 
     public override bool IsDoneWithEndOfTurn()

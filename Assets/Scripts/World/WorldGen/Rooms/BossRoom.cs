@@ -7,10 +7,10 @@ public class BossRoom : Room
     public BossRoom() : base(new RoomInfo()
     {
         MaxConnections = 2,
-        MinWidth = 15,
-        MaxWidth = 15,
-        MinHeight = 15,
-        MaxHeight = 15,
+        MinWidth = 13,
+        MaxWidth = 13,
+        MinHeight = 13,
+        MaxHeight = 13,
         RoomType = RoomType.BOSS,
     })
     { }
@@ -50,14 +50,67 @@ public class BossRoom : Room
         if (x >= Bounds.Left + 1 && x <= Bounds.Right - 2 && z <= Bounds.Top - 2 && z >= Bounds.Bottom + 1)
         {
             Debug.Log("Activating boss");
+
+            var level = BattleGrid.instance.CurrentFloor.Level as BossLevel;
+            if (level != null)
+            {
+                base.Paint(level);
+                foreach (var connection in ConnectionPoints.Values)
+                {
+                    var i = connection.x == Bounds.Right ? connection.x - 1 : connection.x;
+                    var j = connection.y == Bounds.Top ? connection.y - 1 : connection.y;
+                    BattleGrid.instance.CurrentFloor.SpawnWallAt(i, j);
+                }
+            }
+
             return true;
         }
         return false;
+    }
+
+    public void UnlockRoom()
+    {
+        var level = BattleGrid.instance.CurrentFloor.Level as BossLevel;
+        if (level != null)
+        {
+            base.Paint(level);
+            base.PaintDoors(level);
+            foreach (var connection in ConnectionPoints.Values)
+            {
+                var x = connection.x == Bounds.Right ? connection.x - 1 : connection.x;
+                var y = connection.y == Bounds.Top ? connection.y - 1 : connection.y;
+                BattleGrid.instance.CurrentFloor.DestroyWallAt(x, y);
+            }
+        }
+    }
+
+    public bool IsInsideRoom(Vector2Int location)
+    {
+        return location.x >= Bounds.Left && location.x <= Bounds.Right - 1 && location.y >= Bounds.Bottom && location.y <= Bounds.Top - 1;
+    }
+
+    public bool IsEntityAllowedIn(TileEntity entity)
+    {
+        //Only entities allowed are boss, minion and player
+        if (entity is BossBody)
+        {
+            return true;
+        }
+        if (entity is EnemyBody)
+        {
+            if (((EnemyBody)entity).AI is MinionBrain)
+            {
+                return true;
+            }
+        }
+        return entity is PlayerController;
     }
 
     private Vector2Int GetBossSpawnLocation()
     {
         return new Vector2Int(Bounds.Left + Bounds.Width / 2, Bounds.Bottom + Bounds.Height / 2);
     }
+
+
 }
 

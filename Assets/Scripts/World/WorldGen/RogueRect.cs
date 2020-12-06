@@ -61,7 +61,7 @@ public class RogueRect
     /// <param name="y">Y coodinate of the new center</param>
     public void SetCenter(int x, int y)
     {
-        Set(x - Width / 2, x + Width / 2, y - Height / 2, y + Height / 2);
+        Set(x - Width / 2, x + Width / 2 + (Width % 2 == 0 ? 0 : 1), y - Height / 2, y + Height / 2 + (Height % 2 == 0 ? 0 : 1));
     }
 
     /// <summary>

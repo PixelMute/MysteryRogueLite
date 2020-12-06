@@ -23,7 +23,7 @@ public class Arrow : MonoBehaviour
         }
         //Once we are close enough, activate the effect and destroy object
         effect(target);
-        Destroy(this.gameObject);
+        Destroy(gameObject);
     }
 
     public float GetAngleToTarget(Vector2Int target)

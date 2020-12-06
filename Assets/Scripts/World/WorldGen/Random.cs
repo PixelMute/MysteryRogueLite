@@ -52,6 +52,10 @@ public static class Random
     /// <returns></returns>
     public static int Range(int min, int max)
     {
+        if (min == max)
+        {
+            return min;
+        }
         return rand.Next(min, max);
     }
 
