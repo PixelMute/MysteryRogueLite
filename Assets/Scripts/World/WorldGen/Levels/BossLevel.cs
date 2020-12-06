@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class BossLevel : Level
@@ -33,6 +34,23 @@ public class BossLevel : Level
         //    rooms.Add(new SpecialRoom());
         //}
         return rooms;
+    }
+
+    public override List<Vector2Int> GetPossibleSpawnLocations()
+    {
+        var res = new List<Vector2Int>();
+        foreach (var room in Rooms)
+        {
+            if (room != Exit)   //Don't spawn enemies in the exit room on boss levels
+            {
+                var roomLocations = room.GetPossibleSpawnLocations(this);
+                if (roomLocations != null)
+                {
+                    res.AddRange(roomLocations);
+                }
+            }
+        }
+        return res;
     }
 }
 

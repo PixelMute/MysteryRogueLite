@@ -113,7 +113,7 @@ public class Level
         Decorations.ClearAllTiles();
     }
 
-    public List<Vector2Int> GetPossibleSpawnLocations()
+    public virtual List<Vector2Int> GetPossibleSpawnLocations()
     {
         var res = new List<Vector2Int>();
         foreach (var room in Rooms)
@@ -127,7 +127,7 @@ public class Level
         return res;
     }
 
-    public List<EnemyBody> GetRequiredEnemies()
+    public virtual List<EnemyBody> GetRequiredEnemies()
     {
         var res = new List<EnemyBody>();
         foreach (var room in Rooms)
