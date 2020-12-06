@@ -16,6 +16,7 @@ public class BossBrain : EnemyBrain
     public bool HasBeenInvincible = false;
     public int InvincibleTurns = 15;
     public int NumberMinionsInWave = 10;
+    public int HealthRegainedWhileInvulnerable = 2;
     private int InvincibleTurnsLeft;
 
     public void Awake()
@@ -196,6 +197,7 @@ public class BossBrain : EnemyBrain
                     Body.Invincible = false;
                 }
                 InvincibleTurnsLeft--;
+                Body.Health.Heal(HealthRegainedWhileInvulnerable);
             }
             else
             {
@@ -219,6 +221,13 @@ public class BossBrain : EnemyBrain
             Body.Animation.BecomeInvincible();
             Body.Invincible = true;
             SpawnWaveOfMinions(NumberMinionsInWave);
+        }
+        else if (!Body.Invincible && Body.Health.CurrentHealth <= Body.Health.MaxHealth / 2 && Random.RandBool(.2f))
+        {
+            Body.Animation.BecomeInvincible();
+            Body.Invincible = true;
+            SpawnWaveOfMinions(NumberMinionsInWave);
+            InvincibleTurns = InvincibleTurnsLeft;
         }
     }
 
@@ -275,12 +284,12 @@ public class BossBrain : EnemyBrain
     private List<Vector2Int> MinionSpawnLocations()
     {
         var res = new List<Vector2Int>();
-        for (int i = -2; i <= 2; i++)
+        for (int i = -1; i <= 1; i++)
         {
-            for (int j = -2; j <= 2; j++)
+            for (int j = -1; j <= 1; j++)
             {
-                var x = Body.xPos + i;
-                var y = Body.zPos + j;
+                var x = BattleManager.player.xPos + i;
+                var y = BattleManager.player.zPos + j;
                 if (BattleGrid.instance.CurrentFloor.map[x, y].tileEntityType == Roguelike.Tile.TileEntityType.empty)
                 {
                     res.Add(new Vector2Int(x, y));

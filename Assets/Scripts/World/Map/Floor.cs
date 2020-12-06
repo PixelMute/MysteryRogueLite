@@ -18,6 +18,8 @@ public class FloorManager
         Painter.LoadTiles();
         //CurrentFloor = GenerateRandomFloor(CurrentFloorNumber);
         Level level;
+        BattleGrid.instance.tileMap.ClearAllTiles();
+        BattleGrid.instance.DecorativeTileMap.Clear();
         if (CurrentFloorNumber == WinningFloorNumber - 1)
         {
             level = new BossLevel(BattleGrid.instance.tileMap, BattleGrid.instance.DecorativeTileMap);

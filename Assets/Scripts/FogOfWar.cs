@@ -43,6 +43,7 @@ public class FogOfWar : MonoBehaviour
 
     public void Initialize()
     {
+        TileMap.ClearAllTiles();
         SizeX = BattleGrid.instance.CurrentFloor.sizeX + NumExtraTiles;
         SizeZ = BattleGrid.instance.CurrentFloor.sizeZ + NumExtraTiles;
         for (int i = -NumExtraTiles / 2; i < SizeX - (NumExtraTiles / 2); i++)

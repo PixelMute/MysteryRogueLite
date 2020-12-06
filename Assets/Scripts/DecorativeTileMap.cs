@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class DecorativeTileMap : MonoBehaviour
@@ -7,7 +8,12 @@ public class DecorativeTileMap : MonoBehaviour
     public Tile LadderDown;
     public GameObject Torch;
     public GameObject SideTorch;
+    private List<GameObject> torches;
 
+    public void Awake()
+    {
+        torches = new List<GameObject>();
+    }
 
     public void PaintStairs(Vector3Int stairsLocation)
     {
@@ -17,11 +23,15 @@ public class DecorativeTileMap : MonoBehaviour
     public void Clear()
     {
         TileMap.ClearAllTiles();
+        for (int i = torches.Count - 1; i >= 0; i--)
+        {
+            Destroy(torches[i]);
+        }
     }
 
     public void SpawnTorch(int x, int y)
     {
-        Instantiate(Torch, new Vector3(x, .01f, y), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
+        torches.Add(Instantiate(Torch, new Vector3(x, .01f, y), Quaternion.Euler(new Vector3(90, 0, 0)), transform));
     }
 
     public void SpawnSideTorch(int x, int y, bool facingRight)
@@ -31,5 +41,6 @@ public class DecorativeTileMap : MonoBehaviour
         {
             sideTorch.GetComponent<SpriteRenderer>().flipX = true;
         }
+        torches.Add(sideTorch);
     }
 }
