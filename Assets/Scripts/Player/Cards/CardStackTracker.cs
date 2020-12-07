@@ -100,7 +100,7 @@ public class CardStackTracker
         {
             currentlyResolvingCardId = currentlyResolvingCard.cardIndex;
         }
-            
+
 
         switch (target)
         {

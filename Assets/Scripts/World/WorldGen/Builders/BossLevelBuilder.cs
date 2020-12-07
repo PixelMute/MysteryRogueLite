@@ -3,7 +3,7 @@
     public BossRoom BossRoom { get; set; }
     protected override bool PlaceExit(Room prev, float direction, float pathVariance)
     {
-        var res = AttemptToPlaceRoom(prev, BossRoom, direction + Random.Range(-pathVariance, pathVariance));
+        var res = AttemptToPlaceRoom(prev, BossRoom, direction + SeededRandom.Range(-pathVariance, pathVariance));
         if (res != -1)
         {
             PlacedRooms.Add(BossRoom);

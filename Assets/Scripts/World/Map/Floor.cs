@@ -185,7 +185,7 @@ public class Floor
         var numTreasure = GetNumberOfTreasureForFloor();
         while (treasures.Count < numTreasure && spawnLocations.Count != 0)
         {
-            var spawnLoc = spawnLocations.PickRandom();
+            var spawnLoc = SeededRandom.PickRandom(spawnLocations);
             spawnLocations.Remove(spawnLoc);
             treasures.Add(SpawnChestAt(spawnLoc.x, spawnLoc.y, TreasureChest.TreasureChestTypeEnum.small));
         }
@@ -210,12 +210,12 @@ public class Floor
         var numTraps = GetNumberOfTrapsForFloor();
         while (traps.Count < numTraps && spawnLocations.Count > 0)
         {
-            var spawnLoc = spawnLocations.PickRandom();
+            var spawnLoc = SeededRandom.PickRandom(spawnLocations);
             spawnLocations.Remove(spawnLoc);
             var trap = EnemySpawner.SpawnSpikes(spawnLoc).GetComponent<Spikes>();
             traps.Add(trap);
             PlaceTerrainOn(spawnLoc.x, spawnLoc.y, trap);
-            if (Random.RandBool(.5f))
+            if (SeededRandom.RandBool(.5f))
             {
                 trap.MakeInvisible();
             }
@@ -249,7 +249,7 @@ public class Floor
         }
         while (enemies.Count < numEnemies && spawnLocations.Count > 0)
         {
-            var location = spawnLocations.PickRandom();
+            var location = SeededRandom.PickRandom(spawnLocations);
             spawnLocations.Remove(location);
             map[location.x, location.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
             SpawnEnemyAt(location.x, location.y);
@@ -405,7 +405,7 @@ public class Floor
     private void SpawnEnemyAt(int x, int z, string name = "")
     {
         var spawnLoc = new Vector2Int(x, z);
-        var rand = Random.Range(1, 4);
+        var rand = SeededRandom.Range(1, 4);
         GameObject newEnemy;
         switch (rand)
         {
@@ -429,7 +429,7 @@ public class Floor
     {
         GameObject moneyObj = ItemSpawner.SpawnMoney(new Vector2Int(x, z));
         DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
-        int amount = Random.Range(10, 20); // Technically, the amount of money can change if you swap floors. Hopefully nobody notices.
+        int amount = SeededRandom.Range(10, 20); // Technically, the amount of money can change if you swap floors. Hopefully nobody notices.
         newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
 
         newMoneyBloodMoney.xPos = x;

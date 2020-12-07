@@ -54,7 +54,7 @@ class CoinRoom : SpecialRoom
     public override List<EnemyBody> GetAnyRequiredEnemies(Level level)
     {
         var possibleSpawnLocations = GetPossibleSpawnLocations(level);
-        var spawnLoc = possibleSpawnLocations.PickRandom();
+        var spawnLoc = SeededRandom.PickRandom(possibleSpawnLocations);
         if (spawnLoc != null)
         {
             var brute = EnemySpawner.SpawnBrute(spawnLoc);

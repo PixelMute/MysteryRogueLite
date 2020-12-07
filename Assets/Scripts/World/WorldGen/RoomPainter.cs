@@ -23,7 +23,7 @@ public class RoomPainter
         {
             for (int j = minY; j <= maxY; j++)
             {
-                var tile = Painter.FloorTiles.PickRandom();
+                var tile = SeededRandom.PickRandom(Painter.FloorTiles);
                 Level.Terrain.SetTile(new Vector3Int(i, j, 0), tile);
             }
         }
@@ -31,7 +31,7 @@ public class RoomPainter
 
     public void PaintFloor(int x, int y)
     {
-        var tile = Painter.FloorTiles.PickRandom();
+        var tile = SeededRandom.PickRandom(Painter.FloorTiles);
         Level.Terrain.SetTile(new Vector3Int(x, y, 0), tile);
     }
 
@@ -44,7 +44,7 @@ public class RoomPainter
     {
         for (int i = minY; i < maxY; i++)
         {
-            var tile = Painter.LeftWallTiles.PickRandom();
+            var tile = SeededRandom.PickRandom(Painter.LeftWallTiles);
             Level.Terrain.SetTile(new Vector3Int(xValue, i, 0), tile);
         }
     }
@@ -53,7 +53,7 @@ public class RoomPainter
     {
         for (int i = minY; i < maxY; i++)
         {
-            var tile = Painter.RightWallTiles.PickRandom();
+            var tile = SeededRandom.PickRandom(Painter.RightWallTiles);
             Level.Terrain.SetTile(new Vector3Int(xValue, i, 0), tile);
         }
     }
@@ -62,7 +62,7 @@ public class RoomPainter
     {
         for (int i = minX; i < maxX; i++)
         {
-            var tile = Painter.BottomWallTiles.PickRandom();
+            var tile = SeededRandom.PickRandom(Painter.BottomWallTiles);
             Level.Terrain.SetTile(new Vector3Int(i, yValue, 0), tile);
         }
     }
@@ -71,7 +71,7 @@ public class RoomPainter
     {
         for (int i = minX; i < maxX; i++)
         {
-            var tile = Painter.TopWallTiles.PickRandom();
+            var tile = SeededRandom.PickRandom(Painter.TopWallTiles);
             Level.Terrain.SetTile(new Vector3Int(i, yValue, 0), tile);
         }
     }
@@ -115,24 +115,24 @@ public class RoomPainter
                 var type = GetTypeOfWall(i, j);
                 if (type == TypeOfTile.Top)
                 {
-                    if (Random.RandBool(.125f))
+                    if (SeededRandom.RandBool(.125f))
                     {
                         Level.DecorativeTileMap.SpawnTorch(i, j);
                     }
-                    else if (Random.RandBool(.125f))
+                    else if (SeededRandom.RandBool(.125f))
                     {
                         Level.Decorations.SetTile(new Vector3Int(i, j, 0), Painter.GetRandomTopWallDecoration());
                     }
                 }
-                if (type == TypeOfTile.Left && Random.RandBool(.125f) && IsFloor(i + 1, j))
+                if (type == TypeOfTile.Left && SeededRandom.RandBool(.125f) && IsFloor(i + 1, j))
                 {
                     Level.DecorativeTileMap.SpawnSideTorch(i + 1, j, true);
                 }
-                if (type == TypeOfTile.Right && Random.RandBool(.125f) && IsFloor(i - 1, j))
+                if (type == TypeOfTile.Right && SeededRandom.RandBool(.125f) && IsFloor(i - 1, j))
                 {
                     Level.DecorativeTileMap.SpawnSideTorch(i - 1, j, false);
                 }
-                if (type == TypeOfTile.Floor && Random.RandBool(.02f))
+                if (type == TypeOfTile.Floor && SeededRandom.RandBool(.02f))
                 {
                     Level.Decorations.SetTile(new Vector3Int(i, j, 0), Painter.GetRandomFloorDecoration());
                 }
@@ -147,37 +147,37 @@ public class RoomPainter
         int maxY = Room.Bounds.Top;
         if (IsFloor(x, y - 1))
         {
-            return Painter.TopWallTiles.PickRandom();
+            return SeededRandom.PickRandom(Painter.TopWallTiles);
         }
         if (IsFloor(x + 1, y) && IsFloor(x, y + 1))
         {
-            return Painter.TurnRightTiles.PickRandom();
+            return SeededRandom.PickRandom(Painter.TurnRightTiles);
         }
         if (IsFloor(x - 1, y) && IsFloor(x, y + 1))
         {
-            return Painter.TurnLeftTiles.PickRandom();
+            return SeededRandom.PickRandom(Painter.TurnLeftTiles);
         }
         if (IsFloor(x - 1, y))
         {
-            return Painter.RightWallTiles.PickRandom();
+            return SeededRandom.PickRandom(Painter.RightWallTiles);
         }
         if (IsFloor(x + 1, y))
         {
-            return Painter.LeftWallTiles.PickRandom();
+            return SeededRandom.PickRandom(Painter.LeftWallTiles);
         }
         if (IsFloor(x, y + 1))
         {
-            return Painter.BottomWallTiles.PickRandom();
+            return SeededRandom.PickRandom(Painter.BottomWallTiles);
         }
         if (IsFloor(x + 1, y - 1))
         {
             Room.Corners.Add(new Vector2Int(x, y));
-            return Painter.LeftWallTiles.PickRandom();
+            return SeededRandom.PickRandom(Painter.LeftWallTiles);
         }
         if (IsFloor(x - 1, y - 1))
         {
             Room.Corners.Add(new Vector2Int(x, y));
-            return Painter.RightWallTiles.PickRandom();
+            return SeededRandom.PickRandom(Painter.RightWallTiles);
         }
         if (IsFloor(x + 1, y + 1))
         {
