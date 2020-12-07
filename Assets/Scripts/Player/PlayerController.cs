@@ -518,19 +518,53 @@ public class PlayerController : TileCreature
     // Returns true if we should still move.
     private bool ActivateMoveOntoEffects(Vector2Int newMoveTarget)
     {
-        //var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
+        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
 
-        // First, check things that will not end your turn.
-        if (tile.ItemOnTile != null)
+        //Pick up any money that we ended our turn on top of
+        var itemType = tile.tileItemType;
+
+        switch (itemType)
         {
-            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
-            if (moneyobj != null)
-            {
-                Debug.Log("Picked up money");
-                Money += moneyobj.Value;
-                moneyobj.Pickup();
-            }
+            case Tile.TileItemType.money:
+                DroppedMoney moneyobj = tile.GetItemOnTile() as DroppedMoney;
+                if (moneyobj != null)
+                {
+                    Debug.Log("Picked up money");
+                    Money += moneyobj.Value;
+                    moneyobj.DestroySelf();
+                    tile.tileItemType = Tile.TileItemType.empty;
+                }
+                break;
+            case Tile.TileItemType.smallChest:
+                TreasureChest treasureObj = tile.GetItemOnTile() as TreasureChest;
+                if (treasureObj != null)
+                { // loot boxes babbbyyyyyyyyy
+                    int randomTreasurePull = UnityEngine.Random.Range(0, 4);
+                    switch (randomTreasurePull)
+                    {
+                        case 0: // coins
+                            int randomAmountOfCoins = UnityEngine.Random.Range(18, 37);
+                            puim.ShowAlert("You found " + randomAmountOfCoins + " coins in the chest.");
+                            Money += randomAmountOfCoins;
+                            break;
+                        case 1:
+                            puim.ShowAlert("You found a card reward in this chest.");
+                            GetCardReward(0);
+                            break;
+                        case 2:
+                        case 3:
+                            Card hanaFuda = CardFactory.GetCardTheme("hanafuda").GetRandomCardInTheme();
+                            hanaFuda.Owner = this;
+                            GainInventoryCard(hanaFuda);
+                            puim.ShowAlert("You found the \"" + hanaFuda.CardInfo.Name + "\". Press V to open your inventory.");
+                            break;
+                    }
+                    treasureObj.DestroySelf();
+                    tile.tileItemType = Tile.TileItemType.empty;
+                }
+                break;
         }
+
 
         if (tile.tileTerrainType == Tile.TileTerrainType.trap)
         {
@@ -679,56 +713,6 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     public void EndOfTurn()
     {
-<<<<<<< Updated upstream
-=======
-        //Pick up any money that we ended our turn on top of
-        var tile = BattleManager.instance.GetTileAtLocation((int)transform.position.x, (int)transform.position.z);
-        var itemType = tile.tileItemType;
-
-        switch (itemType)
-        {
-            case Tile.TileItemType.money:
-                DroppedMoney moneyobj = tile.GetItemOnTile() as DroppedMoney;
-                if (moneyobj != null)
-                {
-                    Debug.Log("Picked up money");
-                    Money += moneyobj.Value;
-                    moneyobj.DestroySelf();
-                    tile.tileItemType = Tile.TileItemType.empty;
-                }
-                break;
-            case Tile.TileItemType.smallChest:
-                TreasureChest treasureObj = tile.GetItemOnTile() as TreasureChest;
-                if (treasureObj != null)
-                { // loot boxes babbbyyyyyyyyy
-                    int randomTreasurePull = UnityEngine.Random.Range(0,4);
-                    switch (randomTreasurePull)
-                    {
-                        case 0: // coins
-                            int randomAmountOfCoins = UnityEngine.Random.Range(18, 37);
-                            puim.ShowAlert("You found " + randomAmountOfCoins + " coins in the chest.");
-                            Money += randomAmountOfCoins;
-                            break;
-                        case 1:
-                            puim.ShowAlert("You found a card reward in this chest.");
-                            GetCardReward(0);
-                            break;
-                        case 2:
-                        case 3:
-                            Card hanaFuda = CardFactory.GetCardTheme("hanafuda").GetRandomCardInTheme();
-                            hanaFuda.Owner = this;
-                            GainInventoryCard(hanaFuda);
-                            puim.ShowAlert("You found the \"" + hanaFuda.CardInfo.Name + "\". Press V to open your inventory.");
-                            break;
-                    }
-                    treasureObj.DestroySelf();
-                    tile.tileItemType = Tile.TileItemType.empty;
-                }
-                break;
-        }
-
-
-
         //Debug.Log("Player Controller end of turn");
         // Spirit decay
         LoseSpirit(1);

@@ -151,6 +151,16 @@ public class Level
         return res;
     }
 
+    public List<TreasureChest> GetRequiredTreasure()
+    {
+        var res = new List<TreasureChest>();
+        foreach (var room in Rooms)
+        {
+            res.AddRange(room.GetAnyRequiredTreasure(this));
+        }
+        return res;
+    }
+
     private RogueRect GetBoundary()
     {
         var bounds = new RogueRect()

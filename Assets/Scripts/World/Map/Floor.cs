@@ -118,12 +118,6 @@ public class Floor
 
         AssignPlayerLocation();
 
-        // Spawn treasure chests.
-        for (int i = 0; i < 5; i++)
-        {
-            SetTreasureLocation(TreasureChest.TreasureChestTypeEnum.small);
-        }
-
         SetStairsLocation();
     }
 
@@ -169,9 +163,37 @@ public class Floor
 
         PlaceTraps();
 
+        PlaceTreasure();
+
         PlacePlayerInDungeon();
 
         GenerateWalkableMap();
+    }
+
+    private void PlaceTreasure()
+    {
+        var treasures = Level.GetRequiredTreasure();
+        var spawnLocations = Level.GetPossibleSpawnLocations();
+        foreach (var treasure in treasures)
+        {
+            var treLocation = BattleManager.ConvertVector(treasure.transform.position);
+            spawnLocations.Remove(treLocation);
+            treasure.xPos = treLocation.x;
+            treasure.zPos = treLocation.y;
+            map[treasure.xPos, treasure.zPos].SetItemOnTile(treasure);
+        }
+        var numTreasure = GetNumberOfTreasureForFloor();
+        while (treasures.Count < numTreasure && spawnLocations.Count != 0)
+        {
+            var spawnLoc = spawnLocations.PickRandom();
+            spawnLocations.Remove(spawnLoc);
+            treasures.Add(SpawnChestAt(spawnLoc.x, spawnLoc.y, TreasureChest.TreasureChestTypeEnum.small));
+        }
+    }
+
+    private int GetNumberOfTreasureForFloor()
+    {
+        return 5;
     }
 
     private void PlaceTraps()
@@ -264,7 +286,7 @@ public class Floor
                 {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetEntityOnTile()?.gameObject);
                 }
-                if (map[i,j].tileItemType != Roguelike.Tile.TileItemType.empty)
+                if (map[i, j].tileItemType != Roguelike.Tile.TileItemType.empty)
                 {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetItemOnTile()?.gameObject);
                 }
@@ -310,19 +332,6 @@ public class Floor
         map[spawnLoc.x, spawnLoc.y].tileEntityType = Roguelike.Tile.TileEntityType.player;
         BattleManager.player.xPos = spawnLoc.x;
         BattleManager.player.zPos = spawnLoc.y;
-    }
-
-    // Sets the location. Does not directly spawn it yet.
-    private void SetTreasureLocation(TreasureChest.TreasureChestTypeEnum type = TreasureChest.TreasureChestTypeEnum.small)
-    {
-        Vector2Int spawnLoc = FindTileInRoom(FindTileCondition.empty, FindTileCondition.notPlayersRoom);
-        switch (type)
-        {
-            case TreasureChest.TreasureChestTypeEnum.small:
-                map[spawnLoc.x, spawnLoc.y].tileItemType = Roguelike.Tile.TileItemType.smallChest;
-                break;
-        }
-        
     }
 
     public void PlacePlayerInDungeon()
@@ -429,13 +438,14 @@ public class Floor
         map[x, z].SetItemOnTile(newMoneyBloodMoney);
     }
 
-    private void SpawnChestAt(int x, int z, TreasureChest.TreasureChestTypeEnum type)
+    private TreasureChest SpawnChestAt(int x, int z, TreasureChest.TreasureChestTypeEnum type)
     {
         GameObject treasureObj = ItemSpawner.SpawnSmallChest(new Vector2Int(x, z));
         TreasureChest treasure = treasureObj.GetComponent<TreasureChest>();
         treasure.xPos = x;
         treasure.zPos = z;
         map[x, z].SetItemOnTile(treasure);
+        return treasure;
     }
 
     // Recalculates what is walkable and what is not.

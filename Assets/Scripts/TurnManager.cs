@@ -1,5 +1,4 @@
-﻿using Roguelike;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -173,13 +172,6 @@ public class TurnManager : MonoBehaviour
             }
         }
 
-    }
-
-    private bool IsPlayerOnStairs()
-    {
-        var playerLocation = BattleManager.ConvertVector(Player.transform.position);
-        var tile = BattleManager.instance.GetTileAtLocation(playerLocation);
-        return tile.tileTerrainType == Tile.TileTerrainType.stairsDown;
     }
 
     public bool AreTrapsDone()

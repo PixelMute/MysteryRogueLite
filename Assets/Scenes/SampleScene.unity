@@ -54368,15 +54368,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 0
   m_RenderingPath: 1
-<<<<<<< HEAD
-<<<<<<< Updated upstream
   m_TargetTexture: {fileID: 1466005013}
-=======
-  m_TargetTexture: {fileID: 888620700}
->>>>>>> Stashed changes
-=======
-  m_TargetTexture: {fileID: 988399647}
->>>>>>> remotes/origin/CardDesignSpaceExpansion
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 0

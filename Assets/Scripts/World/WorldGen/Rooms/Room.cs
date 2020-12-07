@@ -252,6 +252,11 @@ public abstract class Room
         return new List<EnemyBody>();
     }
 
+    public virtual List<TreasureChest> GetAnyRequiredTreasure(Level level)
+    {
+        return new List<TreasureChest>();
+    }
+
     protected void PaintOutsideWalls(Level level)
     {
         var painter = new RoomPainter(level, this);

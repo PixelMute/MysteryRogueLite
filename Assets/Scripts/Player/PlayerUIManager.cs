@@ -31,7 +31,7 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField] private GameObject banishCounter = null;
 
     // Player UI FSM.
-    public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView}
+    public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView }
 
     internal class PlayerUIStateClass
     {
@@ -212,6 +212,7 @@ public class PlayerUIManager : MonoBehaviour
         GameObject newCard = GameObject.Instantiate(cardPrefab, handLayout.transform);
 
         CardInterface ci = newCard.GetComponent<CardInterface>();
+        ci.AssignTextMeshVariables();
         ci.cardData = drawnCard;
         ci.cardIndex = graphicalHand.Count;
         graphicalHand.Add(ci);
@@ -285,7 +286,7 @@ public class PlayerUIManager : MonoBehaviour
 
     internal void SelectCard(int index, CardInterface.CardInterfaceLocations loc)
     {
-        
+
         if (loc == CardInterface.CardInterfaceLocations.hand)
         {
             Debug.Log("Selecting hand card number " + index);
@@ -303,7 +304,7 @@ public class PlayerUIManager : MonoBehaviour
 
         // Now we need to highlight all the squares where this can be played.
 
-        
+
         SpawnHighlightTiles(selectedCardRange);
     }
 
@@ -654,7 +655,7 @@ public class PlayerUIManager : MonoBehaviour
         {
             handLayout.spacing = 5;
         }
-        
+
     }
     #endregion
 
@@ -1159,7 +1160,7 @@ public class PlayerUIManager : MonoBehaviour
                 OpenInventory();
             canMoveInventory = false;
         }
-        
+
     }
 
     /// <summary>
@@ -1193,6 +1194,7 @@ public class PlayerUIManager : MonoBehaviour
         GameObject newCard = GameObject.Instantiate(cardPrefab, inventoryContent.transform);
 
         CardInterface ci = newCard.GetComponent<CardInterface>();
+        ci.AssignTextMeshVariables();
         ci.cardData = info;
         ci.cardIndex = graphicalInventory.Count;
         graphicalInventory.Add(ci);

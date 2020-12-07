@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 // This class inherits from MonoBehavior to interface between the card data and Unity
@@ -29,11 +26,14 @@ public class CardInterface : MonoBehaviour, IPointerClickHandler
 
     private void Awake()
     {
-        AssignTextMeshVariables();
+        if (cardTitleTextfield == null)
+        {
+            AssignTextMeshVariables();
+        }
     }
 
     // Finds all textmesh objects on this and assigns the variables to them
-    private void AssignTextMeshVariables()
+    public void AssignTextMeshVariables()
     {
         string[] objNames = new string[] { "CardEnergyCostTextObject", "CardSpiritCostTextObject", "CardTitleTextObject", "CardDescriptionTextObject", "HighlightParticleSystemRight", "HighlightParticleSystemLeft" };
         Type[] typeNames = new Type[] { typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(ParticleFollowPath), typeof(ParticleFollowPath) };
