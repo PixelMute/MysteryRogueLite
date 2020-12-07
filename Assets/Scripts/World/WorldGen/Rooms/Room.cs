@@ -66,8 +66,8 @@ public abstract class Room
 
     public void SetSize()
     {
-        var width = Random.Range(Info.MinWidth, Info.MaxWidth);
-        var height = Random.Range(Info.MinHeight, Info.MaxHeight);
+        var width = SeededRandom.Range(Info.MinWidth, Info.MaxWidth);
+        var height = SeededRandom.Range(Info.MinHeight, Info.MaxHeight);
         Bounds.Resize(width, height);
     }
 
@@ -131,7 +131,7 @@ public abstract class Room
         }
         if (doorPoints.Count > 0)
         {
-            return doorPoints.PickRandom();
+            return SeededRandom.PickRandom(doorPoints);
         }
         return null;
 
@@ -185,11 +185,11 @@ public abstract class Room
                 {
                     if (door.x == Bounds.Right)
                     {
-                        painter.PaintTerrainTile(xValue, door.y - 1, Painter.TurnLeftTiles.PickRandom());
+                        painter.PaintTerrainTile(xValue, door.y - 1, SeededRandom.PickRandom(Painter.TurnLeftTiles));
                     }
                     else
                     {
-                        painter.PaintTerrainTile(xValue, door.y - 1, Painter.TurnRightTiles.PickRandom());
+                        painter.PaintTerrainTile(xValue, door.y - 1, SeededRandom.PickRandom(Painter.TurnRightTiles));
                     }
                 }
                 else if (door.y == Bounds.Bottom + 1)
@@ -201,7 +201,7 @@ public abstract class Room
             {
                 if (door.x < Bounds.Right - 2)
                 {
-                    painter.PaintTerrainTile(door.x + 1, door.y, Painter.TurnLeftTiles.PickRandom());
+                    painter.PaintTerrainTile(door.x + 1, door.y, SeededRandom.PickRandom(Painter.TurnLeftTiles));
                 }
                 else if (door.x == Bounds.Right - 2)
                 {
@@ -209,7 +209,7 @@ public abstract class Room
                 }
                 if (door.x > Bounds.Left + 1)
                 {
-                    painter.PaintTerrainTile(door.x - 1, door.y, Painter.TurnRightTiles.PickRandom());
+                    painter.PaintTerrainTile(door.x - 1, door.y, SeededRandom.PickRandom(Painter.TurnRightTiles));
                 }
                 else if (door.x == Bounds.Left + 1)
                 {
@@ -250,6 +250,11 @@ public abstract class Room
     public virtual List<EnemyBody> GetAnyRequiredEnemies(Level level)
     {
         return new List<EnemyBody>();
+    }
+
+    public virtual List<TreasureChest> GetAnyRequiredTreasure(Level level)
+    {
+        return new List<TreasureChest>();
     }
 
     protected void PaintOutsideWalls(Level level)

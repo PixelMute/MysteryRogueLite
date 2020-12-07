@@ -12,10 +12,4 @@ public class DroppedMoney : TileItem
     {
         Value = amount;
     }
-
-    // Destroys self
-    public void Pickup()
-    {
-        BattleManager.RecursivelyEliminateObject(this.transform);
-    }
 }

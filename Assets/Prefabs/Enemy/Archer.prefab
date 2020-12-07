@@ -245,6 +245,7 @@ MonoBehaviour:
   TimeToMove: 0.25
   Animation: {fileID: 668038562130186651}
   FadeAwayTime: 1
+  Splatter: {fileID: 8337488611466378588}
   MinMoneySpawned: 10
   MaxMoneySpawned: 22
   Splatter: {fileID: 0}

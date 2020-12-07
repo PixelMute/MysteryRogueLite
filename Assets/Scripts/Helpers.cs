@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public static class Helpers
@@ -19,17 +17,6 @@ public static class Helpers
     public static void DrawDebugLine(float x, float z, Color color)
     {
         UnityEngine.Debug.DrawLine(new Vector3(x, 0, z), new Vector3(x, 10, z), color, 1000f);
-    }
-
-
-
-    public static T PickRandom<T>(this List<T> source)
-    {
-        if (source.Count == 0)
-        {
-            return default(T);
-        }
-        return source[Random.Range(0, source.Count())];
     }
 
     public static float Truncate(this float value, int digits)

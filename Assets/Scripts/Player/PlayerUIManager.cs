@@ -31,9 +31,33 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField] private GameObject banishCounter = null;
 
     // Player UI FSM.
-    // TODO: Maybe change this over to a bunch of objects, so we can call State.Exit() instead of Exit(state)
     public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView }
-    private PlayerUIState playerUIState = PlayerUIState.standardCardDrawer;
+
+    internal class PlayerUIStateClass
+    {
+        public bool tooltipOpen;
+        public bool inventoryOpen;
+        public PlayerUIState internalUIState = PlayerUIState.standardCardDrawer;
+
+        public PlayerUIStateClass(PlayerUIState initial)
+        {
+            internalUIState = initial;
+            tooltipOpen = false;
+            inventoryOpen = false;
+        }
+    }
+
+    private PlayerUIStateClass playerUIState = new PlayerUIStateClass(PlayerUIState.standardCardDrawer);
+
+    // Tooltips
+    [SerializeField] private GameObject tooltipView;
+    [SerializeField] private GameObject tooltipCardHolder;
+    [SerializeField] private GameObject tooltipContent;
+
+    // Inventory
+    [SerializeField] private GameObject inventoryView;
+    [SerializeField] private GameObject inventoryContent;
+    private List<CardInterface> graphicalInventory;
 
     private PlayerController pc;
 
@@ -93,6 +117,7 @@ public class PlayerUIManager : MonoBehaviour
         healthFillImage = valArray[11] as Image;
 
         graphicalHand = new List<CardInterface>();
+        graphicalInventory = new List<CardInterface>();
         pc = GetComponent<PlayerController>();
 
         spawnedTileSelectionPrefab = Instantiate(tileSelectionPrefab);
@@ -183,22 +208,25 @@ public class PlayerUIManager : MonoBehaviour
     // Graphically spawns the card drawnCard into the player's hand.
     internal void SpawnCardInHand(Card drawnCard)
     {
-        handLayout.SetLayoutHorizontal();
+        //handLayout.SetLayoutHorizontal();
         GameObject newCard = GameObject.Instantiate(cardPrefab, handLayout.transform);
 
         CardInterface ci = newCard.GetComponent<CardInterface>();
+        ci.AssignTextMeshVariables();
         ci.cardData = drawnCard;
-        ci.cardHandIndex = graphicalHand.Count;
+        ci.cardIndex = graphicalHand.Count;
         graphicalHand.Add(ci);
         ci.OnCardSpawned(CardInterface.CardInterfaceLocations.hand);
 
         selectedCard = null;
+
+        UpdateHandLayoutSpacing();
     }
 
     // Note that this destroys the card graphically. It does not alter anything about the data.
     internal void DestroyCardAtIndex(int index)
     {
-        if (selectedCard && selectedCard.cardHandIndex == index)
+        if (selectedCard && selectedCard.cardIndex == index && selectedCard.GetLocation() == CardInterface.CardInterfaceLocations.hand)
         {
             // If we're discarding the selected card, deselect it.
             DeselectCard();
@@ -206,8 +234,7 @@ public class PlayerUIManager : MonoBehaviour
         // Loop through and reduce the index of other cards by one
         for (int i = index + 1; i < graphicalHand.Count; i++)
         {
-            Debug.Log("Reducing index of number " + i);
-            graphicalHand[i].cardHandIndex--;
+            graphicalHand[i].cardIndex--;
         }
 
         // Destroy the gameobject
@@ -215,6 +242,9 @@ public class PlayerUIManager : MonoBehaviour
 
         // Now remove
         graphicalHand.RemoveAt(index);
+
+        // Update spacing
+        UpdateHandLayoutSpacing();
     }
 
 
@@ -229,7 +259,7 @@ public class PlayerUIManager : MonoBehaviour
         }
 
         // Is this a double click?
-        if (selectedCard && Time.time - initialClickTime < doubleClickTime && selectedCard.cardHandIndex == index)
+        if (selectedCard && Time.time - initialClickTime < doubleClickTime && selectedCard.cardIndex == index && selectedCard.GetLocation() == CardInterface.CardInterfaceLocations.hand)
         {
             // Yes. Double click
             Debug.Log("Double click on card " + index);
@@ -242,7 +272,7 @@ public class PlayerUIManager : MonoBehaviour
             initialClickTime = Time.time;
 
         // If player has clicked on highlighted card, unhighlight it
-        if (selectedCard != null && index == selectedCard.cardHandIndex)
+        if (selectedCard != null && index == selectedCard.cardIndex && selectedCard.GetLocation() == CardInterface.CardInterfaceLocations.hand)
         {
             DeselectCard();
         }
@@ -250,18 +280,31 @@ public class PlayerUIManager : MonoBehaviour
         {
             // Unhighlight all other cards, highlights this one.
             DeselectCard();
-            SelectCard(index);
+            SelectCard(index, CardInterface.CardInterfaceLocations.hand);
         }
     }
 
-    internal void SelectCard(int index)
+    internal void SelectCard(int index, CardInterface.CardInterfaceLocations loc)
     {
-        graphicalHand[index].Highlight();
-        selectedCard = graphicalHand[index];
+
+        if (loc == CardInterface.CardInterfaceLocations.hand)
+        {
+            Debug.Log("Selecting hand card number " + index);
+            graphicalHand[index].Highlight();
+            selectedCard = graphicalHand[index];
+            selectedCardRange = GenerateCardRange(graphicalHand[index].cardData);
+        }
+        else
+        {
+            Debug.Log("Selecting hand card number " + index + ", size of inventory is " + graphicalInventory.Count);
+            graphicalInventory[index].Highlight();
+            selectedCard = graphicalInventory[index];
+            selectedCardRange = GenerateCardRange(graphicalInventory[index].cardData);
+        }
 
         // Now we need to highlight all the squares where this can be played.
 
-        selectedCardRange = GenerateCardRange(graphicalHand[index].cardData);
+
         SpawnHighlightTiles(selectedCardRange);
     }
 
@@ -270,10 +313,21 @@ public class PlayerUIManager : MonoBehaviour
     {
         if (selectedCard != null)
         {
-            if (selectedCard.cardHandIndex < graphicalHand.Count)
+            if (selectedCard.GetLocation() == CardInterface.CardInterfaceLocations.hand)
             {
-                selectedCard.DisableHighlight();
+                if (selectedCard.cardIndex < graphicalHand.Count)
+                {
+                    selectedCard.DisableHighlight();
+                }
             }
+            else if (selectedCard.GetLocation() == CardInterface.CardInterfaceLocations.inventory)
+            {
+                if (selectedCard.cardIndex < graphicalInventory.Count)
+                {
+                    selectedCard.DisableHighlight();
+                }
+            }
+
             selectedCard = null;
             DestroyHighlightTiles();
         }
@@ -346,11 +400,11 @@ public class PlayerUIManager : MonoBehaviour
         Debug.Log("Selected tile entity: " + BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileEntityType.ToString());
         Debug.Log("Selected terrain: " + BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].tileTerrainType.ToString());
 
-        TileItem item = BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].ItemOnTile;
+        TileItem item = BattleGrid.instance.map[selectedTileGridCoords.x, selectedTileGridCoords.y].GetItemOnTile();
         if (item != null)
         {
             if (item is DroppedMoney)
-                Debug.Log("Selected item: Money, value of " + (item as DroppedMoney)?.Value);
+                Debug.Log("Selected item: Money, value of " + (item as DroppedMoney).Value);
             else
                 Debug.Log("Selected item: Unknown. Please update this in PlayerUIManager.");
         }
@@ -554,17 +608,19 @@ public class PlayerUIManager : MonoBehaviour
         GameObject arrowImage = GameObject.Find("MoveCardViewButtonImage");
         GameObject arrowButton = arrowImage.transform.parent.gameObject;
         arrowButton.GetComponent<Button>().enabled = false;
+        //float MoveAmount = 420; //420
         if (cardDrawerAtTop)
         {
-            iTween.MoveBy(hand, iTween.Hash("y", -5.25, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.0f));
-            iTween.MoveBy(arrowButton, iTween.Hash("y", 1.35, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.05f));
+            iTween.MoveTo(hand, iTween.Hash("y", -240, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.0f, "isLocal", true));
+            //iTween.MoveTo(arrowButton, iTween.Hash("y", -200, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.05f, "isLocal", true));
             iTween.RotateTo(arrowImage, iTween.Hash("rotation", new Vector3(0, 0, 0), "easeType", "easeInOutSine", "loopType", "none", "time", 1.2f, "isLocal", true,
                 "onComplete", "ReenableMoveCardDrawerButton", "onCompleteTarget", gameObject));
+            // 5.25 / 1.35 = 3.88888888889
         }
         else
         {
-            iTween.MoveBy(hand, iTween.Hash("y", 5.25, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.0f));
-            iTween.MoveBy(arrowButton, iTween.Hash("y", -1.35, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.05f));
+            iTween.MoveTo(hand, iTween.Hash("y", 542, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.0f, "isLocal", true));
+            //iTween.MoveTo(arrowButton, iTween.Hash("y", 0, "easeType", "easeInOutSine", "loopType", "none", "delay", 0.05f, "isLocal", true));
             iTween.RotateTo(arrowImage, iTween.Hash("rotation", new Vector3(0, 0, 180), "easeType", "easeInOutSine", "loopType", "none", "time", 1.2f, "isLocal", true,
                 "onComplete", "ReenableMoveCardDrawerButton", "onCompleteTarget", gameObject));
         }
@@ -585,6 +641,21 @@ public class PlayerUIManager : MonoBehaviour
     public void ShowAlert(string text)
     {
         notificationBarFade.StartFadeCycle(text, 0.75f, 1f);
+    }
+
+    private void UpdateHandLayoutSpacing()
+    {
+        if (graphicalHand.Count > 9)
+        {
+            int spacingAmount = -75;
+            spacingAmount = Math.Max(spacingAmount, (-graphicalHand.Count + 9) * 12);
+            handLayout.spacing = spacingAmount;
+        }
+        else
+        {
+            handLayout.spacing = 5;
+        }
+
     }
     #endregion
 
@@ -617,7 +688,7 @@ public class PlayerUIManager : MonoBehaviour
     // Calls 'ExitState' on the state we leave, and 'EnterState' on the state we enter.
     public bool MoveToState(PlayerUIState state)
     {
-        Debug.Log("Attempting to move from " + playerUIState.ToString() + " to " + state.ToString());
+        Debug.Log("Attempting to move from " + playerUIState.internalUIState.ToString() + " to " + state.ToString());
         if (CanMoveToState(state))
         {
             Debug.Log("Moving states");
@@ -635,7 +706,7 @@ public class PlayerUIManager : MonoBehaviour
         switch (state)
         {
             case PlayerUIState.controllingCamera:
-                switch (playerUIState)
+                switch (playerUIState.internalUIState)
                 {
                     case PlayerUIState.massCardView: // Cannot move from masscardview to controlling camera.
                         return false;
@@ -649,7 +720,7 @@ public class PlayerUIManager : MonoBehaviour
     // Does whatever must be done to leave a state.
     private void ExitState()
     {
-        switch (playerUIState)
+        switch (playerUIState.internalUIState)
         {
             case PlayerUIState.standardCardDrawer:
                 DeselectCard();
@@ -689,17 +760,17 @@ public class PlayerUIManager : MonoBehaviour
                 PopulateCardRewardView();
                 break;
         }
-        playerUIState = state;
+        playerUIState.internalUIState = state;
     }
 
     public PlayerUIState GetState()
     {
-        return playerUIState;
+        return playerUIState.internalUIState;
     }
 
     public bool IsStateMovementLocked()
     {
-        if (playerUIState == PlayerUIState.standardCardDrawer)
+        if (playerUIState.internalUIState == PlayerUIState.standardCardDrawer && !playerUIState.tooltipOpen)
         {
             return false;
         }
@@ -709,7 +780,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public bool IsStateControllingCamera()
     {
-        if (playerUIState == PlayerUIState.controllingCamera)
+        if (playerUIState.internalUIState == PlayerUIState.controllingCamera)
         {
             return true;
         }
@@ -722,14 +793,21 @@ public class PlayerUIManager : MonoBehaviour
     /// </summary>
     public void CloseOutOfWindows()
     {
-        if (playerUIState == PlayerUIState.cardRewardView)
+        Debug.Log("Backshading clicked.");
+        if (playerUIState.tooltipOpen) // Closing the tooltip takes priority
         {
-            ShowAlert("Pick a card or pick skip.");
+            CloseToolTip();
             return;
         }
-        else
+
+        switch (playerUIState.internalUIState)
         {
-            MoveToState(PlayerUIState.standardCardDrawer);
+            case PlayerUIState.cardRewardView:
+                ShowAlert("Pick a card or pick skip.");
+                return;
+            default:
+                MoveToState(PlayerUIState.standardCardDrawer);
+                return;
         }
     }
 
@@ -888,12 +966,12 @@ public class PlayerUIManager : MonoBehaviour
         // Now spawn 3 random cards.
         for (int i = 0; i < 3; i++)
         {
-            // For now, just pick a random number from 1-23
-            int pickedCard = UnityEngine.Random.Range(4, 26);
+            // For now, just pick randomly.
+            int totalCards = CardFactory.GetTotalCards() - CardFactory.GetCardTheme("hanafuda").CountCardsInTheme();
+            int pickedCard = UnityEngine.Random.Range(4, totalCards);
             GameObject newCard = GameObject.Instantiate(cardPrefab, cardRewardHorizontalLayout.transform);
             CardInterface ci = newCard.GetComponent<CardInterface>();
             ci.cardData = CardFactory.GetCardByID(pickedCard);
-            Debug.Log("Picked card number " + pickedCard);
             Debug.Log("Picked number " + pickedCard + ", which is card " + ci.cardData.CardInfo.Name);
             ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardReward);
         }
@@ -916,6 +994,260 @@ public class PlayerUIManager : MonoBehaviour
 
         // Exit out of state
         MoveToState(PlayerUIState.standardCardDrawer);
+    }
+
+    #endregion
+
+    #region CardTooltipScreen
+
+    // Opens the tooltip window for one card.
+    public void ToolTipRequest(Card cardinfo)
+    {
+        if (playerUIState.tooltipOpen == false)
+        { // We need to open it.
+            OpenToolTip();
+        }
+
+        ClearToolTip();
+        PopulateToolTip(cardinfo);
+    }
+
+    private void OpenToolTip()
+    {
+        tooltipView.SetActive(true);
+        playerUIState.tooltipOpen = true;
+        backShading.SetActive(true);
+    }
+
+    /// <summary>
+    /// Closes the tooltip. If the player is in a ui state that wouldn't normally have the backshading, also hides that.
+    /// </summary>
+    private void CloseToolTip()
+    {
+        tooltipView.SetActive(false);
+        playerUIState.tooltipOpen = false;
+        if (playerUIState.internalUIState == PlayerUIState.controllingCamera || playerUIState.internalUIState == PlayerUIState.standardCardDrawer)
+        {
+            backShading.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// Clears out an open tooltip. Clears the card on display, as well as all text tool tips.
+    /// </summary>
+    private void ClearToolTip()
+    {
+        foreach (Transform t in tooltipCardHolder.transform)
+        {
+            BattleManager.RecursivelyEliminateObject(t);
+        }
+    }
+
+    /// <summary>
+    /// Fills the text boxes with details about the requested card.
+    /// </summary>
+    /// <param name="cardInfo"></param>
+    private void PopulateToolTip(Card cardInfo)
+    {
+        GameObject newCard = GameObject.Instantiate(cardPrefab, tooltipCardHolder.transform);
+
+        CardInterface ci = newCard.GetComponent<CardInterface>();
+        ci.cardData = cardInfo;
+        ci.OnCardSpawned(CardInterface.CardInterfaceLocations.tooltip);
+
+        // Set size and location
+        newCard.transform.localScale = new Vector3(3, 3, 1);
+        newCard.transform.localPosition = new Vector3(-280, 0, 0);
+
+        TextMeshProUGUI tooltipText = tooltipContent.GetComponentInChildren<TextMeshProUGUI>();
+        string promptText = "";
+
+        // Fill prompt box.
+        if (cardInfo.Prompts != null)
+        {
+            foreach (Card.CardTooltipPrompts x in cardInfo.Prompts)
+            {
+                if (promptText != "")
+                {
+                    promptText += "\n\n";
+                }
+
+                switch (x)
+                {
+                    case Card.CardTooltipPrompts.line:
+                        promptText += "<b>Line</b>: This card must target a space in a straight line in one of the eight cardinal directions.";
+                        break;
+                    case Card.CardTooltipPrompts.cutscorners:
+                        promptText += "<b>Corner Cutting</b>: This card uses a more forgiving line of sight calculation, allowing you to target across corners.";
+                        break;
+                    case Card.CardTooltipPrompts.move:
+                        promptText += "<b>Move</b>: This card will move you to the targeted tile. Does not end your turn, and must target an empty tile.";
+                        break;
+                    case Card.CardTooltipPrompts.defense:
+                        promptText += "<b>Defense</b>: Defense is a status condition that takes damage before your health does. Decays at a rate of one per turn.";
+                        break;
+                    case Card.CardTooltipPrompts.momentum:
+                        promptText += "<b>Momentum</b>: Momentum boosts the damage of your next played card. Works well with multi-hit cards. Decays while not in combat.";
+                        break;
+                    case Card.CardTooltipPrompts.insight:
+                        promptText += "<b>Insight</b>: Each point of insight boosts your next <i>instance</i> of damage by 100%. Works well with big single-hit cards. Decays while not in combat.";
+                        break;
+                    case Card.CardTooltipPrompts.aoe:
+                        promptText += "<b>AOE</b>: Means Area of Effect. Targets everything in a square of some radius. If it is centered on you, you don't get hit by it.";
+                        break;
+                    case Card.CardTooltipPrompts.lifesteal:
+                        promptText += "<b>Lifesteal</b>: Any damage you deal with this card is gained as health.";
+                        break;
+                    case Card.CardTooltipPrompts.banish:
+                        promptText += "<b>Banish</b>: Banish X means that after you play this card, it is unavailable for X floors, after which it is shuffled back into your discard pile.";
+                        break;
+                    case Card.CardTooltipPrompts.echo:
+                        promptText += "<b>Echo</b>: This Echo effect will trigger if this card is discarded by another card's effect. Echo effects do not cost energy or spirit.";
+                        break;
+                }
+            }
+        }
+
+        // Next, add a prompt based on the theme.
+        if (promptText != "")
+        {
+            promptText += "\n\n";
+        }
+
+        switch (cardInfo.CardInfo.ThemeName)
+        {
+            case "Draconic":
+                promptText += "This card is in the Draconic set, which focuses on defense and devastating heavy strikes.<br>Ancient and powerful, these creatures command respect and fear";
+                break;
+            case "Impundulu":
+                promptText += "This card is in the Impundulu set, which focuses on momentum, multihit cards, and lifesteal.<br>These vampiric thunderbirds are devious and relentless beasts.";
+                break;
+            case "AlMiraj":
+                promptText += "This card is in the Al-Mi'raj set, which focuses on discard and Echo effects.<br>Deceptively vicious, these horned beasts devourer all in their path.";
+                break;
+            case "Hanafuda":
+                promptText += "This is a hanafuda card, a powerful card that goes into your inventory rather than your deck, but can only be used once.";
+                break;
+            default:
+                promptText += "This card isn't part of any set. Maybe it's because the developers forgot to assign it one.";
+                break;
+        }
+
+        // Add a prompt based on lore.
+        if (cardInfo.CardInfo.FlavorText != "")
+        {
+            if (promptText != "")
+            {
+                promptText += "\n\n";
+            }
+            promptText += "<i>" + cardInfo.CardInfo.FlavorText + "</i>";
+        }
+        tooltipText.SetText(promptText);
+    }
+
+    #endregion
+
+    #region CardInventory
+
+    bool canMoveInventory = true;
+    public void ToggleInventoryVisible()
+    {
+        if (canMoveInventory)
+        {
+            if (playerUIState.inventoryOpen)
+                CloseInventory();
+            else
+                OpenInventory();
+            canMoveInventory = false;
+        }
+
+    }
+
+    /// <summary>
+    /// ToggleCardDrawerPosition() disables the button. This is called by iTween and reenables it.
+    /// </summary>
+    public void ReenableMoveInventoryAbility()
+    {
+        canMoveInventory = true;
+    }
+
+    private void OpenInventory()
+    {
+        //iTween.MoveBy(inventoryView, iTween.Hash("x", -158.898, "easeType", "easeInOutSine", "loopType", "none", "time", 0.6f, "onComplete", "ReenableMoveInventoryAbility", "onCompleteTarget", gameObject, "islocal", true));
+        playerUIState.inventoryOpen = true;
+        iTween.MoveTo(inventoryView, iTween.Hash("x", 959, "easeType", "easeInOutSine", "loopType", "none", "time", 0.6f, "onComplete", "ReenableMoveInventoryAbility", "onCompleteTarget", gameObject, "islocal", true));
+    }
+
+    /// <summary>
+    /// Closes your inventory
+    /// </summary>
+    private void CloseInventory()
+    {
+        //iTween.MoveBy(inventoryView, iTween.Hash("x", 158.898, "easeType", "easeInOutSine", "loopType", "none", "time", 0.3f, "onComplete", "ReenableMoveInventoryAbility", "onCompleteTarget", gameObject, "islocal", true));
+        playerUIState.inventoryOpen = false;
+        iTween.MoveTo(inventoryView, iTween.Hash("x", 1275, "easeType", "easeInOutSine", "loopType", "none", "time", 0.6f, "onComplete", "ReenableMoveInventoryAbility", "onCompleteTarget", gameObject, "islocal", true));
+    }
+
+    // A card has been added to the inventory. If we have the inventory open, add this card to it.
+    public void CardAddedToInventory(Card info)
+    {
+        GameObject newCard = GameObject.Instantiate(cardPrefab, inventoryContent.transform);
+
+        CardInterface ci = newCard.GetComponent<CardInterface>();
+        ci.AssignTextMeshVariables();
+        ci.cardData = info;
+        ci.cardIndex = graphicalInventory.Count;
+        graphicalInventory.Add(ci);
+        ci.OnCardSpawned(CardInterface.CardInterfaceLocations.inventory);
+
+        /*GameObject newCard = GameObject.Instantiate(cardPrefab, inventoryContent.transform);
+        CardInterface ci = newCard.GetComponent<CardInterface>();
+        ci.cardData = info;
+        ci.OnCardSpawned(CardInterface.CardInterfaceLocations.inventory);
+        graphicalInventory.Add(ci);*/
+    }
+
+    public void CardInInventoryClicked(int index)
+    {
+        Debug.Log("Inventory card clicked: " + index + ", selectedCard = " + selectedCard);
+        // We're only allowed to click cards in standard UI state.
+        if (IsStateMovementLocked())
+        {
+            return;
+        }
+
+        // If player has clicked on highlighted card, unhighlight it
+        if (selectedCard != null && index == selectedCard.cardIndex && selectedCard.GetLocation() == CardInterface.CardInterfaceLocations.inventory)
+        {
+            DeselectCard();
+        }
+        else
+        {
+            // Unhighlight all other cards, highlights this one.
+            DeselectCard();
+            SelectCard(index, CardInterface.CardInterfaceLocations.inventory);
+        }
+    }
+
+    // Destroys the card in the inventory graphically. Also removes the card from the graphical list. Does not alter the deck internal listing.
+    internal void DestroyInventoryCardAtIndex(int index)
+    {
+        if (selectedCard && selectedCard.cardIndex == index && selectedCard.GetLocation() == CardInterface.CardInterfaceLocations.inventory)
+        {
+            // If we're discarding the selected card, deselect it.
+            DeselectCard();
+        }
+        // Loop through and reduce the index of other cards by one
+        for (int i = index + 1; i < graphicalInventory.Count; i++)
+        {
+            graphicalInventory[i].cardIndex--;
+        }
+
+        // Destroy the gameobject
+        GameObject.Destroy(graphicalInventory[index].gameObject);
+
+        // Now remove
+        graphicalInventory.RemoveAt(index);
     }
 
     #endregion

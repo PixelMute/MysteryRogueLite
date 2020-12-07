@@ -6,7 +6,7 @@ public class LineBuilder : Builder
 {
     protected virtual bool PlaceExit(Room prev, float direction, float pathVariance)
     {
-        var res = AttemptToPlaceRoom(prev, exit, direction + Random.Range(-pathVariance, pathVariance));
+        var res = AttemptToPlaceRoom(prev, exit, direction + SeededRandom.Range(-pathVariance, pathVariance));
         if (res != -1)
         {
             PlacedRooms.Add(exit);
@@ -28,13 +28,13 @@ public class LineBuilder : Builder
             return false;
         }
 
-        float direction = Random.RandomDirection();
+        float direction = SeededRandom.RandomDirection();
         entrance.SetSize();
         entrance.Bounds.SetPosition(0, 0);
         PlacedRooms.Add(entrance);
         branchable.Add(entrance);
 
-        int roomsOnPath = (int)(multiConnections.Count * pathLengthPercentage) + pathLengthJitters.PickRandom();
+        int roomsOnPath = (int)(multiConnections.Count * pathLengthPercentage) + SeededRandom.PickRandom(pathLengthJitters);
         roomsOnPath = Math.Min(roomsOnPath, multiConnections.Count);
         float pathVariance = 15;
 
@@ -43,10 +43,10 @@ public class LineBuilder : Builder
         int rejected = 0;
         for (int i = 0; i < roomsOnPath; i++)
         {
-            for (int j = 0; j < pathConnectionLength.PickRandom(); j++)
+            for (int j = 0; j < SeededRandom.PickRandom(pathConnectionLength); j++)
             {
                 var connectionRoom = new ConnectionRoom();
-                res = AttemptToPlaceRoom(curr, connectionRoom, direction + Random.Range(-pathVariance, pathVariance));
+                res = AttemptToPlaceRoom(curr, connectionRoom, direction + SeededRandom.Range(-pathVariance, pathVariance));
                 if (res != -1)
                 {
                     PlacedRooms.Add(connectionRoom);
@@ -59,7 +59,7 @@ public class LineBuilder : Builder
                 }
             }
             var next = multiConnections[i];
-            res = AttemptToPlaceRoom(curr, next, direction + Random.Range(-pathVariance, pathVariance));
+            res = AttemptToPlaceRoom(curr, next, direction + SeededRandom.Range(-pathVariance, pathVariance));
             if (res != -1)
             {
                 PlacedRooms.Add(next);
@@ -71,10 +71,10 @@ public class LineBuilder : Builder
                 rejected++;
             }
         }
-        for (int j = 0; j < pathConnectionLength.PickRandom(); j++)
+        for (int j = 0; j < SeededRandom.PickRandom(pathConnectionLength); j++)
         {
             var connectionRoom = new ConnectionRoom();
-            res = AttemptToPlaceRoom(curr, connectionRoom, direction + Random.Range(-pathVariance, pathVariance));
+            res = AttemptToPlaceRoom(curr, connectionRoom, direction + SeededRandom.Range(-pathVariance, pathVariance));
             if (res != -1)
             {
                 PlacedRooms.Add(connectionRoom);

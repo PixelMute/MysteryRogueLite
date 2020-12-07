@@ -38,7 +38,7 @@ public class Entrance : StandardRoom
         var possiblePoints = spawnArea.GetPoints();
         if (possiblePoints.Count > 0)
         {
-            return possiblePoints.PickRandom();
+            return SeededRandom.PickRandom(possiblePoints);
         }
         return null;
     }

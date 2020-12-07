@@ -31,7 +31,7 @@ class Painter
 
     public static Tile GetRandomFloorDecoration()
     {
-        int rand = Random.Range(0, 4);
+        int rand = SeededRandom.Range(0, 4);
         switch (rand)
         {
             case 0:
@@ -48,7 +48,7 @@ class Painter
 
     public static Tile GetRandomTopWallDecoration()
     {
-        int rand = Random.Range(0, 3);
+        int rand = SeededRandom.Range(0, 3);
         switch (rand)
         {
             case 0:
@@ -114,7 +114,7 @@ class Painter
                         {
                             decorations.PaintStairs(new Vector3Int(i, j, 0));
                         }
-                        tile = FloorTiles.PickRandom();
+                        tile = SeededRandom.PickRandom(FloorTiles);
                         break;
                     case Roguelike.Tile.TileEntityType.wall:
                         tile = GetWallTile(i, j, map);
@@ -137,35 +137,35 @@ class Painter
         int maxY = map.GetLength(1) - 1;
         if (y != 0 && IsEmpty(map[x, y - 1]))
         {
-            return TopWallTiles.PickRandom();
+            return SeededRandom.PickRandom(TopWallTiles);
         }
         if (x != maxX && y != maxY && IsEmpty(map[x + 1, y]) && IsEmpty(map[x, y + 1]))
         {
-            return TurnRightTiles.PickRandom();
+            return SeededRandom.PickRandom(TurnRightTiles);
         }
         if (x != 0 && y != maxY && IsEmpty(map[x - 1, y]) && IsEmpty(map[x, y + 1]))
         {
-            return TurnLeftTiles.PickRandom();
+            return SeededRandom.PickRandom(TurnLeftTiles);
         }
         if (x != 0 && IsEmpty(map[x - 1, y]))
         {
-            return RightWallTiles.PickRandom();
+            return SeededRandom.PickRandom(RightWallTiles);
         }
         if (x != maxX && IsEmpty(map[x + 1, y]))
         {
-            return LeftWallTiles.PickRandom();
+            return SeededRandom.PickRandom(LeftWallTiles);
         }
         if (y != maxY && IsEmpty(map[x, y + 1]))
         {
-            return BottomWallTiles.PickRandom();
+            return SeededRandom.PickRandom(BottomWallTiles);
         }
         if (x != maxX && y != 0 && IsEmpty(map[x + 1, y - 1]))
         {
-            return LeftWallTiles.PickRandom();
+            return SeededRandom.PickRandom(LeftWallTiles);
         }
         if (x != 0 && y != 0 && IsEmpty(map[x - 1, y - 1]))
         {
-            return RightWallTiles.PickRandom();
+            return SeededRandom.PickRandom(RightWallTiles);
         }
         if (x != maxX && y != maxY && IsEmpty(map[x + 1, y + 1]))
         {

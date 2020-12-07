@@ -45,35 +45,6 @@ public class CardFactory
         CreateCardDictionaryXML();
     }
 
-    //Creates the dictionary to store the cards in memory
-    private static void CreateCardDictionary(CsvReader csv)
-    {
-        CardDictionary = new Dictionary<string, Card>();
-        csv.Read();
-        csv.ReadHeader();
-        while (csv.Read())
-        {
-            var cardInfo = new CardInfo()
-            {
-                ID = csv.GetField<int>("ID"),
-                SpiritCost = csv.GetField<int>("SpiritCost"),
-                EnergyCost = csv.GetField<int>("EnergyCost"),
-                Name = csv.GetField<string>("Name"),
-                Description = csv.GetField<string>("Description"),
-            };
-            var effectString = csv.GetField<string>("Effects");
-            var effectList = EffectFactory.GetListOfEffectsFromString(effectString);
-            var minRange = csv.GetField<int>("MinRange");
-            var maxRange = csv.GetField<int>("MaxRange");
-
-            var conditions = RangeFactory.GetPlayConditionsFromString(csv.GetField<string>("PlayConditions"));
-            var range = new Range(conditions, minRange, maxRange);
-            var card = new Card(cardInfo, range, effectList);
-            //Debug.Log("Adding card: " + cardInfo.Name.ToLower());
-            CardDictionary.Add(cardInfo.Name.ToLower(), card);
-        }
-    }
-
     public static void CreateCardDictionaryXML()
     {
         CardDictionary = new Dictionary<string, Card>();
@@ -94,15 +65,15 @@ public class CardFactory
                 // If that theme already exists, add it.
                 if (newCard.CardInfo.ThemeName != null)
                 {
-                    if (ThemeDictionary.TryGetValue(newCard.CardInfo.ThemeName, out CardThemeHolder cth))
+                    if (ThemeDictionary.TryGetValue(newCard.CardInfo.ThemeName.ToLower(), out CardThemeHolder cth))
                         cth.AddCardToTheme(newCard);
                     else
                     {
                         // Theme does not exist. Add a new theme.
                         Debug.Log("Adding a new theme called " + newCard.CardInfo.ThemeName + " for card named " + newCard.CardInfo.Name);
-                        CardThemeHolder newTheme = new CardThemeHolder(newCard.CardInfo.ThemeName);
+                        CardThemeHolder newTheme = new CardThemeHolder(newCard.CardInfo.ThemeName.ToLower());
                         newTheme.AddCardToTheme(newCard);
-                        ThemeDictionary.Add(newTheme.ThemeName, newTheme);
+                        ThemeDictionary.Add(newTheme.ThemeName.ToLower(), newTheme);
                     }
                 }
             }
@@ -123,6 +94,7 @@ public class CardFactory
         List<IEffect> onBanishEffects = null;
         List<IEffect> onDiscardEffects = null;
         List<PlayCondition> playConditionList = null;
+        List<Card.CardTooltipPrompts> promptList = null;
 
         foreach (XmlNode subnode in node.ChildNodes)
         {
@@ -187,6 +159,14 @@ public class CardFactory
                     else
                         throw new Exception("Cannot parse BanishAfterPlay");
                     break;
+                case "prompts":
+                    promptList = ParsePrompts(subnode);
+                    break;
+                case "lore":
+                case "flavortext":
+                case "flavor":
+                    cardInfo.FlavorText = subnode.InnerText;
+                    break;
                 default:
                     Debug.LogWarning("CardFactory::ParseCardXML() -- Unknown node: " + subnode.Name);
                     break;
@@ -200,7 +180,7 @@ public class CardFactory
 
         // Now that we've done that, compile the info into an actual card.
         var range = new Range(playConditionList, minRange, maxRange);
-        var card = new Card(cardInfo, range, effectList, onDiscardEffects, onBanishEffects);
+        var card = new Card(cardInfo, range, effectList, onDiscardEffects, onBanishEffects, promptList);
 
         return card;
     }
@@ -292,34 +272,73 @@ public class CardFactory
                 return ParseHeal(effect);
             case "maniphand":
                 return ParseManipHand(effect);
+            case "getstatuseffectval":
+                return ParseGetStatusEffectVal(effect);
+            case "getplayerval":
+                return ParseGetPlayerValue(effect);
+            case "loopeffect":
+                return ParseLoopEffect(effect);
+            case "gainspirit":
+                return ParseGainSpirit(effect);
             default:
                 Debug.LogWarning("Unknown card effect with the name " + effect.Name);
                 return null;
         }
     }
 
+    private static List<Card.CardTooltipPrompts> ParsePrompts(XmlNode node)
+    {
+        XmlNodeList subnodes = node.ChildNodes;
+        if (subnodes == null)
+            return null;
+        List<Card.CardTooltipPrompts> prompts = new List<Card.CardTooltipPrompts>(subnodes.Count);
+        foreach (XmlNode N in subnodes)
+        {
+            if (!Enum.TryParse(N.Name, out Card.CardTooltipPrompts singlePrompt))
+            {
+                Debug.LogWarning(N.Name + " is an unknown prompt.");
+            }
+            else
+            {
+                prompts.Add(singlePrompt);
+            }
+        }
+        return prompts;
+    }
+
 
     #region ParsingIndividualEffects
     private static IEffect ParseStrike(XmlNode effectNode)
     {
-        if (!int.TryParse(effectNode.Attributes["dmg"]?.Value, out int damage))
-        {
-            damage = 10; // Default
-            Debug.LogWarning("No value 'dmg' found for this strike node. Using default value.");
-        }
-
-         
         if (!bool.TryParse(effectNode.Attributes["rawdamage"]?.Value, out bool rawDamage))
             rawDamage = false;
+
+        if (!int.TryParse(effectNode.Attributes["dmg"]?.Value, out int damage))
+        {
+            XmlNodeList subnodes = effectNode.ChildNodes;
+            if (subnodes == null)
+            {
+                throw new Exception("CardFactory::ParseStrike(" + effectNode.Name + ") -- This strike node has neither a static damage nor an effect to take damage from.");
+            }
+            else
+            {
+                return new Strike(ParseSingleEffect(subnodes[0]), rawDamage);
+            }
+        }
         return new Strike(damage, rawDamage);
     }
 
     private static IEffect ParseDrawCards(XmlNode effectNode)
     {
+
         if (!int.TryParse(effectNode.Attributes["val"]?.Value, out int num))
         {
-            Debug.LogWarning("No value 'val' found for this drawcards node. Using default value.");
-            num = 1;
+            XmlNodeList subnodes = effectNode.ChildNodes;
+            if (subnodes == null || subnodes.Count != 1)
+            {
+                throw new Exception("CardFactory::ParseDrawCards(" + effectNode.Name + ") -- Wrong number of subeffects. Wanted 1.");
+            }
+            return new DrawCards(ParseSingleEffect(subnodes[0]));
         }
         return new DrawCards(num);
     }
@@ -344,7 +363,7 @@ public class CardFactory
         if (!Enum.TryParse(effect.Attributes["status"]?.Value, out BattleManager.StatusEffectEnum res))
         {
             Debug.LogWarning("No value 'status' found for this damagebasedonstatuseffect node. Using default value.");
-            res = BattleManager.StatusEffectEnum.defence;
+            res = BattleManager.StatusEffectEnum.defense;
         }
         return new DamageBasedOnStatus(res);
     }
@@ -357,7 +376,7 @@ public class CardFactory
         if (!Enum.TryParse(effect.Attributes["status"]?.Value, out BattleManager.StatusEffectEnum res))
         {
             Debug.LogWarning("No value 'status' found for this applystatuseffect node. Using default value.");
-            res = BattleManager.StatusEffectEnum.defence;
+            res = BattleManager.StatusEffectEnum.defense;
         }
 
         if (!bool.TryParse(effect.Attributes["self"]?.Value, out bool self))
@@ -500,7 +519,7 @@ public class CardFactory
             XmlNodeList subnodes = effect.ChildNodes;
             if (subnodes == null || subnodes.Count != 1)
             {
-               throw new Exception("CardFactory::ParseVarCompareOp(" + effect.Name + ") -- Wrong number of subeffects. Wanted 1.");
+               throw new Exception("CardFactory::ParseHeal(" + effect.Name + ") -- Wrong number of subeffects. Wanted 1.");
             }
 
             return new Heal(ParseSingleEffect(subnodes[0]), selfTar);
@@ -519,7 +538,6 @@ public class CardFactory
     // val doesn't matter with discard.
     private static IEffect ParseManipHand(XmlNode effect)
     {
-        Debug.Log("ParseManiphand started 1");
         XmlNodeList subnodes = effect.ChildNodes;
         bool usingEffect = (subnodes != null && subnodes.Count == 1);
         ManipulateHand.ManipulateHandEffectEnum discardOrBanish;
@@ -528,7 +546,6 @@ public class CardFactory
         string tar = effect.Attributes["tar"]?.Value;
         if (tar == null)
             throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- No 'tar' attribute found.");
-        Debug.Log("ParseManiphand started 2");
         switch (tar)
         {
             case "left":
@@ -549,7 +566,6 @@ public class CardFactory
             default:
                 throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- Unknown value for tar called " + tar);
         }
-        Debug.Log("ParseManiphand started 3");
         string op = effect.Attributes["op"]?.Value;
         if (op == null)
             throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- No 'op' attribute found.");
@@ -565,10 +581,8 @@ public class CardFactory
             default:
                 throw new Exception("CardFactory::ParseManipHand(" + effect.Name + ") -- Unknown value for op called " + op);
         }
-        Debug.Log("ParseManiphand started 4");
         if (usingEffect)
         {
-            Debug.Log("ParseManiphand started 5");
             return new ManipulateHand(ParseSingleEffect(subnodes[0]), target, discardOrBanish);
         }
         else
@@ -576,8 +590,123 @@ public class CardFactory
             
             if (!int.TryParse(effect.Attributes["val"]?.Value, out int cons))
                 cons = 1;
-            Debug.Log("ParseManiphand started 6");
             return new ManipulateHand(cons, target, discardOrBanish);
+        }
+    }
+
+    //<getstatuseffectval val="defense" selftar="true"/>
+    private static IEffect ParseGetStatusEffectVal(XmlNode effect)
+    {
+        if (!Enum.TryParse(effect.Attributes["status"]?.Value, out BattleManager.StatusEffectEnum res))
+        {
+            Debug.LogWarning("No value 'status' found for this getstatuseffect node. Using default value.");
+            res = BattleManager.StatusEffectEnum.defense;
+        }
+        if (!bool.TryParse(effect.Attributes["selftar"]?.Value, out bool selfTar))
+            selfTar = true;
+        return new GetStatusEffectVal(res, selfTar);
+    }
+
+    // <getplayerval tar="banishcount"/>
+    private static IEffect ParseGetPlayerValue(XmlNode effect)
+    {
+        GetPlayerValue.GetPlayerValueEnum target;
+        if (effect.Attributes["tar"] == null)
+        {
+            Debug.LogWarning("No value 'tar' found for this getplayervalue node. Using default value.");
+            target = GetPlayerValue.GetPlayerValueEnum.cardsInHand;
+        }
+        else
+        {
+            string tarString = effect.Attributes["tar"].Value;
+            switch (tarString)
+            {
+                case "handcount":
+                case "hand":
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInHand;
+                    break;
+                case "drawcount":
+                case "draw":
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInDraw;
+                    break;
+                case "banishcount":
+                case "banish":
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInBanish;
+                    break;
+                case "discardcount":
+                case "discard":
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInDiscard;
+                    break;
+                case "health":
+                case "hp":
+                    target = GetPlayerValue.GetPlayerValueEnum.health;
+                    break;
+                case "energy":
+                    target = GetPlayerValue.GetPlayerValueEnum.energy;
+                    break;
+                default:
+                    Debug.LogWarning("Unknown value " + tarString + " for attribute 'tar' in this getplayervalue node. Using default.");
+                    target = GetPlayerValue.GetPlayerValueEnum.cardsInHand;
+                    break;
+            }
+        }
+
+        return new GetPlayerValue(target);
+    }
+
+    //<loopeffect max="1" val="1">
+    //  <loopedEffect/>
+    //  <timesToLoopEffect/> (if not using val)
+    //</loopeffect>
+    private static IEffect ParseLoopEffect(XmlNode effect)
+    {
+        XmlNodeList subnodes = effect.ChildNodes;
+        if (subnodes != null && subnodes.Count == 1)
+        {
+            IEffect subeffect = ParseSingleEffect(subnodes[0]);
+            if (!int.TryParse(effect.Attributes["val"]?.Value, out int cons))
+                throw new Exception("CardFactory::ParseLoopEffect(" + effect.Name + ")--This node has one subnode, but no constant attribute 'val' for the number of loops.");
+            if (!int.TryParse(effect.Attributes["max"]?.Value, out int maxloops))
+                maxloops = -1;
+
+            return new LoopEffect(subeffect, cons, maxloops);
+        }
+        else if (subnodes != null && subnodes.Count == 2)
+        {
+            if (!int.TryParse(effect.Attributes["max"]?.Value, out int maxloops))
+            {
+                Debug.LogWarning("CardFactory::ParseLoopEffect(" + effect.Name + ")--No attribute 'maxloops' for this LoopEffect node. Using default value.");
+                maxloops = -1;
+            }
+
+            return new LoopEffect(ParseSingleEffect(subnodes[0]), ParseSingleEffect(subnodes[1]), maxloops);
+        }
+        else
+        {
+            throw new Exception("CardFactory::ParseLoopEffect(" + effect.Name + ")--Wrong number of subnodes. Expected 2.");
+        }
+    }
+
+    //<gainSpirit val="11">
+    // <effectA/> (if you don't have a const)
+    // </gainSpirit>
+    private static IEffect ParseGainSpirit(XmlNode effect)
+    {
+        bool usingConst = int.TryParse(effect.Attributes["val"]?.Value, out int cons);
+
+        if (!usingConst)
+        {
+            XmlNodeList subnodes = effect.ChildNodes;
+            if (subnodes == null || subnodes.Count != 1)
+            {
+                throw new Exception("CardFactory::ParseGainSpirit(" + effect.Name + ") -- Wrong number of subeffects. Wanted 1.");
+            }
+
+            return new GainSpirit(ParseSingleEffect(subnodes[0]));
+        }
+        else
+        {
+            return new GainSpirit(cons);
         }
     }
 
@@ -613,6 +742,20 @@ public class CardFactory
             }
         }
         return null;
+    }
+
+    public static CardThemeHolder GetCardTheme(string themeName)
+    {
+        if (ThemeDictionary.ContainsKey(themeName.ToLower()))
+        {
+            return ThemeDictionary[themeName.ToLower()];
+        }
+        return null;
+    }
+
+    public static int GetTotalCards()
+    {
+        return CardDictionary.Count;
     }
 }
 

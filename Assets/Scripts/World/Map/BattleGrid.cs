@@ -124,8 +124,8 @@ public class BattleGrid : MonoBehaviour
 
     public void GenerateFirstLevel()
     {
-        Random.NewRandomSeed();
-        Debug.Log($"Random seed: {Random.Seed}");
+        SeededRandom.NewRandomSeed();
+        Debug.Log($"Random seed: {SeededRandom.Seed}");
         floorManager.GenerateNewFloor();
         //InitFogOfWar();
         FogOfWar.Initialize();
@@ -147,9 +147,11 @@ public class BattleGrid : MonoBehaviour
         Vector2Int adjustedSpawnLoc = CurrentFloor.FindSpotForItem(spawnLoc, 2); // It might bounce.
         if (adjustedSpawnLoc.x == -1 && adjustedSpawnLoc.y == -1)
             return; // money was lost to the void.
-        GameObject moneyObj = Instantiate(moneyPrefab, BattleManager.ConvertVector(adjustedSpawnLoc, transform.position.y + 0.25f), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
+        GameObject moneyObj = ItemSpawner.SpawnMoney(adjustedSpawnLoc);
         DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
         newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
+        newMoneyBloodMoney.xPos = spawnLoc.x;
+        newMoneyBloodMoney.zPos = spawnLoc.y;
         map[adjustedSpawnLoc.x, adjustedSpawnLoc.y].SetItemOnTile(newMoneyBloodMoney);
     }
 

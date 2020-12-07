@@ -60,14 +60,14 @@ class LoopBuilder : Builder
             return false;
         }
 
-        float startAngle = Random.RandomDirection();
+        float startAngle = SeededRandom.RandomDirection();
         entrance.SetSize();
         entrance.Bounds.SetPosition(0, 0);
         PlacedRooms.Add(entrance);
         branchable.Add(entrance);
 
         var loop = new List<Room>();
-        int roomsOnPath = (int)(multiConnections.Count * pathLengthPercentage) + pathLengthJitters.PickRandom();
+        int roomsOnPath = (int)(multiConnections.Count * pathLengthPercentage) + SeededRandom.PickRandom(pathLengthJitters);
         roomsOnPath = Math.Min(roomsOnPath, multiConnections.Count);
 
         for (int i = 0; i <= roomsOnPath; i++)
@@ -81,7 +81,7 @@ class LoopBuilder : Builder
                 loop.Add(multiConnections[0]);
                 multiConnections.RemoveAt(0);
             }
-            for (int j = 0; j < pathConnectionLength.PickRandom(); j++)
+            for (int j = 0; j < SeededRandom.PickRandom(pathConnectionLength); j++)
             {
                 var newRoom = new ConnectionRoom();
                 loop.Add(newRoom);

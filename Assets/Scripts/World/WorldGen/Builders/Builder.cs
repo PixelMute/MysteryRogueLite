@@ -59,8 +59,8 @@ public abstract class Builder
         {
             currentBranch.Clear();
             var room = roomsToBranch[i];
-            var curr = branchable.PickRandom();
-            var numConnections = branchConnectionLength.PickRandom();
+            var curr = SeededRandom.PickRandom(branchable);
+            var numConnections = SeededRandom.PickRandom(branchConnectionLength);
             currentBranch = TryCreateBranch(room, curr, numConnections);
             if (currentBranch.Count != numConnections + 1)
             {
@@ -69,11 +69,11 @@ public abstract class Builder
 
             foreach (var branched in currentBranch)
             {
-                if (branched.Info.MaxConnections > 1 && Random.RandBool(.3f))
+                if (branched.Info.MaxConnections > 1 && SeededRandom.RandBool(.3f))
                 {
                     if (branched is StandardRoom)
                     {
-                        for (int j = 0; j < Random.Range(1, 4); j++)
+                        for (int j = 0; j < SeededRandom.Range(1, 4); j++)
                         {
                             branchable.Add(branched);
                         }
@@ -100,7 +100,7 @@ public abstract class Builder
             do
             {
                 tries--;
-                angle = AttemptToPlaceRoom(currentRoom, connRoom, Random.RandomDirection());
+                angle = AttemptToPlaceRoom(currentRoom, connRoom, SeededRandom.RandomDirection());
             } while (tries > 0 && angle == -1);
 
             if (angle == -1)    //If we failed to place the connecting room, remove all rooms on this branch
@@ -125,7 +125,7 @@ public abstract class Builder
         do
         {
             tries--;
-            angle = AttemptToPlaceRoom(currentRoom, roomToBranch, Random.RandomDirection());
+            angle = AttemptToPlaceRoom(currentRoom, roomToBranch, SeededRandom.RandomDirection());
         } while (tries > 0 && angle == -1);
 
         if (angle == -1)

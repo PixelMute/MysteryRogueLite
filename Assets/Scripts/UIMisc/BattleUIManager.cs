@@ -26,7 +26,7 @@ public class BattleUIManager : MonoBehaviour
 
     public void GetCardRewardButtonClicked()
     {
-        BattleManager.player.GetCardReward();
+        BattleManager.player.GetCardReward(30);
     }
 
     public void ToggleCardDrawerPositionButtonClicked()

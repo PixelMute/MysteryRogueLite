@@ -163,9 +163,37 @@ public class Floor
 
         PlaceTraps();
 
+        PlaceTreasure();
+
         PlacePlayerInDungeon();
 
         GenerateWalkableMap();
+    }
+
+    private void PlaceTreasure()
+    {
+        var treasures = Level.GetRequiredTreasure();
+        var spawnLocations = Level.GetPossibleSpawnLocations();
+        foreach (var treasure in treasures)
+        {
+            var treLocation = BattleManager.ConvertVector(treasure.transform.position);
+            spawnLocations.Remove(treLocation);
+            treasure.xPos = treLocation.x;
+            treasure.zPos = treLocation.y;
+            map[treasure.xPos, treasure.zPos].SetItemOnTile(treasure);
+        }
+        var numTreasure = GetNumberOfTreasureForFloor();
+        while (treasures.Count < numTreasure && spawnLocations.Count != 0)
+        {
+            var spawnLoc = SeededRandom.PickRandom(spawnLocations);
+            spawnLocations.Remove(spawnLoc);
+            treasures.Add(SpawnChestAt(spawnLoc.x, spawnLoc.y, TreasureChest.TreasureChestTypeEnum.small));
+        }
+    }
+
+    private int GetNumberOfTreasureForFloor()
+    {
+        return 5;
     }
 
     private void PlaceTraps()
@@ -182,12 +210,12 @@ public class Floor
         var numTraps = GetNumberOfTrapsForFloor();
         while (traps.Count < numTraps && spawnLocations.Count > 0)
         {
-            var spawnLoc = spawnLocations.PickRandom();
+            var spawnLoc = SeededRandom.PickRandom(spawnLocations);
             spawnLocations.Remove(spawnLoc);
             var trap = EnemySpawner.SpawnSpikes(spawnLoc).GetComponent<Spikes>();
             traps.Add(trap);
             PlaceTerrainOn(spawnLoc.x, spawnLoc.y, trap);
-            if (Random.RandBool(.5f))
+            if (SeededRandom.RandBool(.5f))
             {
                 trap.MakeInvisible();
             }
@@ -221,7 +249,7 @@ public class Floor
         }
         while (enemies.Count < numEnemies && spawnLocations.Count > 0)
         {
-            var location = spawnLocations.PickRandom();
+            var location = SeededRandom.PickRandom(spawnLocations);
             spawnLocations.Remove(location);
             map[location.x, location.y].tileEntityType = Roguelike.Tile.TileEntityType.enemy;
             SpawnEnemyAt(location.x, location.y);
@@ -257,6 +285,10 @@ public class Floor
                 if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.player && map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.boss)
                 {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetEntityOnTile()?.gameObject);
+                }
+                if (map[i, j].tileItemType != Roguelike.Tile.TileItemType.empty)
+                {
+                    BattleGrid.instance.DestroyGameObject(map[i, j].GetItemOnTile()?.gameObject);
                 }
             }
         }
@@ -373,7 +405,7 @@ public class Floor
     private void SpawnEnemyAt(int x, int z, string name = "")
     {
         var spawnLoc = new Vector2Int(x, z);
-        var rand = Random.Range(1, 4);
+        var rand = SeededRandom.Range(1, 4);
         GameObject newEnemy;
         switch (rand)
         {
@@ -391,6 +423,29 @@ public class Floor
         enemies.Add(enemyBody);
         enemyBody.name = "EnemyID: " + enemies.Count;
         PlaceObjectOn(spawnLoc.x, spawnLoc.y, enemyBody);
+    }
+
+    private void SpawnMoneyAt(int x, int z)
+    {
+        GameObject moneyObj = ItemSpawner.SpawnMoney(new Vector2Int(x, z));
+        DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
+        int amount = SeededRandom.Range(10, 20); // Technically, the amount of money can change if you swap floors. Hopefully nobody notices.
+        newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
+
+        newMoneyBloodMoney.xPos = x;
+        newMoneyBloodMoney.zPos = z;
+
+        map[x, z].SetItemOnTile(newMoneyBloodMoney);
+    }
+
+    private TreasureChest SpawnChestAt(int x, int z, TreasureChest.TreasureChestTypeEnum type)
+    {
+        GameObject treasureObj = ItemSpawner.SpawnSmallChest(new Vector2Int(x, z));
+        TreasureChest treasure = treasureObj.GetComponent<TreasureChest>();
+        treasure.xPos = x;
+        treasure.zPos = z;
+        map[x, z].SetItemOnTile(treasure);
+        return treasure;
     }
 
     // Recalculates what is walkable and what is not.
@@ -448,7 +503,7 @@ public class Floor
         //item.xPos = baseTarget.x;
         //item.zPos = baseTarget.y;
 
-        if (map[baseTarget.x, baseTarget.y].ItemOnTile == null || bounceBehavior <= -1)
+        if (map[baseTarget.x, baseTarget.y].tileItemType == Roguelike.Tile.TileItemType.empty || bounceBehavior <= -1)
         {
             // Target tile is empty, or we need to force spawn item. Spawn the item on it.
             //map[baseTarget.x, baseTarget.y].SetItemOnTile(item);

@@ -151,15 +151,18 @@ public class PlayerController : TileCreature
 
         if (false) // Debugging testing certain cards.
         {
-            Card card1 = CardFactory.GetCard("Rebound");
+            Card card1 = CardFactory.GetCard("rockfall");
+            card1.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card1);
             playerDeck.InsertCardAtEndOfDrawPile(card1);
 
-            Card card2 = CardFactory.GetCard("Rebound");
+            Card card2 = CardFactory.GetCard("Reminiscence");
+            card2.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card2);
             playerDeck.InsertCardAtEndOfDrawPile(card2);
 
-            Card card3 = CardFactory.GetCard("geomancy");
+            Card card3 = CardFactory.GetCard("shield slam");
+            card3.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card3);
             playerDeck.InsertCardAtEndOfDrawPile(card3);
         }
@@ -173,16 +176,36 @@ public class PlayerController : TileCreature
     /// Adds the selected card to the discard pile.
     /// </summary>
     /// <param name="cardData">Card to add</param>
-    internal void GainCard(Card cardData)
+    internal void GainCard(Card cardData, bool addToHand)
     {
         cardData.Owner = this;
-        playerDeck.discardPile.Add(cardData);
+        if (addToHand)
+        {
+            if (playerDeck.hand.Count >= maxHandSize)
+            {
+                puim.ShowAlert("You have too many cards in hand. Adding to discard instead.");
+                playerDeck.discardPile.Add(cardData);
+            }
+            else
+            {
+                playerDeck.AddCardToHand(cardData);
+                puim.SpawnCardInHand(cardData);
+            }
+        }
+        else
+            playerDeck.discardPile.Add(cardData);
+    }
+
+    public void GainInventoryCard(Card card)
+    {
+        playerDeck.AddCardToInventory(card);
+        puim.CardAddedToInventory(card);
     }
 
     public void TriggerCardReward(Card cardData)
     {
         // Gain a card reward from the card reward screen.
-        GainCard(cardData);
+        GainCard(cardData, true);
         puim.LeaveCardRewardScreen(true);
     }
 
@@ -222,6 +245,7 @@ public class PlayerController : TileCreature
     {
         if (playerDeck.hand.Count >= maxHandSize)
         {
+            puim.ShowAlert("You have too many cards to draw more.");
             return false; // Too many cards. Cannot draw more.
         }
 
@@ -311,28 +335,34 @@ public class PlayerController : TileCreature
         int momentumUsed = BattleManager.cardResolveStack.QueryUsedMomentum();
         if (momentumUsed > 0)
         {
-            if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.momentum, out var val))
+            if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.momentum))
             {
                 ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1 * momentumUsed); // Removes momentium
             }
         }
 
         // Determine where the card should go.
-        //while (BattleManager.cardResolveStack.GetCurrentlyResolvingCard() != null)
-        // {
-        switch (BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.ResolveBehavior)
-        {
-            case CardInfo.ResolveBehaviorEnum.discard:
-                // Discard the resolved card
-                DiscardCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex);
-                break;
-            case CardInfo.ResolveBehaviorEnum.banish:
-                BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardHandIndex, BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.BanishAmount);
-                break;
+        if (BattleManager.cardResolveStack.GetCurrentlyResolvingCard().GetLocation() == CardInterface.CardInterfaceLocations.inventory)
+        { // Destroy the card from the inventory.
+            RemoveCardFromInventory(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardIndex);
         }
-        // cardResolveStack.PopCard(); }
-        // These comments are here for a guideline of what to do if we ever switch over to a proper card stack.
-
+        else
+        {
+            //while (BattleManager.cardResolveStack.GetCurrentlyResolvingCard() != null)
+            // {
+            switch (BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.ResolveBehavior)
+            {
+                case CardInfo.ResolveBehaviorEnum.discard:
+                    // Discard the resolved card
+                    DiscardCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardIndex);
+                    break;
+                case CardInfo.ResolveBehaviorEnum.banish:
+                    BanishCardIndex(BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardIndex, BattleManager.cardResolveStack.GetCurrentlyResolvingCard().cardData.CardInfo.BanishAmount);
+                    break;
+            }
+            // cardResolveStack.PopCard(); }
+            // These comments are here for a guideline of what to do if we ever switch over to a proper card stack.
+        }
         BattleManager.instance.StopCardTracking();
     }
 
@@ -365,6 +395,12 @@ public class PlayerController : TileCreature
         LoseSpirit(spiritCostPerDiscard);
     }
 
+    public void RemoveCardFromInventory(int index)
+    {
+        playerDeck.RemoveInventoryCardAtIndex(index);
+        puim.DestroyInventoryCardAtIndex(index);
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -374,7 +410,34 @@ public class PlayerController : TileCreature
                 puim.MoveToState(PlayerUIManager.PlayerUIState.standardCardDrawer);
             else
                 puim.MoveToState(PlayerUIManager.PlayerUIState.controllingCamera);
+        // Cheat key to give you gold.
+        else if (Input.GetKeyDown(KeyCode.F1))
+        {
+            Money += 30;
+        }
+        // Press C to open up Card view.
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            puim.ToggleShowMassCardView();
+        }
+        // Press B to Buy a card.
+        else if (Input.GetKeyDown(KeyCode.B))
+        {
+            GetCardReward(30);
+        }
+        // Press V to open inVentory
+        else if (Input.GetKeyDown(KeyCode.V))
+        {
+            puim.ToggleInventoryVisible();
+        }
+        else if (Input.GetKeyDown(KeyCode.F2))
+        {
+            Card hanaFuda = CardFactory.GetCardTheme("hanafuda").GetRandomCardInTheme();
+            hanaFuda.Owner = this;
+            GainInventoryCard(hanaFuda);
+        }
     }
+
 
     /// <summary>
     /// Handles moving the player. Returns true if the player moves by button click
@@ -457,17 +520,51 @@ public class PlayerController : TileCreature
     {
         var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
 
-        // First, check things that will not end your turn.
-        if (tile.ItemOnTile != null)
+        //Pick up any money that we ended our turn on top of
+        var itemType = tile.tileItemType;
+
+        switch (itemType)
         {
-            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
-            if (moneyobj != null)
-            {
-                Debug.Log("Picked up money");
-                Money += moneyobj.Value;
-                moneyobj.Pickup();
-            }
+            case Tile.TileItemType.money:
+                DroppedMoney moneyobj = tile.GetItemOnTile() as DroppedMoney;
+                if (moneyobj != null)
+                {
+                    Debug.Log("Picked up money");
+                    Money += moneyobj.Value;
+                    moneyobj.DestroySelf();
+                    tile.tileItemType = Tile.TileItemType.empty;
+                }
+                break;
+            case Tile.TileItemType.smallChest:
+                TreasureChest treasureObj = tile.GetItemOnTile() as TreasureChest;
+                if (treasureObj != null)
+                { // loot boxes babbbyyyyyyyyy
+                    int randomTreasurePull = UnityEngine.Random.Range(0, 4);
+                    switch (randomTreasurePull)
+                    {
+                        case 0: // coins
+                            int randomAmountOfCoins = UnityEngine.Random.Range(18, 37);
+                            puim.ShowAlert("You found " + randomAmountOfCoins + " coins in the chest.");
+                            Money += randomAmountOfCoins;
+                            break;
+                        case 1:
+                            puim.ShowAlert("You found a card reward in this chest.");
+                            GetCardReward(0);
+                            break;
+                        case 2:
+                        case 3:
+                            Card hanaFuda = CardFactory.GetCardTheme("hanafuda").GetRandomCardInTheme();
+                            hanaFuda.Owner = this;
+                            GainInventoryCard(hanaFuda);
+                            puim.ShowAlert("You found the \"" + hanaFuda.CardInfo.Name + "\". Press V to open your inventory.");
+                            break;
+                    }
+                    treasureObj.DestroySelf();
+                    tile.tileItemType = Tile.TileItemType.empty;
+                }
+                break;
         }
+
 
         if (tile.tileTerrainType == Tile.TileTerrainType.trap)
         {
@@ -574,11 +671,11 @@ public class PlayerController : TileCreature
         if (damage >= 0) // Damage
         {
             // Do we have defense?
-            if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defence, out StatusEffectDataHolder val))
+            if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defense, out StatusEffectDataHolder val))
             {
                 int oldDamage = (int)damage;
                 damage -= val.EffectValue;
-                ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1 * oldDamage); // Deal damage to defense
+                ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1 * oldDamage); // Deal damage to defense
             }
 
             if (damage > 0)
@@ -616,25 +713,6 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     public void EndOfTurn()
     {
-<<<<<<< Updated upstream
-=======
-        //Pick up any money that we ended our turn on top of
-        var tile = BattleManager.instance.GetTileAtLocation((int)transform.position.x, (int)transform.position.z);
-
-        if (tile.ItemOnTile != null)
-        {
-            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
-            if (moneyobj != null)
-            {
-                Debug.Log("Picked up money");
-                AudioManager.PlayPickMoney();
-                Money += moneyobj.Value;
-                moneyobj.Pickup();
-            }
-        }
-
-
->>>>>>> Stashed changes
         //Debug.Log("Player Controller end of turn");
         // Spirit decay
         LoseSpirit(1);
@@ -658,9 +736,9 @@ public class PlayerController : TileCreature
     private void StartOfTurnStatusDecay()
     {
         // Do we have defense?
-        if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.defence))
+        if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.defense))
         { // Lose one defense
-            ApplyStatusEffect(BattleManager.StatusEffectEnum.defence, -1);
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1);
         }
         // Do we have any engaged enemies?
         if (engagedEnemies.Count == 0)
@@ -686,6 +764,13 @@ public class PlayerController : TileCreature
         CurrentSpirit -= amount * lossMult;
         if (CurrentSpirit < 0)
             CurrentSpirit = 0;
+    }
+
+    public void GainSpirit(float amount)
+    {
+        CurrentSpirit += amount;
+        if (CurrentSpirit > maxSpirit)
+            CurrentSpirit = maxSpirit;
     }
 
     // Returns true on a success
@@ -739,15 +824,23 @@ public class PlayerController : TileCreature
     }
 
     // Right now, this is called by a button.
-    public void GetCardReward()
+    public void GetCardReward(int price)
     {
-        if (Money < 20)
-            puim.ShowAlert("Need 20 coins for a card.");
-        else
+        if (price > 0)
         {
-            puim.OpenCardRewardView();
-            Money -= 20;
+            if (Money < price)
+            {
+                puim.ShowAlert("Need to pay " + price + " for a card.");
+                return;
+            }
+            else
+            {
+                Money -= price;
+            }
         }
+
+        puim.OpenCardRewardView();
+
 
     }
 

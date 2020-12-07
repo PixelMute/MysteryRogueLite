@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 
 
 /// <summary>
@@ -20,5 +18,15 @@ public class CardThemeHolder
     public void AddCardToTheme(Card c)
     {
         CardsInTheme.Add(c);
+    }
+
+    public int CountCardsInTheme()
+    {
+        return CardsInTheme.Count;
+    }
+
+    public Card GetRandomCardInTheme()
+    {
+        return CardsInTheme[Random.Range(0, CardsInTheme.Count)];
     }
 }

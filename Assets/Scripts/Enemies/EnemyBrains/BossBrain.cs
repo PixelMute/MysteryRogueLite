@@ -246,7 +246,7 @@ public class BossBrain : EnemyBrain
     {
         for (int i = 0; i < Math.Min(numMinions, spawnLocations.Count); i++)
         {
-            var spawnLoc = spawnLocations.PickRandom();
+            var spawnLoc = Random.PickRandom(spawnLocations);
             spawnLocations.Remove(spawnLoc);
             SpawnMinion(spawnLoc, glowing);
         }
@@ -254,7 +254,7 @@ public class BossBrain : EnemyBrain
 
     private void SpawnMinion()
     {
-        var spawnLoc = MinionSpawnLocations().PickRandom();
+        var spawnLoc = Random.PickRandom(MinionSpawnLocations());
         SpawnMinion(spawnLoc);
     }
 
