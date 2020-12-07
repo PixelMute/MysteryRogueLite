@@ -25,7 +25,7 @@ public class Trap : TileTerrain
             Sprite.enabled = true;
             var curCol = Sprite.color;
             Sprite.color = new Color(curCol.r, curCol.g, curCol.b, 0);
-            StartCoroutine(FadeIn(1f));
+            StartCoroutine(FadeIn(.5f));
         }
     }
 

@@ -8,7 +8,7 @@ using UnityEngine.Tilemaps;
 
 public class FloorManager
 {
-    public const int WinningFloorNumber = 2;
+    public const int WinningFloorNumber = 5;
     public int CurrentFloorNumber { get; private set; } = 0;
     public List<Floor> AllFloors { get; private set; } = new List<Floor>();
     public Floor CurrentFloor { get; private set; }
