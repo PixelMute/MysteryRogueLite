@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 // This class inherits from MonoBehavior to interface between the card data and Unity
-public class CardInterface : MonoBehaviour
+public class CardInterface : MonoBehaviour, IPointerClickHandler
 {
     public Card cardData;
 
@@ -18,12 +19,12 @@ public class CardInterface : MonoBehaviour
     private TextMeshProUGUI spiritCostTextField;
     private ParticleFollowPath[] selectionParticleSystems;
 
-    [HideInInspector] public int cardHandIndex; // Index of which card this is
+    [HideInInspector] public int cardIndex; // Index of which card this is, in either inventory or hand.
 
     [HideInInspector] public bool isHighlighted = false;
 
     // Indicates where on the ui this card is.
-    public enum CardInterfaceLocations { hand, cardView, cardReward };
+    public enum CardInterfaceLocations { hand, cardView, cardReward, tooltip, inventory };
     private CardInterfaceLocations location;
 
     private void Awake()
@@ -84,11 +85,16 @@ public class CardInterface : MonoBehaviour
         switch (location)
         {
             case CardInterfaceLocations.hand:
-                BattleManager.player.puim.CardInHandClicked(cardHandIndex);
+                BattleManager.player.puim.CardInHandClicked(cardIndex);
                 break;
             case CardInterfaceLocations.cardReward:
                 BattleManager.player.TriggerCardReward(cardData);
                 break;
+            case CardInterfaceLocations.inventory:
+                BattleManager.player.puim.CardInInventoryClicked(cardIndex);
+                break;
+            default:
+                return;
         }
 
     }
@@ -107,5 +113,15 @@ public class CardInterface : MonoBehaviour
     public CardInterfaceLocations GetLocation()
     {
         return location;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Left)
+            RegisterClick();
+        else if (eventData.button == PointerEventData.InputButton.Right && location != CardInterfaceLocations.tooltip)
+        {
+            BattleManager.player.puim.ToolTipRequest(cardData);
+        }
     }
 }

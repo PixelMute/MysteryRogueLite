@@ -63,13 +63,13 @@ public class ParticleFollowPath : MonoBehaviour
 
     public void StartMovement()
     {
-        Debug.Log("Particle path starting");
+        //Debug.Log("Particle path starting");
         em.enabled = true;
         MoveToNextTarget();
 
         for (int i = 0; i < waypoints.Length; i++)
         {
-            Debug.Log("Waypoint " + i + ": " + waypoints[i]);
+            //Debug.Log("Waypoint " + i + ": " + waypoints[i]);
         }
     }
 }

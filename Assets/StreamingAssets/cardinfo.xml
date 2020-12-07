@@ -17,6 +17,7 @@
 	<needsLOS/>
 	<mustHitCreature/>
 </playconditions>
+<flavor>A humble strike, refined over days, weeks, years... lifetimes.</flavor>
 </card>
 
 <!--Card2: Cinders-->
@@ -36,6 +37,8 @@
 	<straightLine/>
 	<mustHitCreature/>
 </playconditions>
+<prompts><line/></prompts>
+<flavor>Some of the most basic ancient magic, and most reliable.</flavor>
 </card>
 
 <!--Card3: Footwork-->
@@ -56,6 +59,8 @@
 	<emptyTile/>
 </playconditions>
 <theme>Impundulu</theme>
+<prompts><move/><cutscorners/></prompts>
+<flavor>A moving adventurer is an alive adventurer.</flavor>
 </card>
 
 <!--Card4:DragonHeart-->
@@ -66,8 +71,8 @@
 <name>DragonHeart</name>
 <description>Gain 12 defense, then deal damage equal to defense in range 1-2. Does not need LOS.</description>
 <effects>
-	<applyStatusEffect self="true" status="defence" power="12"/>
-	<damagebasedonstatus status="defence"/>
+	<applyStatusEffect self="true" status="defense" power="12"/>
+	<damagebasedonstatus status="defense"/>
 </effects>
 <minrange val="1"/>
 <maxrange val="2"/>
@@ -75,6 +80,8 @@
 <playconditions>
 	<mustHitCreature/>
 </playconditions>
+<prompts><defense/></prompts>
+<flavor>Some might still claim some bond to the ancient creatures.</flavor>
 </card>
 
 <!--Card5:Jackpot-->
@@ -83,20 +90,21 @@
 <spiritcost val="4"/>
 <energycost val="1"/>
 <name>Jackpot</name>
-<description>Deal 7 damage three times. &lt;br&gt;Range 1-3. Line.</description>
+<description>Deal 7 damage three times. &lt;br&gt;Range 1-2. Line.</description>
 <effects>
 	<strike dmg="7"/>
 	<strike dmg="7"/>
 	<strike dmg="7"/>
 </effects>
 <minrange val="1"/>
-<maxrange val="3"/>
+<maxrange val="2"/>
 <theme>Impundulu</theme>
 <playconditions>
 	<mustHitCreature/>
 	<straightLine/>
 	<needsLOS/>
 </playconditions>
+<prompts><line/></prompts>
 </card>
 
 <!--Card6:Shadowphase-->
@@ -118,6 +126,8 @@
 	<straightLine/>
 	<needsLOS/>
 </playconditions>
+<prompts><line/><momentum/><move/></prompts>
+<flavor>Useful for not taking things personally.</flavor>
 </card>
 
 <!--Card7:ThunderStep-->
@@ -135,9 +145,12 @@
 </effects>
 <minrange val="1"/>
 <maxrange val="1"/>
+<theme>Draconic</theme>
 <playconditions>
 	<emptyTile/>
 </playconditions>
+<prompts><move/><aoe/></prompts>
+<flavor>The sky itself heralds me.</flavor>
 </card>
 
 <!--Card8:Composure-->
@@ -146,15 +159,18 @@
 <spiritcost val="8"/>
 <energycost val="2"/>
 <name>Composure</name>
-<description>Gain 8 defense. Draw 2 cards.</description>
+<description>Gain 6 defense. Draw 2 cards.</description>
 <effects>
-	<applystatuseffect status="defence" power="8" self="true"/>
+	<applystatuseffect status="defense" power="6" self="true"/>
 	<drawcards val="2"/>
 </effects>
+<theme>Draconic</theme>
 <minrange val="0"/>
 <maxrange val="0"/>
 <playconditions>
 </playconditions>
+<prompts><defense/></prompts>
+<flavor>Breathe. I will not fall. Not now, not ever. Now breathe.</flavor>
 </card>
 
 <!--Card9:Slice-->
@@ -175,6 +191,8 @@
 	<musthitcreature/>
 	<needsLOS/>
 </playconditions>
+<prompts><momentum/></prompts>
+<flavor>They never seem to expect the third knife.</flavor>
 </card>
 
 <!--Card10:Celerity-->
@@ -190,8 +208,11 @@
 </effects>
 <minrange val="0"/>
 <maxrange val="0"/>
+<theme>Impundulu</theme>
 <playconditions>
 </playconditions>
+<prompts><momentum/></prompts>
+<flavor>I may not strike first, but I will strike fast, and I will strike last.</flavor>
 </card>
 
 <!--Card11:Sagacity-->
@@ -210,6 +231,8 @@
 <theme>Draconic</theme>
 <playconditions>
 </playconditions>
+<prompts><insight/></prompts>
+<flavor>Observe, reflect, attack.</flavor>
 </card>
 
 <!--Card12:Crusading Savagery-->
@@ -229,6 +252,7 @@
 	<needsLOS/>
 	<mustHitCreature/>
 </playconditions>
+<flavor>A... revived technique from a now fossilized age.</flavor>
 </card>
 
 <!--Card13:Needles-->
@@ -237,13 +261,12 @@
 <spiritcost val="5"/>
 <energycost val="1"/>
 <name>Needles</name>
-<description>Deal 4 damage five times. Range 3-5. Line.</description>
+<description>Deal 5 damage four times. Range 3-5. Line.</description>
 <effects>
-	<strike dmg="4"/>
-	<strike dmg="4"/>
-	<strike dmg="4"/>
-	<strike dmg="4"/>
-	<strike dmg="4"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
 </effects>
 <minrange val="3"/>
 <maxrange val="5"/>
@@ -253,6 +276,7 @@
 	<mustHitCreature/>
 	<straightLine/>
 </playconditions>
+<prompts><line/></prompts>
 </card>
 
 <!--Card14:Fallback-->
@@ -263,7 +287,7 @@
 <name>Fallback</name>
 <description>Gain 8 defense. Move to the targeted tile. Range 1-2.</description>
 <effects>
-	<applystatuseffect status="defence" power="8" self="true"/>
+	<applystatuseffect status="defense" power="8" self="true"/>
 	<teleport/>
 </effects>
 <minrange val="1"/>
@@ -273,6 +297,7 @@
 	<needsLOS/>
 	<emptyTile/>
 </playconditions>
+<prompts><defense/><move/></prompts>
 </card>
 
 <!--Card15:Blue Bolt-->
@@ -309,6 +334,7 @@
 <theme>Draconic</theme>
 <playconditions>
 </playconditions>
+<prompts><insight/></prompts>
 </card>
 
 <!--Card17:Overwhelm-->
@@ -317,7 +343,7 @@
 <spiritcost val="7"/>
 <energycost val="1"/>
 <name>Overwhelm</name>
-<description>Deal 10 damage twice. Gain Momentium 4.</description>
+<description>Deal 10 damage twice. Gain Momentum 4.</description>
 <effects>
 	<strike dmg="10"/>
 	<strike dmg="10"/>
@@ -325,11 +351,13 @@
 </effects>
 <minrange val="1"/>
 <maxrange val="1"/>
-<theme>Draconic</theme>
+<theme>Impundulu</theme>
 <playconditions>
 	<needsLOS/>
 	<mustHitCreature/>
 </playconditions>
+<prompts><momentum/></prompts>
+<flavor>Give them no quarter.</flavor>
 </card>
 
 <!--Card18:ElectroLance-->
@@ -352,6 +380,7 @@
 	<straightLine/>
 	<mustHitCreature/>
 </playconditions>
+<prompts><line/><momentum/><cutscorners/></prompts>
 </card>
 
 <!--Card19:Shockwave-->
@@ -377,6 +406,8 @@
 <theme>Impundulu</theme>
 <playconditions>
 </playconditions>
+<prompts><aoe/></prompts>
+<flavor>Yes, this does mean enemies in range 1 take 30, but split over 3 hits.</flavor>
 </card>
 
 <!--Card20:Firestorm-->
@@ -399,6 +430,8 @@
 	<mustHitCreature/>
 	<needsLOS/>
 </playconditions>
+<prompts><aoe/></prompts>
+<flavor>Play with fire, get burned.</flavor>
 </card>
 
 <!--Card21:Kindle-->
@@ -416,6 +449,7 @@
 <maxrange val="0"/>
 <playconditions>
 </playconditions>
+<flavor>We kindle a fire in our hearts, and lead that to action.</flavor>
 </card>
 
 <!--Card22:Majesty's Strike-->
@@ -438,6 +472,7 @@
 	<needsLOS/>
 	<cornercutting/>
 </playconditions>
+<prompts><insight/><cutscorners/></prompts>
 </card>
 
 <!--Card23:Defiance-->
@@ -449,7 +484,7 @@
 <description>Gain 4 defense per enemy within 3 tiles.</description>
 <effects>
 	<aoe selftar="true" radius="3" hitempty="false">
-		<applystatuseffect status="defence" power="4" self="true"/>
+		<applystatuseffect status="defense" power="4" self="true"/>
 	</aoe>
 </effects>
 <minrange val="0"/>
@@ -457,6 +492,8 @@
 <theme>Draconic</theme>
 <playconditions>
 </playconditions>
+<prompts><aoe/><defense/></prompts>
+<flavor>Defiance to the defender is simply arrogance to the attacker.</flavor>
 </card>
 
 <!--Card24:Blood Strike-->
@@ -479,6 +516,7 @@
 	<needsLOS/>
 </playconditions>
 <banishafterplay val="1"/>
+<prompts><lifesteal/><banish/></prompts>
 </card>
 
 <!--Card25:Blood and Thunder-->
@@ -501,14 +539,15 @@
 <playconditions>
 </playconditions>
 <banishafterplay val="2"/>
+<prompts><aoe/><lifesteal/><banish/></prompts>
 </card>
 
-<!--Card26:Void's Cackle-->
+<!--Card26:Dark Cackle-->
 <card>
 <id val="26"/>
 <spiritcost val="4"/>
 <energycost val="0"/>
-<name>Void's Cackle</name>
+<name>Dark Cackle</name>
 <description>Take 5 damage. Gain momentum 7.</description>
 <effects>
 	<heal selftar="true" val="-5"/>
@@ -519,6 +558,8 @@
 <theme>Impundulu</theme>
 <playconditions>
 </playconditions>
+<prompts><momentum/></prompts>
+<flavor>Some may disparage witchcraft, but why not use what works?</flavor>
 </card>
 
 <!--Card27:Geomancy-->
@@ -527,9 +568,10 @@
 <spiritcost val="3"/>
 <energycost val="3"/>
 <name>Geomancy</name>
-<description>Gain Insight 3. Banish 2.</description>
+<description>Gain Insight 3. Draw a card. Banish 2.</description>
 <effects>
 	<applystatuseffect status="insight" power="3" self="true"/>
+	<drawcards val="1"/>
 </effects>
 <minrange val="0"/>
 <maxrange val="0"/>
@@ -537,6 +579,8 @@
 <playconditions>
 </playconditions>
 <banishafterplay val="2"/>
+<prompts><insight/><banish/></prompts>
+<flavor>Focused through a very specific type of white herb.</flavor>
 </card>
 
 <!--Card28:Crushing Pommel-->
@@ -545,9 +589,9 @@
 <spiritcost val="8"/>
 <energycost val="2"/>
 <name>Crushing Pommel</name>
-<description>Deal 15 damage. Gain defense equal to damage dealt. Range 1-1.</description>
+<description>Deal 15 damage. Gain defense equal to damage dealt. Range 1-1. Banish 1.</description>
 <effects>
-	<applystatuseffect status="defence" self="true">
+	<applystatuseffect status="defense" self="true">
 		<strike dmg="15"/>
 	</applystatuseffect>
 </effects>
@@ -558,6 +602,9 @@
 	<mustHitCreature/>
 	<needsLOS/>
 </playconditions>
+<banishafterplay val="1"/>
+<prompts><defense/></prompts>
+<flavor>Overwhelming force of might and magic.</flavor>
 </card>
 
 <!--Card29:Fulgurite-->
@@ -585,13 +632,16 @@
 	<mustHitCreature/>
 	<needsLOS/>
 </playconditions>
+<banishafterplay val="2"/>
+<prompts><lifesteal/><banish/></prompts>
+<flavor>Veins of needle-like red glass shoot through the sky and sand.</flavor>
 </card>
 
 <!--Card30:Rebound-->
 <card>
 <id val="30"/>
-<spiritcost val="0"/>
-<energycost val="0"/>
+<spiritcost val="2"/>
+<energycost val="1"/>
 <name>Rebound</name>
 <description>Discard your leftmost and rightmost cards. Draw 2 cards.</description>
 <effects>
@@ -604,6 +654,609 @@
 <theme>AlMiraj</theme>
 <playconditions>
 </playconditions>
+<flavor>New ideas are always a gamble.</flavor>
+</card>
+
+<!--Card31:Second Wind-->
+<card>
+<id val="31"/>
+<spiritcost val="1"/>
+<energycost val="2"/>
+<name>Second Wind</name>
+<description>Gain 3 energy. &lt;b&gt;Echo&lt;b&gt;: Gain 2 energy.</description>
+<effects>
+	<gainenergy val="3"/>
+</effects>
+<discardeffects>
+	<gainenergy val="2"/>
+</discardeffects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
+<playconditions>
+</playconditions>
+<prompts><echo/></prompts>
+<flavor>As one option closes, you realize another.</flavor>
+</card>
+
+<!--Card32:Reckless Strike-->
+<card>
+<id val="32"/>
+<spiritcost val="4"/>
+<energycost val="1"/>
+<name>Reckless Strike</name>
+<description>Deal 25 damage. Discard a random card. Range 1-1.</description>
+<effects>
+	<strike dmg="25"/>
+	<maniphand tar="random" op="discard"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+</card>
+
+<!--Card32:Fury Chant-->
+<card>
+<id val="32"/>
+<spiritcost val="7"/>
+<energycost val="2"/>
+<name>Fury Chant</name>
+<description>Gain insight 1 and momentum 5. &lt;b&gt;Echo&lt;/b&gt;: same effect.</description>
+<effects>
+	<applystatuseffect status="insight" power="1" self="true"/>
+	<applystatuseffect status="momentum" power="5" self="true"/>
+</effects>
+<discardeffects>
+	<applystatuseffect status="insight" power="1" self="true"/>
+	<applystatuseffect status="momentum" power="5" self="true"/>
+</discardeffects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
+<playconditions>
+</playconditions>
+<prompts><insight/><momentum/></prompts>
+<flavor>Lash out before the rage consumes you instead.</flavor>
+</card>
+
+<!--Card33:Ebb and Flow-->
+<card>
+<id val="33"/>
+<spiritcost val="2"/>
+<energycost val="1"/>
+<name>Ebb and Flow</name>
+<description>Deal 15 damage. Range 1. Cuts Corners. &lt;b&gt;Echo&lt;/b&gt;: Gain 12 defense.</description>
+<effects>
+	<strike dmg="15"/>
+</effects>
+<discardeffects>
+	<applystatuseffect status="defense" power="12" self="true"/>
+</discardeffects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+	<cornercutting/>
+</playconditions>
+<prompts><cutscorners/><echo/></prompts>
+</card>
+
+<!--Card34:Horn Lance-->
+<card>
+<id val="34"/>
+<spiritcost val="6"/>
+<energycost val="2"/>
+<name>Horn Lance</name>
+<description>Deal 35 damage. Range 1-3. Line. Discard the cards to the left and right of this one.</description>
+<effects>
+	<strike dmg="35"/>
+	<maniphand tar="left" op="discard"/>
+	<maniphand tar="right" op="discard"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="3"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+	<straightLine/>
+</playconditions>
+<prompts><line/></prompts>
+<flavor>A real heartbreaker.</flavor>
+</card>
+
+<!--Card35:Whirling Rage-->
+<card>
+<id val="35"/>
+<spiritcost val="7"/>
+<energycost val="2"/>
+<name>Whirling Rage</name>
+<description>Deal 15 damage to every enemy in range 2. Banish 1. &lt;b&gt;Echo&lt;/b&gt;: Same effect.</description>
+<effects>
+	<aoe selftar="true" radius="2" hitempty="false">
+		<strike dmg="15"/>
+	</aoe>
+</effects>
+<discardeffects>
+	<aoe selftar="true" radius="2" hitempty="false">
+		<strike dmg="15"/>
+	</aoe>
+</discardeffects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
+<playconditions>
+</playconditions>
+<banishafterplay val="1"/>
+<prompts><aoe/><banish/></prompts>
+<flavor>Forgetting things tends to make you angry.</flavor>
+</card>
+
+<!--Card36:Stalker's Strike-->
+<card>
+<id val="36"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Stalker's Strike</name>
+<description>Deal 10 damage four times. Range 4-4. Line. Cuts corners.</description>
+<effects>
+	<strike dmg="10"/>
+	<strike dmg="10"/>
+	<strike dmg="10"/>
+	<strike dmg="10"/>
+</effects>
+<minrange val="4"/>
+<maxrange val="4"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<needsLOS/>
+	<straightLine/>
+	<musthitCreature/>
+</playconditions>
+<prompts><line/><cutscorners/></prompts>
+<flavor>The most important thing is to relax, and fire in one, smooth motion.</flavor>
+</card>
+
+<!--Card37:Springfooted-->
+<card>
+<id val="37"/>
+<spiritcost val="4"/>
+<energycost val="1"/>
+<name>Springfooted</name>
+<description>Move to targeted tile. Range 1-2. Line. &lt;b&gt;Echo&lt;/b&gt;: Draw a card.</description>
+<effects>
+	<teleport/>
+</effects>
+<discardeffects>
+	<drawcards val="1"/>
+</discardeffects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<needsLOS/>
+	<straightLine/>
+	<emptyTile/>
+</playconditions>
+<prompts><move/><echo/></prompts>
+<flavor>Agility, both mental and physical.</flavor>
+</card>
+
+<!--Card38:Plated Skin-->
+<card>
+<id val="38"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Plated Skin</name>
+<description>Gain 11 defense. Discard the card to the left of this one.</description>
+<effects>
+	<applystatuseffect status="defense" power="11" self="true"/>
+	<maniphand tar="left" op="discard"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>AlMiraj</theme>
+<playconditions>
+</playconditions>
+<prompts><defense/></prompts>
+</card>
+
+<!--Card39:Shield Slam-->
+<card>
+<id val="39"/>
+<spiritcost val="3"/>
+<energycost val="0"/>
+<name>Shield Slam</name>
+<description>Deal damage equal to your defense. Range 1-1.</description>
+<effects>
+	<damagebasedonstatus status="defense"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>Draconic</theme>
+<playconditions>
+	<needsLOS/>
+	<mustHitCreature/>
+</playconditions>
+<prompts><defense/></prompts>
+<flavor>Funny how this exact kind of card appears in so many different card games.</flavor>
+</card>
+
+<!--Card40:Blockade-->
+<card>
+<id val="40"/>
+<spiritcost val="6"/>
+<energycost val="1"/>
+<name>Blockade</name>
+<description>Gain 20 defense. Banish 2.</description>
+<effects>
+	<applystatuseffect status="defense" power="20" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Draconic</theme>
+<playconditions>
+</playconditions>
+<prompts><defense/><banish/></prompts>
+<banishafterplay val="2"/>
+</card>
+
+<!--Card41:Double Down-->
+<card>
+<id val="41"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Double Down</name>
+<description>Gain momentum equal to your current momentum. Banish 1.</description>
+<effects>
+	<applystatuseffect status="momentum" self="true">
+		<getstatuseffectval status="momentum" selftar="true"/>
+	</applystatuseffect>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+<prompts><momentum/></prompts>
+<banishafterplay val="1"/>
+</card>
+
+<!--Card42:Ready for Anything-->
+<card>
+<id val="42"/>
+<spiritcost val="6"/>
+<energycost val="2"/>
+<name>Ready for Anything</name>
+<description>Gain 1 momentum per card in hand, then draw a card.</description>
+<effects>
+	<applystatuseffect status="momentum" self="true">
+		<getplayerval tar="hand"/>
+	</applystatuseffect>
+	<drawcards val="1"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Impundulu</theme>
+<playconditions>
+</playconditions>
+<prompts><momentum/></prompts>
+<flavor>It counts itself for 'cards in hand'.</flavor>
+</card>
+
+<!--Card43:Peerless Hunter-->
+<card>
+<id val="43"/>
+<spiritcost val="6"/>
+<energycost val="1"/>
+<name>Peerless Hunter</name>
+<description>Deal 10 damage. Range 1-4. Does not need LOS. Echo: Draw a card.</description>
+<effects>
+	<strike dmg="10"/>
+</effects>
+<discardeffects>
+	<drawcards val="1"/>
+</discardeffects>
+<minrange val="1"/>
+<maxrange val="4"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+</playconditions>
+<prompts><echo/></prompts>
+</card>
+
+<!--Card44:Recalled Strike-->
+<card>
+<id val="44"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Recalled Strike</name>
+<description>Discard the card to the right of this one. Deal 1 damage per card in your discard twice. Range 1-2.</description>
+<effects>
+	<maniphand tar="right" op="discard"/>
+	<strike>
+		<getplayerval tar="discard"/>
+	</strike>
+	<strike>
+		<getplayerval tar="discard"/>
+	</strike>
+</effects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+<flavor>A card with discard effects cannot discard itself.</flavor>
+</card>
+
+<!--Card45:Shatter-->
+<card>
+<id val="45"/>
+<spiritcost val="7"/>
+<energycost val="2"/>
+<name>Shatter</name>
+<description>Deal 20 damage to target, then deal 1 damage to all enemies in range 3. Range 1-2.</description>
+<effects>
+	<strike dmg="20"/>
+	<aoe selftar="true" radius="1" hitempty="false">
+		<strike dmg="20"/>
+	</aoe>
+</effects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>Impundulu</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+<prompts><aoe/></prompts>
+</card>
+
+<!--Card46:Solemnity-->
+<card>
+<id val="46"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Solemnity</name>
+<description>Draw a card. If you have at least 10 defense, draw another.</description>
+<effects>
+	<drawcards val="1"/>
+	<loopeffect max="1">
+		<drawcards val="1"/>
+		<var_compareop op=">" const="9">
+			<getstatuseffectval status="defense" selftar="true"/>
+		</var_compareop>
+	</loopeffect>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Draconic</theme>
+<playconditions>
+</playconditions>
+<prompts><defense/></prompts>
+<flavor>Much easier to think when you're protected.</flavor>
+</card>
+
+<!--Card47:Rockfall-->
+<card>
+<id val="47"/>
+<spiritcost val="5"/>
+<energycost val="1"/>
+<name>Rockfall</name>
+<description>Deal 20 damage and discard your rightmost card. Range 1-2. &lt;b&gt;Echo&lt;/b&gt;: Gain one energy.</description>
+<effects>
+	<strike dmg="20"/>
+	<maniphand tar="rightmost" op="discard"/>
+</effects>
+<discardeffects>
+	<gainenergy val="2"/>
+</discardeffects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<needsLOS/>
+	<mustHitCreature/>
+</playconditions>
+<prompts><echo/></prompts>
+</card>
+
+<!--Card48:Reminiscence-->
+<card>
+<id val="48"/>
+<spiritcost val="7"/>
+<energycost val="2"/>
+<name>Reminiscence</name>
+<description>Deal 1 damage per card in your draw, then repeat for hand, discard, and banish. Range 1-1.</description>
+<effects>
+	<strike>
+		<getplayerval tar="draw"/>
+	</strike>
+	<strike>
+		<getplayerval tar="hand"/>
+	</strike>
+	<strike>
+		<getplayerval tar="discard"/>
+	</strike>
+	<strike>
+		<getplayerval tar="banish"/>
+	</strike>
+</effects>
+<minrange val="1"/>
+<maxrange val="1"/>
+<theme>AlMiraj</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+<flavor>All that I am, is here.</flavor>
+</card>
+
+
+
+
+
+
+
+<!--Hanafuda Cards-->
+<!--Hanafuda Cards-->
+<!--Hanafuda Cards-->
+<!--Hanafuda Cards-->
+
+<!--Card1001:Kasu-->
+<card>
+<id val="1001"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Kasu</name>
+<description>Heal yourself for 2 health per card in hand.</description>
+<effects>
+	<heal selftar="true">
+		<getplayerval tar="hand"/>
+	</heal>
+	<heal selftar="true">
+		<getplayerval tar="hand"/>
+	</heal>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+</playconditions>
+<flavor>Value in the valueless.</flavor>
+</card>
+
+<!--Card1002:Tane-->
+<card>
+<id val="1002"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Tane</name>
+<description>Regain 10% spirit.</description>
+<effects>
+	<gainSpirit val="100"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+</playconditions>
+<flavor>Seeds of greatness.</flavor>
+</card>
+
+<!--Card1003:Akatan-->
+<card>
+<id val="1003"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Akatan</name>
+<description>Gain Momentum 10.</description>
+<effects>
+	<applystatuseffect status="momentum" power="10" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+</playconditions>
+<prompts><momentum/></prompts>
+<flavor>The summer grasses;&lt;br&gt;All that remains&lt;br&gt;Of warriors' dreams.</flavor>
+</card>
+
+<!--Card1004:Aotan-->
+<card>
+<id val="1004"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Aotan</name>
+<description>Gain Insight 2.</description>
+<effects>
+	<applystatuseffect status="insight" power="2" self="true"/>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+</playconditions>
+<prompts><insight/></prompts>
+<flavor>Oh, Matsuyama.&lt;br&gt;Higher than autumn,&lt;br&gt;The castle tower.</flavor>
+</card>
+
+<!--Card1005:Inoshikachō-->
+<card>
+<id val="1005"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Inoshikachō</name>
+<description>Move to targeted tile. Draw a card. Range 1-2.</description>
+<effects>
+	<teleport/>
+	<drawcards val="1"/>
+</effects>
+<minrange val="1"/>
+<maxrange val="2"/>
+<theme>Hanafuda</theme>
+<playconditions>
+	<emptyTile/>
+	<needsLOS/>
+</playconditions>
+<prompts><move/></prompts>
+<flavor>The grace of the wilds.</flavor>
+</card>
+
+<!--Card1006:Gokō-->
+<card>
+<id val="1006"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Gokō</name>
+<description>Deal 5 damage five times. Range 2-3.</description>
+<effects>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+	<strike dmg="5"/>
+</effects>
+<minrange val="2"/>
+<maxrange val="3"/>
+<theme>Hanafuda</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+<flavor>Five shining strikes.</flavor>
+</card>
+
+<!--Card1007:Tsukimi-zake-->
+<card>
+<id val="1007"/>
+<spiritcost val="0"/>
+<energycost val="0"/>
+<name>Tsukimi-zake</name>
+<description>Draw one card per energy you have.</description>
+<effects>
+	<drawcards>
+		<getplayerval tar="energy"/>
+	</drawcards>
+</effects>
+<minrange val="0"/>
+<maxrange val="0"/>
+<theme>Hanafuda</theme>
+<playconditions>
+	<mustHitCreature/>
+	<needsLOS/>
+</playconditions>
+<flavor>A chance to gaze over the moonlit sky.</flavor>
 </card>
 
 </cardList>

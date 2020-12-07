@@ -9,13 +9,13 @@ namespace Roguelike
         // This is null if there's nothing here but a floor.
         private TileEntity entityOnTile = null;
 
-        [HideInInspector] private TileItem itemOnTile = null;
+        public enum TileItemType { empty, money, smallChest};
+        [HideInInspector] public TileItemType tileItemType = TileItemType.empty;
+        private TileItem itemOnTile;
 
         public enum TileTerrainType { floor, stairsUp, stairsDown, trap };
         public TileTerrain terrainOnTile = null;
         [HideInInspector] public TileTerrainType tileTerrainType = TileTerrainType.floor;
-
-        public TileItem ItemOnTile { get => itemOnTile; private set => itemOnTile = value; }
 
         public Tile()
         {
@@ -40,7 +40,25 @@ namespace Roguelike
 
         public void SetItemOnTile(TileItem item)
         {
-            ItemOnTile = item;
+            itemOnTile = item;
+            if (itemOnTile == null)
+                tileItemType = TileItemType.empty;
+            else if (itemOnTile is DroppedMoney)
+                tileItemType = TileItemType.money;
+            else if (itemOnTile is TreasureChest)
+            {
+                switch ((itemOnTile as TreasureChest).ChestType)
+                {
+                    case TreasureChest.TreasureChestTypeEnum.small:
+                        tileItemType = TileItemType.smallChest;
+                        break;
+                }
+            }
+        }
+
+        public TileItem GetItemOnTile()
+        {
+            return itemOnTile;
         }
 
         public TileEntity GetEntityOnTile()

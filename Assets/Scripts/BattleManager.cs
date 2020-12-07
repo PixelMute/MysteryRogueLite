@@ -12,7 +12,7 @@ public class BattleManager : MonoBehaviour
     public static PlayerController player;
     public static Camera mainCamera;
 
-    public enum StatusEffectEnum { defence, momentum, insight };
+    public enum StatusEffectEnum { defense, momentum, insight };
     // This should be set as an array of sprites that corresponds to each enum in order
     [SerializeField] public Sprite[] statusEffectReference;
 
