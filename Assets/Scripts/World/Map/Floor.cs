@@ -196,7 +196,7 @@ public class Floor
 
     private int GetNumberOfTrapsForFloor()
     {
-        return FloorNumber + 100;
+        return FloorNumber + 20;
     }
 
     private void SpawnEnemies()

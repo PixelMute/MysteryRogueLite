@@ -216,7 +216,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7da723e47d6771545a874c6982211526, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 20
+  maxHealth: 150
 --- !u!114 &-7686432410359031548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +237,7 @@ MonoBehaviour:
   HasBeenInvincible: 0
   InvincibleTurns: 15
   NumberMinionsInWave: 10
+  HealthRegainedWhileInvulnerable: 2
 --- !u!114 &8552328026636344824
 MonoBehaviour:
   m_ObjectHideFlags: 0

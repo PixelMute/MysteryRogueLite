@@ -320,8 +320,6 @@ public class BasicEnemyAI : EnemyBrain
         }
     }
 
-
-
     // Checks the target tile for anything that activates when you move onto it. EG: items, terrain
     public override void ActivateMoveOntoEffects(Vector2Int newMoveTarget)
     {
@@ -332,7 +330,11 @@ public class BasicEnemyAI : EnemyBrain
             var trap = tile.terrainOnTile as Trap;
             if (trap != null)
             {
-                trap.Activate();
+                //Only activate if we are engaged with target
+                if (engagedTarget != null)
+                {
+                    trap.Activate();
+                }
             }
         }
     }
