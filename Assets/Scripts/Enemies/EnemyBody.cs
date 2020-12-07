@@ -155,4 +155,9 @@ public class EnemyBody : TileCreature
 
         return 0;
     }
+
+    protected override void OnStopMoving()
+    {
+        AI.ActivateMoveOntoEffects(new Vector2Int(xPos, zPos));
+    }
 }

@@ -11,8 +11,8 @@ namespace Roguelike
 
         [HideInInspector] private TileItem itemOnTile = null;
 
-        public enum TileTerrainType { floor, stairsUp, stairsDown };
-        private TileTerrain terrainOnTile = null;
+        public enum TileTerrainType { floor, stairsUp, stairsDown, trap };
+        public TileTerrain terrainOnTile = null;
         [HideInInspector] public TileTerrainType tileTerrainType = TileTerrainType.floor;
 
         public TileItem ItemOnTile { get => itemOnTile; private set => itemOnTile = value; }
@@ -65,7 +65,10 @@ namespace Roguelike
                     tileTerrainType = TileTerrainType.stairsUp;
                 else
                     tileTerrainType = TileTerrainType.stairsDown;
-
+            }
+            else if (terrain is Trap)
+            {
+                tileTerrainType = TileTerrainType.trap;
             }
         }
 

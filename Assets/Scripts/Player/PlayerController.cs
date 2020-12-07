@@ -427,49 +427,65 @@ public class PlayerController : TileCreature
 
             if (CheckCanMoveInDirection(xDir, zDir))
             {
-                if (ActivateMoveOntoEffects(movementVector))
+                if (IsFacingRight && xDir < 0)
                 {
-                    if (IsFacingRight && xDir < 0)
-                    {
-                        Sprite.flipX = true;
-                        IsFacingRight = false;
-                    }
-                    else if (!IsFacingRight && xDir > 0)
-                    {
-                        Sprite.flipX = false;
-                        IsFacingRight = true;
-                    }
-
-                    MoveToPosition(movementVector, speedOfMovement);
-                    // Recalculate LOS
-                    UpdateLOS(movementVector);
-
-                    return true;
+                    Sprite.flipX = true;
+                    IsFacingRight = false;
                 }
+                else if (!IsFacingRight && xDir > 0)
+                {
+                    Sprite.flipX = false;
+                    IsFacingRight = true;
+                }
+
+                MoveToPosition(movementVector, speedOfMovement);
+                // Recalculate LOS
+                UpdateLOS(movementVector);
+
+                return true;
             }
         }
 
         return false;
     }
 
+
+
     // Checks the target tile for anything that activates when you move onto it. EG: items, terrain
     // Returns true if we should still move.
     private bool ActivateMoveOntoEffects(Vector2Int newMoveTarget)
     {
         var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
-        // First, check things that will not end your turn.
 
-        //Moved picking up money to end of turn because it matches sprites more. Need to move it to after movement not after turn?
-        //if (tile.ItemOnTile != null)
-        //{
-        //    DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
-        //    if (moneyobj != null)
-        //    {
-        //        Debug.Log("Picked up money");
-        //        Money += moneyobj.Value;
-        //        moneyobj.Pickup();
-        //    }
-        //}
+        // First, check things that will not end your turn.
+        if (tile.ItemOnTile != null)
+        {
+            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
+            if (moneyobj != null)
+            {
+                Debug.Log("Picked up money");
+                Money += moneyobj.Value;
+                moneyobj.Pickup();
+            }
+        }
+
+        if (tile.tileTerrainType == Tile.TileTerrainType.trap)
+        {
+            var trap = tile.terrainOnTile as Trap;
+            if (trap != null)
+            {
+                trap.Activate();
+            }
+        }
+        else if (tile.tileTerrainType == Tile.TileTerrainType.stairsDown)
+        {
+            GoDownStairsEffects();
+            BattleGrid.instance.GoDownFloor();
+            TurnManager.instance.CurrentPhase = TurnManager.TurnPhase.start;
+            TurnManager.instance.CurrentTurn = TurnManager.WhoseTurn.player;
+        }
+
+
 
         return true;
     }
@@ -482,7 +498,30 @@ public class PlayerController : TileCreature
 
     protected override void OnStopMoving()
     {
+        ActivateMoveOntoEffects(new Vector2Int(xPos, zPos));
         Animation.StartIdleAnimation();
+
+        CheckForTraps();
+    }
+
+    //Checks the area around the player for traps
+    private void CheckForTraps()
+    {
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                var tile = BattleGrid.instance.CurrentFloor.map[xPos + i, zPos + j];
+                if (tile.tileTerrainType == Tile.TileTerrainType.trap)
+                {
+                    var trap = tile.terrainOnTile as Trap;
+                    if (trap != null && Random.RandBool(trap.ProbOfBeingSeen))
+                    {
+                        trap.MakeVisible();
+                    }
+                }
+            }
+        }
     }
 
     // Checks to see if we can move in that direction.
@@ -576,21 +615,6 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     public void EndOfTurn()
     {
-        //Pick up any money that we ended our turn on top of
-        var tile = BattleManager.instance.GetTileAtLocation((int)transform.position.x, (int)transform.position.z);
-
-        if (tile.ItemOnTile != null)
-        {
-            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
-            if (moneyobj != null)
-            {
-                Debug.Log("Picked up money");
-                Money += moneyobj.Value;
-                moneyobj.Pickup();
-            }
-        }
-
-
         //Debug.Log("Player Controller end of turn");
         // Spirit decay
         LoseSpirit(1);

@@ -141,6 +141,16 @@ public class Level
         return res;
     }
 
+    public List<Trap> GetRequiredTraps()
+    {
+        var res = new List<Trap>();
+        foreach (var room in Rooms)
+        {
+            res.AddRange(room.GetAnyRequiredTraps(this));
+        }
+        return res;
+    }
+
     private RogueRect GetBoundary()
     {
         var bounds = new RogueRect()

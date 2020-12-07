@@ -1,4 +1,5 @@
 ﻿using NesScripts.Controls.PathFind;
+using Roguelike;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -315,6 +316,23 @@ public class BasicEnemyAI : EnemyBrain
                         x.AI.SummonForHelp(audioPath);
                     }
                 }
+            }
+        }
+    }
+
+
+
+    // Checks the target tile for anything that activates when you move onto it. EG: items, terrain
+    public override void ActivateMoveOntoEffects(Vector2Int newMoveTarget)
+    {
+        var tile = BattleManager.instance.GetTileAtLocation(newMoveTarget.x, newMoveTarget.y);
+
+        if (tile.tileTerrainType == Tile.TileTerrainType.trap)
+        {
+            var trap = tile.terrainOnTile as Trap;
+            if (trap != null)
+            {
+                trap.Activate();
             }
         }
     }

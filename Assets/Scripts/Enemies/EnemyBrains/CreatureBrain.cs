@@ -35,5 +35,7 @@ public abstract class EnemyBrain : CreatureBrain
     }
 
     public virtual void OnDeath() { return; }
+
+    public virtual void ActivateMoveOntoEffects(Vector2Int newMoveTarget) { return; }
 }
 

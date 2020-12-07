@@ -124,6 +124,7 @@ public class BattleGrid : MonoBehaviour
     public void GenerateFirstLevel()
     {
         Random.NewRandomSeed();
+        Random.Seed = 121492671;
         Debug.Log($"Random seed: {Random.Seed}");
         floorManager.GenerateNewFloor();
         //InitFogOfWar();

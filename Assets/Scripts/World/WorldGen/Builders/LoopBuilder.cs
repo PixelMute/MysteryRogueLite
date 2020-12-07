@@ -103,7 +103,7 @@ class LoopBuilder : Builder
                 prev = curr;
                 branchable.Add(curr);
             }
-            else if (i != loop.Count - 1 && !(curr is ConnectionRoom))
+            else if (!(curr is ConnectionRoom))
             {
                 //Little chance dependant, could be better
                 return false;

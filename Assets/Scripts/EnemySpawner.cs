@@ -7,6 +7,7 @@ class EnemySpawner : MonoBehaviour
     public GameObject Brute;
     public GameObject Boss;
     public GameObject Minion;
+    public GameObject Spikes;
 
 
     public static EnemySpawner Instance;
@@ -46,6 +47,13 @@ class EnemySpawner : MonoBehaviour
     public static GameObject SpawnArcher(Vector2Int spawnLoc)
     {
         return Instance.SpawnEnemy(Instance.Archer, spawnLoc);
+    }
+
+    public static GameObject SpawnSpikes(Vector2Int spawnLoc)
+    {
+        var spikes = Instance.SpawnEnemy(Instance.Spikes, spawnLoc);
+        spikes.transform.rotation = Quaternion.Euler(new Vector3(90, 0, 0));
+        return spikes;
     }
 
     private GameObject SpawnEnemy(GameObject enemyPrefab, Vector2Int spawnLoc)

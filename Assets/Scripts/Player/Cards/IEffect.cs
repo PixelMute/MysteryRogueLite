@@ -193,7 +193,7 @@ namespace Roguelike
     // And int takes priority over an effect.
     public class Var_CompareOp : IEffect
     {
-        public enum CompareOperation { equals, lessThan, greaterThan, notEquals, max, min}
+        public enum CompareOperation { equals, lessThan, greaterThan, notEquals, max, min }
         private CompareOperation op;
         public int ConstantInt { get; private set; }
         private IEffect EffectA { get; set; }
@@ -254,7 +254,7 @@ namespace Roguelike
             StaticVal = staticVal;
             this.healSelf = healSelf;
         }
-        public Heal (IEffect effect, bool healSelf = true)
+        public Heal(IEffect effect, bool healSelf = true)
         {
             DamageFromEffect = effect;
             this.healSelf = healSelf;

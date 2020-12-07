@@ -75,6 +75,7 @@ public class Floor
     public int seed { get; private set; }
     public int FloorNumber { get; private set; }
     public List<EnemyBody> enemies { get; private set; } = new List<EnemyBody>();
+    public List<Trap> traps { get; private set; } = new List<Trap>();
 
     // Pathfinding
     private float[,] walkCostsMap = null; // This is the cost of that tile. 0 = impassable.
@@ -160,9 +161,42 @@ public class Floor
 
         SpawnEnemies();
 
+        PlaceTraps();
+
         PlacePlayerInDungeon();
 
         GenerateWalkableMap();
+    }
+
+    private void PlaceTraps()
+    {
+        traps = Level.GetRequiredTraps();
+        var spawnLocations = Level.GetPossibleSpawnLocations();
+
+        foreach (var trap in traps)
+        {
+            var trapLocation = BattleManager.ConvertVector(trap.transform.position);
+            spawnLocations.Remove(trapLocation);
+            PlaceTerrainOn(trapLocation.x, trapLocation.y, trap);
+        }
+        var numTraps = GetNumberOfTrapsForFloor();
+        while (traps.Count < numTraps && spawnLocations.Count > 0)
+        {
+            var spawnLoc = spawnLocations.PickRandom();
+            spawnLocations.Remove(spawnLoc);
+            var trap = EnemySpawner.SpawnSpikes(spawnLoc).GetComponent<Spikes>();
+            traps.Add(trap);
+            PlaceTerrainOn(spawnLoc.x, spawnLoc.y, trap);
+            if (Random.RandBool(.5f))
+            {
+                trap.MakeInvisible();
+            }
+        }
+    }
+
+    private int GetNumberOfTrapsForFloor()
+    {
+        return FloorNumber + 100;
     }
 
     private void SpawnEnemies()
@@ -185,7 +219,7 @@ public class Floor
                 PlaceObjectOn(enemyLocation.x, enemyLocation.y, enemy);
             }
         }
-        while (enemies.Count < numEnemies)
+        while (enemies.Count < numEnemies && spawnLocations.Count > 0)
         {
             var location = spawnLocations.PickRandom();
             spawnLocations.Remove(location);
@@ -470,6 +504,9 @@ public class Floor
             walkCostsMap[x, z] = map[x, z].GetPathfindingCost();
             walkGrid.UpdateGrid(walkCostsMap);
         }
+
+        ter.xPos = x;
+        ter.zPos = z;
 
         map[x, z].SetTerrainOnTile(ter);
 

@@ -242,6 +242,11 @@ public abstract class Room
         return res;
     }
 
+    public virtual List<Trap> GetAnyRequiredTraps(Level level)
+    {
+        return new List<Trap>();
+    }
+
     public virtual List<EnemyBody> GetAnyRequiredEnemies(Level level)
     {
         return new List<EnemyBody>();

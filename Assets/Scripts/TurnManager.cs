@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-class TurnManager : MonoBehaviour
+public class TurnManager : MonoBehaviour
 {
     public static TurnManager instance;
 
     public PlayerController Player;
     public enum WhoseTurn { player, enemy };  // Whose turn it currently is
-    private enum TurnPhase { start, action, moving, end };
-    public WhoseTurn CurrentTurn { get; private set; } = WhoseTurn.player;
-    private TurnPhase CurrentPhase = TurnPhase.start;
+    public enum TurnPhase { start, action, moving, end };
+    public WhoseTurn CurrentTurn { get; set; } = WhoseTurn.player;
+    public TurnPhase CurrentPhase { get; set; } = TurnPhase.start;
 
     private bool waiting = false;   //Not happy with this solution but its quick
 
@@ -67,6 +67,10 @@ class TurnManager : MonoBehaviour
 
     private void HandlePlayerTurn()
     {
+        if (!AreTrapsDone())
+        {
+            return;
+        }
         if (CurrentPhase == TurnPhase.start)
         {
             //Start of player's turn. Draw cards, handle status effects, etc
@@ -94,15 +98,6 @@ class TurnManager : MonoBehaviour
         if (CurrentPhase == TurnPhase.end && !Player.IsMoving)
         {
             Player.EndOfTurn();
-
-            //If player ends their turn on the stairs, go down to next floor
-            if (IsPlayerOnStairs())
-            {
-                Player.GoDownStairsEffects();
-                BattleGrid.instance.GoDownFloor();
-                CurrentPhase = TurnPhase.start;
-            }
-
             CurrentPhase = TurnPhase.start;
             CurrentTurn = WhoseTurn.enemy;
         }
@@ -110,6 +105,10 @@ class TurnManager : MonoBehaviour
 
     private void HandleEnemyTurn()
     {
+        if (!AreTrapsDone())
+        {
+            return;
+        }
         var enemies = new List<EnemyBody>(BattleGrid.instance.CurrentFloor.enemies);
         if (CurrentPhase == TurnPhase.start)
         {
@@ -183,5 +182,16 @@ class TurnManager : MonoBehaviour
         return tile.tileTerrainType == Tile.TileTerrainType.stairsDown;
     }
 
+    public bool AreTrapsDone()
+    {
+        foreach (var trap in BattleGrid.instance.CurrentFloor.traps)
+        {
+            if (trap.IsActive)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
