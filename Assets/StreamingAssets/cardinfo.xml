@@ -1141,9 +1141,9 @@
 <spiritcost val="0"/>
 <energycost val="0"/>
 <name>Tane</name>
-<description>Regain 5% spirit.</description>
+<description>Regain 10% spirit.</description>
 <effects>
-	<gainSpirit val="50"/>
+	<gainSpirit val="100"/>
 </effects>
 <minrange val="0"/>
 <maxrange val="0"/>

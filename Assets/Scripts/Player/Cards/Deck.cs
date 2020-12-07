@@ -56,6 +56,11 @@ public class Deck
         return drawnCard;
     }
 
+    public void AddCardToHand(Card c)
+    {
+        hand.Add(c);
+    }
+
     // Clears out the discard pile and sticks it into the draw pile. Then it calls ShuffleDeck.
     public void RecycleDiscard()
     {

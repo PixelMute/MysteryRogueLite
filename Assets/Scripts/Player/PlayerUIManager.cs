@@ -218,6 +218,8 @@ public class PlayerUIManager : MonoBehaviour
         ci.OnCardSpawned(CardInterface.CardInterfaceLocations.hand);
 
         selectedCard = null;
+
+        UpdateHandLayoutSpacing();
     }
 
     // Note that this destroys the card graphically. It does not alter anything about the data.
@@ -239,6 +241,9 @@ public class PlayerUIManager : MonoBehaviour
 
         // Now remove
         graphicalHand.RemoveAt(index);
+
+        // Update spacing
+        UpdateHandLayoutSpacing();
     }
 
 
@@ -631,6 +636,21 @@ public class PlayerUIManager : MonoBehaviour
     public void ShowAlert(string text)
     {
         notificationBarFade.StartFadeCycle(text, 0.75f, 1f);
+    }
+
+    private void UpdateHandLayoutSpacing()
+    {
+        if (graphicalHand.Count > 9)
+        {
+            int spacingAmount = -75;
+            spacingAmount = Math.Max(spacingAmount, (-graphicalHand.Count + 9) * 12);
+            handLayout.spacing = spacingAmount;
+        }
+        else
+        {
+            handLayout.spacing = 5;
+        }
+        
     }
     #endregion
 

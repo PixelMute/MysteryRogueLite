@@ -149,7 +149,7 @@ public class PlayerController : TileCreature
         playerDeck.InsertCardAtEndOfDrawPile(cinders);
         playerDeck.InsertCardAtEndOfDrawPile(dragonheart);
 
-        if (true) // Debugging testing certain cards.
+        if (false) // Debugging testing certain cards.
         {
             Card card1 = CardFactory.GetCard("rockfall");
             card1.Owner = this;
@@ -176,10 +176,24 @@ public class PlayerController : TileCreature
     /// Adds the selected card to the discard pile.
     /// </summary>
     /// <param name="cardData">Card to add</param>
-    internal void GainCard(Card cardData)
+    internal void GainCard(Card cardData, bool addToHand)
     {
         cardData.Owner = this;
-        playerDeck.discardPile.Add(cardData);
+        if (addToHand)
+        {
+            if (playerDeck.hand.Count >= maxHandSize)
+            {
+                puim.ShowAlert("You have too many cards in hand. Adding to discard instead.");
+                playerDeck.discardPile.Add(cardData);
+            }
+            else
+            {
+                playerDeck.AddCardToHand(cardData);
+                puim.SpawnCardInHand(cardData);
+            }
+        }
+        else
+            playerDeck.discardPile.Add(cardData);
     }
 
     public void GainInventoryCard(Card card)
@@ -191,7 +205,7 @@ public class PlayerController : TileCreature
     public void TriggerCardReward(Card cardData)
     {
         // Gain a card reward from the card reward screen.
-        GainCard(cardData);
+        GainCard(cardData, true);
         puim.LeaveCardRewardScreen(true);
     }
 
@@ -231,6 +245,7 @@ public class PlayerController : TileCreature
     {
         if (playerDeck.hand.Count >= maxHandSize)
         {
+            puim.ShowAlert("You have too many cards to draw more.");
             return false; // Too many cards. Cannot draw more.
         }
 
@@ -391,7 +406,7 @@ public class PlayerController : TileCreature
         // Cheat key to give you gold.
         else if (Input.GetKeyDown(KeyCode.F1))
         {
-            Money += 20;
+            Money += 30;
         }
         // Press C to open up Card view.
         else if (Input.GetKeyDown(KeyCode.C))
@@ -780,7 +795,7 @@ public class PlayerController : TileCreature
     {
         if (price > 0)
         {
-            if (Money <= price)
+            if (Money < price)
             {
                 puim.ShowAlert("Need to pay " + price + " for a card.");
                 return;
