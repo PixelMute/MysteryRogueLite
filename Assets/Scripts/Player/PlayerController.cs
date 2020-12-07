@@ -583,6 +583,7 @@ public class PlayerController : TileCreature
 
             if (damage > 0)
             {
+                AudioManager.PlayPlayerHit();
                 Splatter.Play(locationOfAttack);
                 StartCoroutine(HitColoration());
                 Health -= damage;
@@ -615,6 +616,25 @@ public class PlayerController : TileCreature
     // Handles stuff that happens at the end of the player turn.
     public void EndOfTurn()
     {
+<<<<<<< Updated upstream
+=======
+        //Pick up any money that we ended our turn on top of
+        var tile = BattleManager.instance.GetTileAtLocation((int)transform.position.x, (int)transform.position.z);
+
+        if (tile.ItemOnTile != null)
+        {
+            DroppedMoney moneyobj = tile.ItemOnTile as DroppedMoney;
+            if (moneyobj != null)
+            {
+                Debug.Log("Picked up money");
+                AudioManager.PlayPickMoney();
+                Money += moneyobj.Value;
+                moneyobj.Pickup();
+            }
+        }
+
+
+>>>>>>> Stashed changes
         //Debug.Log("Player Controller end of turn");
         // Spirit decay
         LoseSpirit(1);

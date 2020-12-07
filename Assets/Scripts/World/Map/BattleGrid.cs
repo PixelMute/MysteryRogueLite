@@ -100,6 +100,7 @@ public class BattleGrid : MonoBehaviour
         if (!LoadingNewFloor)
         {
             LoadingNewFloor = true;
+            AudioManager.PlayNextFloor();
             StartCoroutine(LoadNewFloorCoroutine());
         }
     }

@@ -58,6 +58,7 @@ public class BasicEnemyAI : EnemyBrain
             {
                 // Go to alerted, take no action. But do shout for help.
                 currentAIState = EnemyAIState.alerted;
+                AudioManager.PlayAlertNoise();
                 Body.EnemyUI.FadeExclaimationPoint();
                 ShoutForHelp();
             }

@@ -10,6 +10,7 @@ public class Arrow : MonoBehaviour
     public void ShootAtTarget(Vector2Int target, Effect effect)
     {
         var angle = GetAngleToTarget(target);
+        AudioManager.PlayGun();
         transform.rotation = Quaternion.Euler(new Vector3(90, -angle + 90, 0));
         StartCoroutine(GoTowardsTargetAndActivateEffect(target, effect));
     }
