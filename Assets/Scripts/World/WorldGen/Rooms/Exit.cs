@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class Exit : StandardRoom
 {
-    private Vector2Int? _stairsLocation;
-    public Vector2Int? StairsLocation
+    private SerializableVector2Int? _stairsLocation;
+    public SerializableVector2Int? StairsLocation
     {
         get
         {

@@ -21,6 +21,7 @@ public enum RoomType
     BOSS
 }
 
+[Serializable]
 public class RoomInfo
 {
     public int MaxWidth { get; set; }
@@ -32,6 +33,7 @@ public class RoomInfo
     public RoomType RoomType { get; set; }
 }
 
+[Serializable]
 public abstract class Room
 {
     public RogueRect Bounds { get; private set; }
@@ -39,23 +41,23 @@ public abstract class Room
 
     public List<Room> Neighbors { get; private set; }
 
-    public Dictionary<Room, Vector2Int> ConnectionPoints { get; private set; }
-    public List<Vector2Int> Corners { get; private set; }
+    public Dictionary<Room, SerializableVector2Int> ConnectionPoints { get; private set; }
+    public List<SerializableVector2Int> Corners { get; private set; }
 
     public Room(RoomInfo info)
     {
         Info = info;
         Bounds = new RogueRect();
         Neighbors = new List<Room>();
-        ConnectionPoints = new Dictionary<Room, Vector2Int>();
-        Corners = new List<Vector2Int>();
+        ConnectionPoints = new Dictionary<Room, SerializableVector2Int>();
+        Corners = new List<SerializableVector2Int>();
     }
 
     public void Reset()
     {
         Bounds = new RogueRect();
-        ConnectionPoints = new Dictionary<Room, Vector2Int>();
-        Corners = new List<Vector2Int>();
+        ConnectionPoints = new Dictionary<Room, SerializableVector2Int>();
+        Corners = new List<SerializableVector2Int>();
         foreach (var room in Neighbors)
         {
             room.Neighbors.Remove(this);
@@ -114,9 +116,9 @@ public abstract class Room
         return false;
     }
 
-    private Vector2Int? GetConnectionPoint(Room room)
+    private SerializableVector2Int? GetConnectionPoint(Room room)
     {
-        var doorPoints = new List<Vector2Int>();
+        var doorPoints = new List<SerializableVector2Int>();
         var intersection = Bounds.Intersect(room.Bounds);
         if (intersection == null)
         {

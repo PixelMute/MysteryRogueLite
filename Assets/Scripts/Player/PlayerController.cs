@@ -8,29 +8,36 @@ using UnityEngine;
 public class PlayerController : TileCreature
 {
     private const int movementEnergyCost = 1;
-    public Rigidbody rb;
-    public BoxCollider boxCollider;
     public PlayerAnimation Animation;
 
     // Card Management
     public static Deck playerDeck;
     public PlayerUIManager puim; // This class manages the player's ui graphically.
 
-    private int cardRedrawAmount = 8; // Redraw up to this number of cards.
-    private int maxHandSize = 12;
-    private int maxTurnsUntilDraw = 1; // Draw a card every X turns.
-    private int turnsUntilDraw = 1;
+    [NonSerialized]
+    public int cardRedrawAmount = 8; // Redraw up to this number of cards.
+    [NonSerialized]
+    public int maxHandSize = 12;
+    [NonSerialized]
+    public int maxTurnsUntilDraw = 1; // Draw a card every X turns.
+    [NonSerialized]
+    public int turnsUntilDraw = 1;
 
     // Resources
     private int currentEnergy;
-    private int energyPerTurn = 3;
+    [NonSerialized]
+    public int energyPerTurn = 3;
 
-    private float currentSpirit;
-    private int maxSpirit = 1000;
-    private int spiritCostPerDiscard = 15; // How much spirit it costs to discard a card
+
+    [NonSerialized]
+    public float currentSpirit;
+    [NonSerialized]
+    public int maxSpirit = 1000;
+    [NonSerialized]
+    public int spiritCostPerDiscard = 15; // How much spirit it costs to discard a card
     private int health;
-    private int maxHealth = 100;
-
+    [NonSerialized]
+    public int maxHealth = 100;
     private int money;
 
     public BloodSplatter Splatter;
@@ -45,22 +52,22 @@ public class PlayerController : TileCreature
     public float CurrentSpirit
     {
         get { return currentSpirit; }
-        private set { currentSpirit = value; puim.SetSpiritPercentage(currentSpirit / maxSpirit); } // Automatically update the display whenever spirit changes
+        set { currentSpirit = value; puim.SetSpiritPercentage(currentSpirit / maxSpirit); } // Automatically update the display whenever spirit changes
     }
     public int CurrentEnergy
     {
         get { return currentEnergy; }
-        private set { currentEnergy = value; puim.SetCurrentEnergy(currentEnergy); }
+        set { currentEnergy = value; puim.SetCurrentEnergy(currentEnergy); }
     }
     public int Health
     {
         get { return health; }
-        private set { health = value; puim.SetCurrentHealth(health, maxHealth); }
+        set { health = value; puim.SetCurrentHealth(health, maxHealth); }
     }
     public int Money
     {
         get { return money; }
-        private set { money = value; puim.SetCurrentMoney(money); }
+        set { money = value; puim.SetCurrentMoney(money); }
     }
 
     public bool IsFacingRight = true;
@@ -88,9 +95,6 @@ public class PlayerController : TileCreature
 
     private void AssignVariables()
     {
-        // Movement / physics
-        boxCollider = GetComponent<BoxCollider>();
-        rb = GetComponent<Rigidbody>();
         puim = GetComponent<PlayerUIManager>();
 
         // Cards

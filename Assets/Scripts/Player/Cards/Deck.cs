@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 // This is the data class that stores information regarding the deck of cards.
@@ -51,7 +50,7 @@ public class Deck
         Debug.Log("Drawing card " + drawnCard.CardInfo.Name);
         drawPile.RemoveAt(0);
         hand.Add(drawnCard);
-        
+
         drawnCard.OnDraw();
         return drawnCard;
     }

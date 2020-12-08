@@ -1,25 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+[Serializable]
 public class Level
 {
     public List<Room> Rooms { get; protected set; }
     public Entrance Entrance { get; protected set; }
     public Exit Exit { get; protected set; }
-    public Tilemap Terrain { get; protected set; }
-    public Tilemap Decorations { get; protected set; }
-    public DecorativeTileMap DecorativeTileMap { get; protected set; }
+    [field: NonSerialized]
+    public Tilemap Terrain { get; set; }
+    [field: NonSerialized]
+    public Tilemap Decorations { get; set; }
     public bool HasBeenBuilt { get; protected set; } = false;
     private RogueRect _bounds;
-    private List<Vector2Int> _corners;
-    public List<Vector2Int> Corners
+    private List<SerializableVector2Int> _corners;
+    public List<SerializableVector2Int> Corners
     {
         get
         {
             if (_corners == null)
             {
-                _corners = new List<Vector2Int>();
+                _corners = new List<SerializableVector2Int>();
                 foreach (var room in Rooms)
                 {
                     _corners.AddRange(room.Corners);
@@ -46,7 +49,6 @@ public class Level
     {
         Terrain = terrain;
         Decorations = decorativeTileMap.TileMap;
-        DecorativeTileMap = decorativeTileMap;
     }
 
     public void Build()

@@ -1,4 +1,7 @@
-﻿class LargeSqaureRoom : StandardRoom
+﻿using System;
+
+[Serializable]
+class LargeSqaureRoom : StandardRoom
 {
     public LargeSqaureRoom() : base()
     {
@@ -36,35 +39,35 @@
     public override void Decorate(Level level)
     {
         var painter = new RoomPainter(level, this);
-        level.DecorativeTileMap.SpawnTorch(Bounds.Left + 4, Bounds.Bottom + 4);
-        level.DecorativeTileMap.SpawnTorch(Bounds.Left + 7, Bounds.Bottom + 4);
+        DecorativeTileMap.SpawnTorch(Bounds.Left + 4, Bounds.Bottom + 4);
+        DecorativeTileMap.SpawnTorch(Bounds.Left + 7, Bounds.Bottom + 4);
         //level.DecorativeTileMap.SpawnSideTorch(Bounds.Left + 3, Bounds.Bottom + 4, false);
         //level.DecorativeTileMap.SpawnSideTorch(Bounds.Left + 8, Bounds.Bottom + 4, true);
         //level.DecorativeTileMap.SpawnSideTorch(Bounds.Left + 3, Bounds.Bottom + 7, false);
         //level.DecorativeTileMap.SpawnSideTorch(Bounds.Left + 8, Bounds.Bottom + 7, true);
         if (!painter.IsFloor(Bounds.Left + 3, Bounds.Top - 1))
         {
-            level.DecorativeTileMap.SpawnTorch(Bounds.Left + 3, Bounds.Top - 1);
+            DecorativeTileMap.SpawnTorch(Bounds.Left + 3, Bounds.Top - 1);
         }
         if (!painter.IsFloor(Bounds.Right - 4, Bounds.Top - 1))
         {
-            level.DecorativeTileMap.SpawnTorch(Bounds.Right - 4, Bounds.Top - 1);
+            DecorativeTileMap.SpawnTorch(Bounds.Right - 4, Bounds.Top - 1);
         }
         if (!painter.IsFloor(Bounds.Left, Bounds.Bottom + 3))
         {
-            level.DecorativeTileMap.SpawnSideTorch(Bounds.Left + 1, Bounds.Bottom + 3, true);
+            DecorativeTileMap.SpawnSideTorch(Bounds.Left + 1, Bounds.Bottom + 3, true);
         }
         if (!painter.IsFloor(Bounds.Left, Bounds.Top - 4))
         {
-            level.DecorativeTileMap.SpawnSideTorch(Bounds.Left + 1, Bounds.Top - 4, true);
+            DecorativeTileMap.SpawnSideTorch(Bounds.Left + 1, Bounds.Top - 4, true);
         }
         if (!painter.IsFloor(Bounds.Right - 1, Bounds.Bottom + 3))
         {
-            level.DecorativeTileMap.SpawnSideTorch(Bounds.Right - 2, Bounds.Bottom + 3, false);
+            DecorativeTileMap.SpawnSideTorch(Bounds.Right - 2, Bounds.Bottom + 3, false);
         }
         if (!painter.IsFloor(Bounds.Right - 1, Bounds.Top - 4))
         {
-            level.DecorativeTileMap.SpawnSideTorch(Bounds.Right - 2, Bounds.Top - 4, false);
+            DecorativeTileMap.SpawnSideTorch(Bounds.Right - 2, Bounds.Top - 4, false);
         }
     }
 }

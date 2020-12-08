@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class Entrance : StandardRoom
 {
-    private Vector2Int? _playerSpawn;
-    public Vector2Int? PlayerSpawn
+    private SerializableVector2Int? _playerSpawn;
+    public SerializableVector2Int? PlayerSpawn
     {
         get
         {

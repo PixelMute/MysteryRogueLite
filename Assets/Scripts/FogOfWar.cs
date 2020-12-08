@@ -123,7 +123,7 @@ public class FogOfWar : MonoBehaviour
     /// Recheck certain tiles to see if they are corners. If they are corners then they should be visible
     /// </summary>
     /// <param name="tilesToRecheck"></param>
-    private void RecheckTiles(List<Vector2Int> tilesToRecheck)
+    private void RecheckTiles(List<SerializableVector2Int> tilesToRecheck)
     {
         foreach (var tile in tilesToRecheck)
         {

@@ -117,7 +117,7 @@ public class RoomPainter
                 {
                     if (SeededRandom.RandBool(.125f))
                     {
-                        Level.DecorativeTileMap.SpawnTorch(i, j);
+                        DecorativeTileMap.SpawnTorch(i, j);
                     }
                     else if (SeededRandom.RandBool(.125f))
                     {
@@ -126,11 +126,11 @@ public class RoomPainter
                 }
                 if (type == TypeOfTile.Left && SeededRandom.RandBool(.125f) && IsFloor(i + 1, j))
                 {
-                    Level.DecorativeTileMap.SpawnSideTorch(i + 1, j, true);
+                    DecorativeTileMap.SpawnSideTorch(i + 1, j, true);
                 }
                 if (type == TypeOfTile.Right && SeededRandom.RandBool(.125f) && IsFloor(i - 1, j))
                 {
-                    Level.DecorativeTileMap.SpawnSideTorch(i - 1, j, false);
+                    DecorativeTileMap.SpawnSideTorch(i - 1, j, false);
                 }
                 if (type == TypeOfTile.Floor && SeededRandom.RandBool(.02f))
                 {

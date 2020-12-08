@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 class ConnectionRoom : Room
 {
     public static RoomInfo ConnectionRoomInfo = new RoomInfo()

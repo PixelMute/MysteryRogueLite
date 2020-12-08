@@ -1,4 +1,7 @@
-﻿class SpecialRoom : Room
+﻿using System;
+
+[Serializable]
+class SpecialRoom : Room
 {
     public SpecialRoom() : base(new RoomInfo()
     {

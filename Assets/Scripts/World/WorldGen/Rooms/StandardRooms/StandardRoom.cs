@@ -1,4 +1,7 @@
-﻿public class StandardRoom : Room
+﻿using System;
+
+[Serializable]
+public class StandardRoom : Room
 {
     public StandardRoom() : base(new RoomInfo()
     {

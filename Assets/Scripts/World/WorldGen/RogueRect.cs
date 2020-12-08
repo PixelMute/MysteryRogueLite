@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[Serializable]
 public class RogueRect
 {
     public int Left { get; set; }
