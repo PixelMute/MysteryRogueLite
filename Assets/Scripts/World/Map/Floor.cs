@@ -76,6 +76,7 @@ public class Floor
     public int FloorNumber { get; private set; }
     public List<EnemyBody> enemies { get; private set; } = new List<EnemyBody>();
     public List<Trap> traps { get; private set; } = new List<Trap>();
+    public List<TreasureChest> treasureChests { get; private set; } = new List<TreasureChest>();
 
     // Pathfinding
     private float[,] walkCostsMap = null; // This is the cost of that tile. 0 = impassable.
@@ -289,6 +290,10 @@ public class Floor
                 if (map[i, j].tileItemType != Roguelike.Tile.TileItemType.empty)
                 {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetItemOnTile()?.gameObject);
+                }
+                if (map[i, j].tileTerrainType != Roguelike.Tile.TileTerrainType.floor)
+                {
+                    BattleGrid.instance.DestroyGameObject(map[i, j].terrainOnTile?.gameObject);
                 }
             }
         }
