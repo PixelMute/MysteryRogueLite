@@ -9,26 +9,21 @@ class TileMapData
     private static Dictionary<string, Tile> tiles = new Dictionary<string, Tile>();
     public static string Path = "Tiles/";
     string[,] TileNames;
-    int Left;
-    int Bottom;
-    int Width;
-    int Height;
+    RogueRect Bounds;
 
-    public static TileMapData SaveTileMap(Tilemap tileMap, int left, int bottom, int width, int height)
+    public static TileMapData SaveTileMap(Tilemap tileMap, RogueRect bounds)
     {
         var data = new TileMapData()
         {
-            TileNames = new string[height, width],
-            Left = left,
-            Bottom = bottom,
-            Width = width,
-            Height = height
+            TileNames = new string[bounds.Height, bounds.Width],
+            Bounds = bounds,
         };
-        for (int i = left; i < left + width; i++)
+        for (int i = 0; i < bounds.Width; i++)
         {
-            for (int j = bottom; j < bottom + height; j++)
+            for (int j = 0; j < bounds.Height; j++)
             {
-                data.TileNames[i, j] = tileMap.GetTile(new UnityEngine.Vector3Int(i, j, 0)).name;
+                var tile = tileMap.GetTile(new UnityEngine.Vector3Int(i, j, 0));
+                data.TileNames[j, i] = tile == null ? "" : tile.name;
             }
         }
         return data;
@@ -36,11 +31,11 @@ class TileMapData
 
     public static void LoadTileMap(TileMapData data, Tilemap tileMap)
     {
-        for (int i = data.Left; i < data.Left + data.Width; i++)
+        for (int i = 0; i < data.Bounds.Width; i++)
         {
-            for (int j = data.Bottom; j < data.Bottom + data.Height; j++)
+            for (int j = 0; j < data.Bounds.Height; j++)
             {
-                tileMap.SetTile(new UnityEngine.Vector3Int(i, j, 0), LoadTile(data.TileNames[i, j]));
+                tileMap.SetTile(new Vector3Int(i, j, 0), LoadTile(data.TileNames[j, i]));
             }
         }
     }

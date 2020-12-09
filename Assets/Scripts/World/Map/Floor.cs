@@ -6,12 +6,18 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+[Serializable]
 public class FloorManager
 {
-    public const int WinningFloorNumber = 5;
+    public int WinningFloorNumber = 5;
     public int CurrentFloorNumber { get; private set; } = 0;
     public List<Floor> AllFloors { get; private set; } = new List<Floor>();
     public Floor CurrentFloor { get; private set; }
+
+    public FloorManager(int winningFloorNumber = 5)
+    {
+        WinningFloorNumber = 5;
+    }
 
     public void GenerateNewFloor()
     {
@@ -66,6 +72,7 @@ public class FloorManager
     }
 }
 
+[Serializable]
 public class Floor
 {
     public Level Level { get; set; }
@@ -74,11 +81,15 @@ public class Floor
     public int sizeZ { get; private set; }
     public int seed { get; private set; }
     public int FloorNumber { get; private set; }
+    [field: NonSerialized]
     public List<EnemyBody> enemies { get; private set; } = new List<EnemyBody>();
+    [field: NonSerialized]
     public List<Trap> traps { get; private set; } = new List<Trap>();
 
     // Pathfinding
+    [NonSerialized]
     private float[,] walkCostsMap = null; // This is the cost of that tile. 0 = impassable.
+    [NonSerialized]
     public WalkableTilesGrid walkGrid = null;
 
     public Floor(Sirpgeon dungeonData, int floorNumber, int seed)

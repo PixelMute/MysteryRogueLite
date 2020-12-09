@@ -1,21 +1,26 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 namespace Roguelike
 {
+    [Serializable]
     // The BattleGrid stores a 2d array of these.
     public class Tile
     {
         public enum TileEntityType { empty, wall, enemy, player, boss };
         [HideInInspector] public TileEntityType tileEntityType = TileEntityType.empty;
         // This is null if there's nothing here but a floor.
+        [NonSerialized]
         private TileEntity entityOnTile = null;
 
-        public enum TileItemType { empty, money, smallChest};
-        [HideInInspector] public TileItemType tileItemType = TileItemType.empty;
+        public enum TileItemType { empty, money, smallChest };
+        public TileItemType tileItemType = TileItemType.empty;
+        [NonSerialized]
         private TileItem itemOnTile;
 
         public enum TileTerrainType { floor, stairsUp, stairsDown, trap };
+        [NonSerialized]
         public TileTerrain terrainOnTile = null;
-        [HideInInspector] public TileTerrainType tileTerrainType = TileTerrainType.floor;
+        public TileTerrainType tileTerrainType = TileTerrainType.floor;
 
         public Tile()
         {

@@ -19,6 +19,7 @@ public class PlayerData
     int EnergyPerTurn;
     int xPos;
     int zPos;
+    DeckData Deck;
 
     public static PlayerData SavePlayer(PlayerController player)
     {
@@ -38,7 +39,8 @@ public class PlayerData
             CurrentEnergy = player.CurrentEnergy,
             EnergyPerTurn = player.energyPerTurn,
             xPos = player.xPos,
-            zPos = player.zPos
+            zPos = player.zPos,
+            Deck = DeckData.SaveDeck(PlayerController.playerDeck)
         };
     }
 
@@ -60,6 +62,11 @@ public class PlayerData
         player.xPos = data.xPos;
         player.zPos = data.zPos;
         player.UpdateLOS();
+        PlayerController.playerDeck = DeckData.LoadDeck(data.Deck);
+        foreach (var card in PlayerController.playerDeck.hand)
+        {
+            player.puim.SpawnCardInHand(card);
+        }
     }
 }
 

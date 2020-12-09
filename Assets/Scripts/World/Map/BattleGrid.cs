@@ -37,7 +37,7 @@ public class BattleGrid : MonoBehaviour
             return floorManager.CurrentFloor;
         }
     }
-    private FloorManager floorManager = new FloorManager();
+    public FloorManager floorManager = new FloorManager();
 
 
     public int sizeX
@@ -92,7 +92,7 @@ public class BattleGrid : MonoBehaviour
 
     public void GoDownFloor()
     {
-        if (floorManager.CurrentFloorNumber + 1 == FloorManager.WinningFloorNumber)
+        if (floorManager.CurrentFloorNumber + 1 == floorManager.WinningFloorNumber)
         {
             GameOverScreen.PlayerWon();
             return;
