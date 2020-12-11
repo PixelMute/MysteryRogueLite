@@ -15,8 +15,8 @@ class LoadGameCanvas : MonoBehaviour
         {
             var scroll = Instantiate(LoadGameScroll, transform);
             scroll.transform.localPosition = locations[i];
-            var info = SaveGameSystem.GetMetaData(0, RegularGames);
-            scroll.GetComponent<LoadGameScroll>().SetInfo(info);
+            var info = SaveGameSystem.GetMetaData(i, RegularGames);
+            scroll.GetComponent<LoadGameScroll>().SetInfo(info, RegularGames ? i : i + 3);
         }
     }
 }

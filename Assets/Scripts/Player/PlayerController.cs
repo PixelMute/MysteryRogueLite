@@ -75,6 +75,7 @@ public class PlayerController : TileCreature
 
     void Awake()
     {
+
     }
 
     // Things to set once everything else has been initialized
@@ -97,14 +98,18 @@ public class PlayerController : TileCreature
     {
         puim = GetComponent<PlayerUIManager>();
 
-        // Cards
-        AssignInitialDeck();
+        //If we didn't load the playerDeck from 
+        if (playerDeck == null)
+        {
+            // Cards
+            AssignInitialDeck();
 
-        // Resources
-        CurrentEnergy = energyPerTurn;
-        CurrentSpirit = maxSpirit;
-        Health = maxHealth;
-        Money = 0;
+            // Resources
+            CurrentEnergy = energyPerTurn;
+            CurrentSpirit = maxSpirit;
+            Health = maxHealth;
+            Money = 0;
+        }
 
         UpdateLOS();
 
@@ -699,6 +704,7 @@ public class PlayerController : TileCreature
 
         if (Health <= 0)
         {
+            SaveGameSystem.instance.DeleteGame();
             GameOverScreen.PlayerDeath();
         }
 

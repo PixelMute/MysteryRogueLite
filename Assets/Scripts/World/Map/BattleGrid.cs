@@ -117,6 +117,7 @@ public class BattleGrid : MonoBehaviour
         FloorDisplay.text = (floorManager.CurrentFloorNumber + 1).ToString();
         FogOfWar.Initialize();
         FogOfWar.ForceUpdate();
+        SaveGameSystem.instance.SaveGame();
         yield return new WaitForSeconds(1f);
         yield return fader.Fade(SceneFader.FadeDirection.Out);               //Fade back in
         LoadingNewFloor = false;
@@ -124,13 +125,24 @@ public class BattleGrid : MonoBehaviour
 
     public void GenerateFirstLevel()
     {
-        SeededRandom.NewRandomSeed();
-        Debug.Log($"Random seed: {SeededRandom.Seed}");
-        floorManager.GenerateNewFloor();
-        //InitFogOfWar();
-        FogOfWar.Initialize();
+        if (SaveGameSystem.instance?.HasGameToLoad() == true)
+        {
+            SaveGameSystem.instance.LoadGame();
+        }
+        else
+        {
+            SeededRandom.NewRandomSeed();
+            Debug.Log($"Random seed: {SeededRandom.Seed}");
+            floorManager.GenerateNewFloor();
+            //InitFogOfWar();
+            FogOfWar.Initialize();
+        }
     }
 
+    private void OnApplicationQuit()
+    {
+        SaveGameSystem.instance.SaveGame();
+    }
 
     //Instantiates wall
     public TileEntity SpawnWall(int x, int z)

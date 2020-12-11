@@ -33,6 +33,7 @@ public class BattleManager : MonoBehaviour
             {
                 //Handle exception if we can't load cards
             }
+
         }
         else if (instance != this)
         {

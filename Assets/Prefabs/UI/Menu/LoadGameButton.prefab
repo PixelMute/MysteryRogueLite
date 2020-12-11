@@ -410,8 +410,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Start New Game
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f113cc7f154487846add96fcb023b5be, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: f113cc7f154487846add96fcb023b5be, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1148,6 +1148,7 @@ MonoBehaviour:
   ScrollText: {fileID: 8367313351437555377}
   GameInfo: {fileID: 270724197066003880}
   FloorNumber: {fileID: 6833562385704462575}
+  Parent: {fileID: 0}
 --- !u!1 &7545549521977724715
 GameObject:
   m_ObjectHideFlags: 0

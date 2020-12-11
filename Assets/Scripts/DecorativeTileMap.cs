@@ -8,8 +8,8 @@ public class DecorativeTileMap : MonoBehaviour
     public Tile LadderDown;
     public GameObject Torch;
     public GameObject SideTorch;
-    private List<GameObject> torches;
-
+    public List<(GameObject, TorchDirection)> torches;
+    public enum TorchDirection { regular, left, right };
     public static DecorativeTileMap instance;
 
 
@@ -23,7 +23,7 @@ public class DecorativeTileMap : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        torches = new List<GameObject>();
+        torches = new List<(GameObject, TorchDirection)>();
     }
 
     public void PaintStairs(Vector3Int stairsLocation)
@@ -36,13 +36,15 @@ public class DecorativeTileMap : MonoBehaviour
         TileMap.ClearAllTiles();
         for (int i = torches.Count - 1; i >= 0; i--)
         {
-            Destroy(torches[i]);
+            Destroy(torches[i].Item1);
         }
+        torches.Clear();
     }
 
     public void InstantiateTorch(int x, int y)
     {
-        torches.Add(Instantiate(Torch, new Vector3(x, .01f, y), Quaternion.Euler(new Vector3(90, 0, 0)), transform));
+        var torch = Instantiate(Torch, new Vector3(x, .01f, y), Quaternion.Euler(new Vector3(90, 0, 0)), transform);
+        torches.Add((torch, TorchDirection.regular));
     }
 
     public static void SpawnTorch(int x, int y)
@@ -57,7 +59,7 @@ public class DecorativeTileMap : MonoBehaviour
         {
             sideTorch.GetComponent<SpriteRenderer>().flipX = true;
         }
-        torches.Add(sideTorch);
+        torches.Add((sideTorch, facingRight ? TorchDirection.right : TorchDirection.left));
     }
 
     public static void SpawnSideTorch(int x, int y, bool facingRight)

@@ -7,7 +7,7 @@ public class TurnManager : MonoBehaviour
     public static TurnManager instance;
 
     public PlayerController Player;
-    public enum WhoseTurn { player, enemy };  // Whose turn it currently is
+    public enum WhoseTurn { player, enemy, saving };  // Whose turn it currently is
     public enum TurnPhase { start, action, moving, end };
     public WhoseTurn CurrentTurn { get; set; } = WhoseTurn.player;
     public TurnPhase CurrentPhase { get; set; } = TurnPhase.start;
@@ -35,11 +35,7 @@ public class TurnManager : MonoBehaviour
         //End game if they press escape
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+            SaveGameSystem.ExitGame();
         }
 
         if (!BattleGrid.instance.LoadingNewFloor)

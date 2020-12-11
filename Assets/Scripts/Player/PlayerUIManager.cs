@@ -247,6 +247,25 @@ public class PlayerUIManager : MonoBehaviour
         UpdateHandLayoutSpacing();
     }
 
+    /// <summary>
+    /// Removes all of the cards from the UI
+    /// </summary>
+    public void ClearCards()
+    {
+        if (selectedCard)
+        {
+            DeselectCard();
+        }
+        for (int i = graphicalHand.Count - 1; i >= 0; i--)
+        {
+            GameObject.Destroy(graphicalHand[i].gameObject);
+        }
+        graphicalHand.Clear();
+
+        // Update spacing
+        UpdateHandLayoutSpacing();
+    }
+
 
     // Called when a card in the hand is clicked.
     internal void CardInHandClicked(int index)

@@ -15,6 +15,20 @@ public class FogOfWar : MonoBehaviour
     public Vector2Int PrevPlayerPosition { get; private set; }
 
     public List<HideInFog> HiddenElements;
+
+    public RogueRect Bounds
+    {
+        get
+        {
+            return new RogueRect()
+            {
+                Left = -NumExtraTiles / 2,
+                Right = BattleGrid.instance.CurrentFloor.sizeX - (NumExtraTiles / 2),
+                Bottom = -NumExtraTiles / 2,
+                Top = BattleGrid.instance.CurrentFloor.sizeZ - (NumExtraTiles / 2)
+            };
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {

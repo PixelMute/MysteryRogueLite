@@ -7,17 +7,18 @@ class LoadGameScroll : MonoBehaviour, IPointerClickHandler
     public TextMeshProUGUI ScrollText;
     public GameObject GameInfo;
     public TextMeshProUGUI FloorNumber;
-    public GameMetaData Data;
-    public GameObject Parent;
+    private GameObject Parent;
+    private int _gameSlot;
+    private bool disabled = false;
 
     void Awake()
     {
         Parent = transform.parent.gameObject;
     }
 
-    public void SetInfo(GameMetaData data)
+    public void SetInfo(GameMetaData data, int gameSlot)
     {
-        Data = data;
+        _gameSlot = gameSlot;
         if (data != null)
         {
             ScrollText.text = data.LastPlayed.ToString("MM-dd-yy HH:mm");
@@ -40,11 +41,11 @@ class LoadGameScroll : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (Data == null)
+        if (!disabled)
         {
-            //Start new game
-            StartCoroutine(SaveGameSystem.StartGameScene(Data));
+            StartCoroutine(SaveGameSystem.StartGameScene(_gameSlot));
             StartLoadingScreen();
+            disabled = true;
         }
     }
 
@@ -52,7 +53,14 @@ class LoadGameScroll : MonoBehaviour, IPointerClickHandler
     {
         foreach (Transform child in Parent.transform)
         {
-            child.gameObject.SetActive(!child.gameObject.activeSelf);
+            if (child != transform)
+            {
+                child.gameObject.SetActive(!child.gameObject.activeSelf);
+            }
+        }
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(false);
         }
     }
 }

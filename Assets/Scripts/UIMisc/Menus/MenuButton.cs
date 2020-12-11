@@ -8,13 +8,28 @@ class MenuButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IP
 {
     private List<Image> Images;
     private Button button;
-    private bool highlighted = false;
 
     public void Awake()
     {
         button = GetComponentInChildren<Button>();
         Images = GetComponentsInChildren<Image>().ToList();
+    }
 
+
+    private void Highlight()
+    {
+        foreach (var image in Images)
+        {
+            image.color = new Color(1, 1, 1);
+        }
+    }
+
+    private void UnHighlight()
+    {
+        foreach (var image in Images)
+        {
+            image.color = new Color(200f / 255f, 200f / 255f, 200f / 255f);
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -24,18 +39,12 @@ class MenuButton : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IP
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        foreach (var image in Images)
-        {
-            image.color = new Color(1, 1, 1);
-        }
+        Highlight();
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        foreach (var image in Images)
-        {
-            image.color = new Color(200f / 255f, 200f / 255f, 200f / 255f);
-        }
+        UnHighlight();
     }
 }
 

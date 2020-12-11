@@ -82,9 +82,9 @@ public class Floor
     public int seed { get; private set; }
     public int FloorNumber { get; private set; }
     [field: NonSerialized]
-    public List<EnemyBody> enemies { get; private set; } = new List<EnemyBody>();
+    public List<EnemyBody> enemies { get; set; } = new List<EnemyBody>();
     [field: NonSerialized]
-    public List<Trap> traps { get; private set; } = new List<Trap>();
+    public List<Trap> traps { get; set; } = new List<Trap>();
 
     // Pathfinding
     [NonSerialized]
@@ -154,18 +154,7 @@ public class Floor
 
     public void InstantiateFloor()
     {
-        for (int i = 0; i < sizeX; i++)
-        {
-            for (int j = 0; j < sizeZ; j++)
-            {
-                switch (map[i, j].tileEntityType)
-                {
-                    case Roguelike.Tile.TileEntityType.wall:
-                        SpawnWallAt(i, j);
-                        break;
-                }
-            }
-        }
+        SpawnWalls();
 
         //Generates the map twice. Not efficient but lazy and it works
         GenerateWalkableMap();
@@ -179,6 +168,22 @@ public class Floor
         PlacePlayerInDungeon();
 
         GenerateWalkableMap();
+    }
+
+    public void SpawnWalls()
+    {
+        for (int i = 0; i < sizeX; i++)
+        {
+            for (int j = 0; j < sizeZ; j++)
+            {
+                switch (map[i, j].tileEntityType)
+                {
+                    case Roguelike.Tile.TileEntityType.wall:
+                        SpawnWallAt(i, j);
+                        break;
+                }
+            }
+        }
     }
 
     private void PlaceTreasure()
@@ -369,6 +374,11 @@ public class Floor
         BattleManager.player.transform.position = new Vector3(spawnLocation.x, 0.05f, spawnLocation.y);
     }
 
+    public void PlayerPlayerInDungeon(int x, int z)
+    {
+
+    }
+
     // Picks a random empty tile out of the map.
     public Vector2Int PickRandomEmptyTile()
     {
@@ -460,7 +470,7 @@ public class Floor
     }
 
     // Recalculates what is walkable and what is not.
-    private void GenerateWalkableMap()
+    public void GenerateWalkableMap()
     {
         if (walkCostsMap == null)
         {

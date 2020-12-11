@@ -17,7 +17,7 @@ public class Audio : MonoBehaviour
             PlayerPrefs.SetFloat(NameOfAudioSource, value);
         }
     }
-    private void Awake()
+    void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
         if (PlayerPrefs.HasKey(NameOfAudioSource))
