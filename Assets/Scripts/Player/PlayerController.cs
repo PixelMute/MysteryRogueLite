@@ -539,6 +539,7 @@ public class PlayerController : TileCreature
                 if (moneyobj != null)
                 {
                     Debug.Log("Picked up money");
+                    AudioManager.PlayPickMoney();
                     Money += moneyobj.Value;
                     moneyobj.DestroySelf();
                     tile.tileItemType = Tile.TileItemType.empty;

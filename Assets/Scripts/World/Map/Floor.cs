@@ -85,6 +85,8 @@ public class Floor
     public List<EnemyBody> enemies { get; set; } = new List<EnemyBody>();
     [field: NonSerialized]
     public List<Trap> traps { get; set; } = new List<Trap>();
+    [field: NonSerialized]
+    public List<TreasureChest> treasureChests { get; private set; } = new List<TreasureChest>();
 
     // Pathfinding
     [NonSerialized]
@@ -305,6 +307,10 @@ public class Floor
                 if (map[i, j].tileItemType != Roguelike.Tile.TileItemType.empty)
                 {
                     BattleGrid.instance.DestroyGameObject(map[i, j].GetItemOnTile()?.gameObject);
+                }
+                if (map[i, j].tileTerrainType != Roguelike.Tile.TileTerrainType.floor)
+                {
+                    BattleGrid.instance.DestroyGameObject(map[i, j].terrainOnTile?.gameObject);
                 }
             }
         }
