@@ -564,6 +564,7 @@ public class PlayerUIManager : MonoBehaviour
                     break;
                 case PlayerController.AttemptToPlayCardFailReasons.success:
                     // Discarding is handled by ResolveCard() in the pc.
+                    AudioManager.PlayCardSound(cardToPlay.cardData.CardInfo.Name);
                     DestroyHighlightTiles();
                     if (cardToPlay == selectedCard)
                         DeselectCard();

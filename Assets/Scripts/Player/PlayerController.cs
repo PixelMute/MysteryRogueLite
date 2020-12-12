@@ -548,6 +548,7 @@ public class PlayerController : TileCreature
             case Tile.TileItemType.smallChest:
                 TreasureChest treasureObj = tile.GetItemOnTile() as TreasureChest;
                 if (treasureObj != null)
+                AudioManager.PlayChestOpening();
                 { // loot boxes babbbyyyyyyyyy
                     int randomTreasurePull = UnityEngine.Random.Range(0, 4);
                     switch (randomTreasurePull)

@@ -23,6 +23,7 @@ class BossAnimation : EnemyAnimation
 
     public void Melee()
     {
+        AudioManager.PlayBossAttack();
         Animator.Play("Melee");
     }
 

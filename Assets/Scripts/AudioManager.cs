@@ -49,12 +49,42 @@ public class AudioManager : MonoBehaviour
 
     public static void PlayPickMoney()
     {
-        instance.PlaySoundEffect("bag-o-money-01");
+        instance.PlaySoundEffect("coin-drop-01");
     }
 
     public static void PlayGun()
     {
         instance.PlaySoundEffect("gun-shot-01");
+    }
+
+    public static void PlayChestOpening()
+    {
+        instance.PlaySoundEffect("bag-o-money-01");
+    }
+
+    public static void PlaySkeletonAttack()
+    {
+        instance.PlaySoundEffect("skeleton-hit-01");
+    }
+
+    public static void PlayRatAttack()
+    {
+        instance.PlaySoundEffect("rat-noise-01");
+    }
+
+    public static void PlayBossAttack()
+    {
+        instance.PlaySoundEffect("rock-smash-01");
+    }
+
+    public static void PlayFoxAttack()
+    {
+        instance.PlaySoundEffect("punch-01");
+    }
+
+    public static void PlayCardSound(string name)
+    {
+        instance.PlaySoundEffect(name + "-01");
     }
 
     public void PlaySoundEffect(string soundName)
