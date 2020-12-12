@@ -94,6 +94,7 @@ public class BattleGrid : MonoBehaviour
     {
         if (floorManager.CurrentFloorNumber + 1 == floorManager.WinningFloorNumber)
         {
+            SaveGameSystem.instance.DeleteGame();
             GameOverScreen.PlayerWon();
             return;
         }
