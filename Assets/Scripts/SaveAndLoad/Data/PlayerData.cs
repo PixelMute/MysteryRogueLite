@@ -40,7 +40,7 @@ public class PlayerData
             EnergyPerTurn = player.energyPerTurn,
             xPos = player.xPos,
             zPos = player.zPos,
-            Deck = DeckData.SaveDeck(PlayerController.playerDeck)
+            Deck = DeckData.SaveDeck(BattleManager.player.playerDeck)
         };
     }
 
@@ -62,10 +62,14 @@ public class PlayerData
         player.xPos = data.xPos;
         player.zPos = data.zPos;
         player.UpdateLOS();
-        PlayerController.playerDeck = DeckData.LoadDeck(data.Deck);
-        foreach (var card in PlayerController.playerDeck.hand)
+        BattleManager.player.playerDeck = DeckData.LoadDeck(data.Deck);
+        foreach (var card in player.playerDeck.hand)
         {
             player.puim.SpawnCardInHand(card);
+        }
+        foreach (var card in player.playerDeck.inventoryCards)
+        {
+            player.puim.CardAddedToInventory(card);
         }
     }
 }

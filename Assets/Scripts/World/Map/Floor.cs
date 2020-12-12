@@ -85,8 +85,6 @@ public class Floor
     public List<EnemyBody> enemies { get; set; } = new List<EnemyBody>();
     [field: NonSerialized]
     public List<Trap> traps { get; set; } = new List<Trap>();
-    [field: NonSerialized]
-    public List<TreasureChest> treasureChests { get; private set; } = new List<TreasureChest>();
 
     // Pathfinding
     [NonSerialized]
@@ -465,7 +463,7 @@ public class Floor
         map[x, z].SetItemOnTile(newMoneyBloodMoney);
     }
 
-    private TreasureChest SpawnChestAt(int x, int z, TreasureChest.TreasureChestTypeEnum type)
+    public TreasureChest SpawnChestAt(int x, int z, TreasureChest.TreasureChestTypeEnum type)
     {
         GameObject treasureObj = ItemSpawner.SpawnSmallChest(new Vector2Int(x, z));
         TreasureChest treasure = treasureObj.GetComponent<TreasureChest>();

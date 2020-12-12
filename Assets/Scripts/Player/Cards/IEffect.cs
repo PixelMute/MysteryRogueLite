@@ -394,13 +394,13 @@ namespace Roguelike
             switch (TargetedVal)
             {
                 case GetPlayerValueEnum.cardsInHand:
-                    return PlayerController.playerDeck.hand.Count;
+                    return BattleManager.player.playerDeck.hand.Count;
                 case GetPlayerValueEnum.cardsInDraw:
-                    return PlayerController.playerDeck.drawPile.Count;
+                    return BattleManager.player.playerDeck.drawPile.Count;
                 case GetPlayerValueEnum.cardsInDiscard:
-                    return PlayerController.playerDeck.discardPile.Count;
+                    return BattleManager.player.playerDeck.discardPile.Count;
                 case GetPlayerValueEnum.cardsInBanish:
-                    return PlayerController.playerDeck.banishPile.Count;
+                    return BattleManager.player.playerDeck.banishPile.Count;
                 case GetPlayerValueEnum.health:
                     return BattleManager.player.Health;
                 case GetPlayerValueEnum.energy:

@@ -11,7 +11,7 @@ public class PlayerController : TileCreature
     public PlayerAnimation Animation;
 
     // Card Management
-    public static Deck playerDeck;
+    public Deck playerDeck;
     public PlayerUIManager puim; // This class manages the player's ui graphically.
 
     [NonSerialized]

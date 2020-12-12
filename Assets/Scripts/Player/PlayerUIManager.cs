@@ -874,8 +874,8 @@ public class PlayerUIManager : MonoBehaviour
         // Spawn cards in deck if able
         if (whichCardsToInclude[0])
         {
-            List<Card> shuffledDeck = new List<Card>(PlayerController.playerDeck.drawPile.Count); // Need to make a temp list to shuffle them
-            foreach (Card c in PlayerController.playerDeck.drawPile)
+            List<Card> shuffledDeck = new List<Card>(BattleManager.player.playerDeck.drawPile.Count); // Need to make a temp list to shuffle them
+            foreach (Card c in BattleManager.player.playerDeck.drawPile)
             {
                 shuffledDeck.Insert(UnityEngine.Random.Range(0, shuffledDeck.Count), c);
             }
@@ -892,7 +892,7 @@ public class PlayerUIManager : MonoBehaviour
 
         if (whichCardsToInclude[1])
         {
-            foreach (Card c in PlayerController.playerDeck.discardPile)
+            foreach (Card c in BattleManager.player.playerDeck.discardPile)
             {
                 GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
                 CardInterface ci = newCard.GetComponent<CardInterface>();
@@ -903,7 +903,7 @@ public class PlayerUIManager : MonoBehaviour
 
         if (whichCardsToInclude[2])
         {
-            foreach (Card c in PlayerController.playerDeck.hand)
+            foreach (Card c in BattleManager.player.playerDeck.hand)
             {
                 GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
                 CardInterface ci = newCard.GetComponent<CardInterface>();
@@ -914,7 +914,7 @@ public class PlayerUIManager : MonoBehaviour
 
         if (whichCardsToInclude[3])
         {
-            foreach ((Card c, int i) in PlayerController.playerDeck.banishPile)
+            foreach ((Card c, int i) in BattleManager.player.playerDeck.banishPile)
             {
                 GameObject newCard = GameObject.Instantiate(cardPrefab, massCardViewGridLayout.transform);
                 // Now we need to stick a banish counter on it.

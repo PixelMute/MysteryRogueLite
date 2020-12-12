@@ -28,6 +28,7 @@ class EnemyData
             data.engaged = ai.engagedTarget != null;
             data.wonderTarget = ai.wanderTarget;
         }
+
         return data;
     }
 
@@ -63,6 +64,11 @@ class EnemyData
             ai.engagedTarget = data.engaged ? BattleManager.player : null;
             ai.wanderTarget = data.wonderTarget;
             ai.currentAIState = data.state;
+        }
+        if (body.AI is BossBrain)
+        {
+            ((BossBrain)body.AI).BossRoom = ((BossLevel)BattleGrid.instance.CurrentFloor.Level).BossRoom;
+            BossRoom.Boss = body;
         }
         return body;
     }

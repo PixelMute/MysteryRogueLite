@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,7 +10,7 @@ public class GameOverScreen : MonoBehaviour
 
     public void PlayAgainButton()
     {
-        SceneManager.LoadScene(SceneConstants.PlayGame);
+        SceneManager.LoadScene(SceneConstants.MainMenu);
     }
 
     public void QuitButton()

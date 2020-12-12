@@ -22,7 +22,7 @@ class TileMapData
         {
             for (int j = bounds.Bottom; j < bounds.Top; j++)
             {
-                var tile = tileMap.GetTile(new UnityEngine.Vector3Int(i, j, 0));
+                var tile = tileMap.GetTile(new Vector3Int(i, j, 0));
                 data.TileNames[j - bounds.Bottom, i - bounds.Left] = tile == null ? "" : tile.name;
             }
         }

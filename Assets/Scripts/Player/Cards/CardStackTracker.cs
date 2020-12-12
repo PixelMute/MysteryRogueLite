@@ -114,21 +114,21 @@ public class CardStackTracker
                 targetedCardID = 0;
                 break;
             case ManipulateHand.ManipulateHandTargetEnum.rightMostCard:
-                targetedCardID = PlayerController.playerDeck.hand.Count - 1;
+                targetedCardID = BattleManager.player.playerDeck.hand.Count - 1;
                 break;
             case ManipulateHand.ManipulateHandTargetEnum.random:
-                if (PlayerController.playerDeck.hand.Count == 0 || (currentlyResolvingCardId > -1 && PlayerController.playerDeck.hand.Count == 1))
+                if (BattleManager.player.playerDeck.hand.Count == 0 || (currentlyResolvingCardId > -1 && BattleManager.player.playerDeck.hand.Count == 1))
                     return false; // Cannot select a random card.
                 do
                 {
-                    targetedCardID = Random.Range(0, PlayerController.playerDeck.hand.Count - 1);
+                    targetedCardID = Random.Range(0, BattleManager.player.playerDeck.hand.Count - 1);
                 } while (targetedCardID == currentlyResolvingCardId);
                 break;
         }
 
         Debug.Log("Current Card Hand ID:" + targetedCardID + ", picking card " + targetedCardID);
 
-        if (targetedCardID == currentlyResolvingCard.cardIndex || targetedCardID < 0 || targetedCardID >= PlayerController.playerDeck.hand.Count)
+        if (targetedCardID == currentlyResolvingCard.cardIndex || targetedCardID < 0 || targetedCardID >= BattleManager.player.playerDeck.hand.Count)
         { // Cannot target this card
             return false;
         }

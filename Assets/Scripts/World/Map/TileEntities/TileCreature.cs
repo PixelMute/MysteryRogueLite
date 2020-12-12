@@ -23,7 +23,7 @@ public abstract class TileCreature : TileEntity
     /// Move the game object to the given x and z coordinates staying at the same y value
     /// </summary>
     /// <param name="destination">Destination we are moving to</param>
-    public void MoveToPosition(Vector2Int destination)
+    public virtual void MoveToPosition(Vector2Int destination)
     {
         MoveToPosition(destination, TimeToMove);
     }

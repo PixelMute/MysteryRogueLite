@@ -14,6 +14,8 @@ public class Game
     List<(SerializableVector2Int, DecorativeTileMap.TorchDirection)> Torches;
     SerializableVector2Int StairsLocation;
     List<EnemyData> Enemies;
+    List<(SerializableVector2Int, TreasureChest.TreasureChestTypeEnum)> Treasure;
+    List<(SerializableVector2Int, int)> Coins;
 
     public static Game SaveGame()
     {
@@ -30,6 +32,7 @@ public class Game
             StairsLocation = BattleGrid.instance.CurrentFloor.Level.Exit.StairsLocation.Value,
             Enemies = SaveEnemies(),
         };
+        game.SaveItems(BattleGrid.instance.CurrentFloor);
         return game;
     }
 
@@ -75,6 +78,28 @@ public class Game
         return res;
     }
 
+    private void SaveItems(Floor floor)
+    {
+        Treasure = new List<(SerializableVector2Int, TreasureChest.TreasureChestTypeEnum)>();
+        Coins = new List<(SerializableVector2Int, int)>();
+        for (int i = 0; i < floor.sizeX; i++)
+        {
+            for (int j = 0; j < floor.sizeZ; j++)
+            {
+                if (floor.map[i, j].tileItemType == Roguelike.Tile.TileItemType.money)
+                {
+                    var money = floor.map[i, j].GetItemOnTile() as DroppedMoney;
+                    Coins.Add((new SerializableVector2Int(i, j), money.Value));
+                }
+                else if (floor.map[i, j].tileItemType == Roguelike.Tile.TileItemType.smallChest)
+                {
+                    var chest = floor.map[i, j].GetItemOnTile() as TreasureChest;
+                    Treasure.Add((new SerializableVector2Int(i, j), chest.ChestType));
+                }
+            }
+        }
+    }
+
     public void LoadGame()
     {
         TileMapData.LoadTileMap(Terrain, BattleGrid.instance.tileMap);
@@ -89,6 +114,8 @@ public class Game
         TileMapData.Path = "Tiles/Decorations/";
         TileMapData.LoadTileMap(Decorations, BattleGrid.instance.DecorativeTileMap.TileMap);
         fogOfWar.FindElementsToHide();
+        LoadItems();
+        Painter.LoadTiles();
     }
 
     private void SetStairs()
@@ -139,6 +166,18 @@ public class Game
                     DecorativeTileMap.SpawnSideTorch(torch.x, torch.y, true);
                     break;
             }
+        }
+    }
+
+    private void LoadItems()
+    {
+        foreach (var (location, value) in Coins)
+        {
+            BattleGrid.instance.ForceSpawnMoney(location, value);
+        }
+        foreach (var (location, type) in Treasure)
+        {
+            BattleGrid.instance.CurrentFloor.SpawnChestAt(location.x, location.y, type);
         }
     }
 }

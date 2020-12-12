@@ -167,6 +167,16 @@ public class BattleGrid : MonoBehaviour
         map[adjustedSpawnLoc.x, adjustedSpawnLoc.y].SetItemOnTile(newMoneyBloodMoney);
     }
 
+    public void ForceSpawnMoney(Vector2Int spawnLoc, int amount)
+    {
+        GameObject moneyObj = ItemSpawner.SpawnMoney(spawnLoc);
+        DroppedMoney newMoneyBloodMoney = moneyObj.GetComponent<DroppedMoney>();
+        newMoneyBloodMoney.Initialize(amount); // Set how much this is worth
+        newMoneyBloodMoney.xPos = spawnLoc.x;
+        newMoneyBloodMoney.zPos = spawnLoc.y;
+        map[spawnLoc.x, spawnLoc.y].SetItemOnTile(newMoneyBloodMoney);
+    }
+
     // Picks a random empty tile out of the map.
     public Vector2Int PickRandomEmptyTile()
     {
