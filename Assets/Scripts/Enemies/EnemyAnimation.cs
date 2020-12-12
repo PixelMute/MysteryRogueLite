@@ -4,6 +4,7 @@ using UnityEngine;
 public class EnemyAnimation : MonoBehaviour
 {
     public Animator Animator { get; private set; }
+    public EnemyBody EnemyBody { get; private set; }
     public SpriteRenderer Sprite { get; private set; }
     public bool IsFacingRight { get; private set; } = true;
     public BloodSplatter Splatter;
@@ -12,6 +13,7 @@ public class EnemyAnimation : MonoBehaviour
     {
         Animator = GetComponent<Animator>();
         Sprite = GetComponent<SpriteRenderer>();
+        EnemyBody = transform.parent.GetComponent<EnemyBody>();
     }
 
     public bool IsIdle()
@@ -53,6 +55,20 @@ public class EnemyAnimation : MonoBehaviour
 
     public virtual void Attack()
     {
+        switch(EnemyBody.Type)
+        {
+            case EnemyBody.EnemyType.melee:
+                AudioManager.PlayRatAttack();
+                break;
+            case EnemyBody.EnemyType.brute:
+                AudioManager.PlayFoxAttack();
+                break;
+            case EnemyBody.EnemyType.minion:
+                AudioManager.PlaySkeletonAttack();
+                break;
+            default:
+                break;
+        }
         Animator.Play("Attack");
     }
 
