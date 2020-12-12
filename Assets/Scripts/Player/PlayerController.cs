@@ -548,7 +548,7 @@ public class PlayerController : TileCreature
             case Tile.TileItemType.smallChest:
                 TreasureChest treasureObj = tile.GetItemOnTile() as TreasureChest;
                 if (treasureObj != null)
-                AudioManager.PlayChestOpening();
+                    AudioManager.PlayChestOpening();
                 { // loot boxes babbbyyyyyyyyy
                     int randomTreasurePull = UnityEngine.Random.Range(0, 4);
                     switch (randomTreasurePull)
@@ -706,7 +706,7 @@ public class PlayerController : TileCreature
 
         if (Health <= 0)
         {
-            SaveGameSystem.instance.DeleteGame();
+            SaveGameSystem.instance?.DeleteGame();
             GameOverScreen.PlayerDeath();
         }
 

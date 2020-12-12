@@ -33,10 +33,10 @@ public class TurnManager : MonoBehaviour
         BattleGrid.instance.FogOfWar.ForceUpdate();
 
         //End game if they press escape
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            SaveGameSystem.ExitGame();
-        }
+        //if (Input.GetKeyDown(KeyCode.Escape))
+        //{
+        //    SaveGameSystem.ExitGame();
+        //}
 
         if (!BattleGrid.instance.LoadingNewFloor)
         {

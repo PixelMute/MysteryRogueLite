@@ -12,11 +12,17 @@ public class HideInFog : MonoBehaviour
 
     public void Hide()
     {
-        Sprite.enabled = false;
+        if (Sprite != null)
+        {
+            Sprite.enabled = false;
+        }
     }
 
     public void Show()
     {
-        Sprite.enabled = true;
+        if (Sprite != null)
+        {
+            Sprite.enabled = true;
+        }
     }
 }

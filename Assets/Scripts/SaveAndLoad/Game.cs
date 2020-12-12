@@ -109,6 +109,7 @@ public class Game
         InstantiateFloor(BattleGrid.instance.floorManager.CurrentFloor);
         BattleManager.player.puim.ClearCards();
         PlayerData.LoadPlayer(Player, BattleManager.player);
+        BattleGrid.instance.floorManager.CurrentFloor.PlacePlayerInDungeon();
         var fogOfWar = UnityEngine.Object.FindObjectOfType<FogOfWar>();
         TileMapData.LoadTileMap(FogOfWar, fogOfWar.TileMap);
         TileMapData.Path = "Tiles/Decorations/";
@@ -130,7 +131,6 @@ public class Game
         floor.GenerateWalkableMap();
         floor.enemies = LoadEnemies();
         RestoreTraps(floor);
-        floor.PlacePlayerInDungeon();
         floor.Level.Terrain = BattleGrid.instance.tileMap;
         floor.Level.Decorations = BattleGrid.instance.DecorativeTileMap.TileMap;
     }
