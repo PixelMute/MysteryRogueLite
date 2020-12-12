@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
+[Serializable]
 public class Health : MonoBehaviour
 {
-    public int CurrentHealth { get; private set; }
-    public int MaxHealth { get { return maxHealth; } private set { maxHealth = value; } }
+    public int CurrentHealth { get; set; }
+    public int MaxHealth { get { return maxHealth; } set { maxHealth = value; } }
     [SerializeField]
     private int maxHealth;
 
     public void Start()
     {
-        CurrentHealth = MaxHealth;
+        if (CurrentHealth == 0)
+        {
+            CurrentHealth = MaxHealth;
+        }
     }
 
     public void TakeDamage(int damage)

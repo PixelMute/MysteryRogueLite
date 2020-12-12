@@ -243,12 +243,11 @@ MonoBehaviour:
   zPos: 0
   visionRange: 5
   TimeToMove: 0.25
+  Type: 2
   Animation: {fileID: 668038562130186651}
   FadeAwayTime: 1
-  Splatter: {fileID: 8337488611466378588}
   MinMoneySpawned: 10
   MaxMoneySpawned: 22
-  Splatter: {fileID: 0}
   enemyColor: {r: 0, g: 0, b: 0, a: 0}
   enemyLineY: 0
 --- !u!114 &588003684119583458

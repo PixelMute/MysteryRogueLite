@@ -37,11 +37,7 @@ public class Level
     {
         get
         {
-            if (_bounds == null)
-            {
-                _bounds = GetBoundary();
-            }
-            return _bounds;
+            return GetBoundary();
         }
     }
 

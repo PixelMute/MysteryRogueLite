@@ -13,13 +13,13 @@ public class BasicEnemyAI : EnemyBrain
     }
     // AI
     public enum EnemyAIState { standing, inCombat, movingToWanderTarget, milling, alerted } // Describes what the enemy is doing right now
-    [SerializeField] protected EnemyAIState currentAIState = EnemyAIState.standing;
+    [SerializeField] public EnemyAIState currentAIState = EnemyAIState.standing;
     protected int turnsLeftToMill = 1; // Number of turns the enemy will spend wandering in a small area
-    [SerializeField] protected Vector2Int wanderTarget; // Square the enemy wants to go to
+    [SerializeField] public Vector2Int wanderTarget; // Square the enemy wants to go to
     protected bool isMoving = false;
     protected const bool RECALC_EACH_STEP = false; // Do we want to recalculate pathfinding every step, or only when we get stuck?
     public List<Point> intentPath = new List<Point>();
-    protected TileEntity engagedTarget = null; // What target this is engaged with.
+    public TileEntity engagedTarget = null; // What target this is engaged with.
 
     public override void StartOfTurn()
     {

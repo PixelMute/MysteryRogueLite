@@ -183,23 +183,6 @@ class SaveGameSystem
         }
     }
 
-    public void DeleteMetaData(int index, bool regGame = true)
-    {
-        if (index < 0 || index > 2)
-        {
-            throw new ArgumentException($"Index out of range for meta data. Index: {index}");
-        }
-        if (regGame)
-        {
-            MetaDatas[index] = null;
-        }
-        else
-        {
-            MetaDatas[index + 3] = null;
-        }
-        SaveMetaDatasToFile();
-    }
-
     public static void ExitGame()
     {
         instance?.SaveGame();
@@ -208,6 +191,20 @@ class SaveGameSystem
 #else
         Application.Quit();
 #endif
+    }
+
+    public static void DeleteGame(int index)
+    {
+        try
+        {
+            MetaDatas[index] = null;
+            File.Delete(GetSavePath(index));
+            SaveMetaDatasToFile();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError("Failed to delete game");
+        }
     }
 
 

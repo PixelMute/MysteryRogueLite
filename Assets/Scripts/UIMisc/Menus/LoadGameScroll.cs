@@ -10,6 +10,7 @@ class LoadGameScroll : MonoBehaviour, IPointerClickHandler
     private GameObject Parent;
     private int _gameSlot;
     private bool disabled = false;
+    private bool hasGameSlot = false;
 
     void Awake()
     {
@@ -21,6 +22,7 @@ class LoadGameScroll : MonoBehaviour, IPointerClickHandler
         _gameSlot = gameSlot;
         if (data != null)
         {
+            hasGameSlot = true;
             ScrollText.text = data.LastPlayed.ToString("MM-dd-yy HH:mm");
             ScrollText.fontSize = 34;
             GameInfo.SetActive(true);
@@ -28,24 +30,39 @@ class LoadGameScroll : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            ScrollText.text = "Start New Game";
-            ScrollText.fontSize = 40;
-            GameInfo.SetActive(false);
+            SetStartNewGameText();
         }
+    }
+
+    private void SetStartNewGameText()
+    {
+        hasGameSlot = false;
+        ScrollText.text = "Start New Game";
+        ScrollText.fontSize = 40;
+        GameInfo.SetActive(false);
     }
 
     public void Delete()
     {
-
+        SaveGameSystem.DeleteGame(_gameSlot);
+        SetStartNewGameText();
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         if (!disabled)
         {
-            StartCoroutine(SaveGameSystem.StartGameScene(_gameSlot));
-            StartLoadingScreen();
-            disabled = true;
+            if (hasGameSlot)
+            {
+                var canvas = Parent.GetComponent<LoadGameCanvas>();
+                canvas.Clicked(_gameSlot);
+            }
+            else
+            {
+                disabled = true;
+                StartCoroutine(SaveGameSystem.StartGameScene(_gameSlot));
+                StartLoadingScreen();
+            }
         }
     }
 
@@ -62,6 +79,10 @@ class LoadGameScroll : MonoBehaviour, IPointerClickHandler
         {
             child.gameObject.SetActive(false);
         }
+        var canvas = Parent.GetComponent<LoadGameCanvas>();
+        canvas?.Play?.SetActive(false);
+        canvas?.Erase?.SetActive(false);
     }
+
 }
 

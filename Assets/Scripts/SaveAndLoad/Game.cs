@@ -13,6 +13,7 @@ public class Game
     List<(SerializableVector2Int, bool)> Traps;
     List<(SerializableVector2Int, DecorativeTileMap.TorchDirection)> Torches;
     SerializableVector2Int StairsLocation;
+    List<EnemyData> Enemies;
 
     public static Game SaveGame()
     {
@@ -27,8 +28,29 @@ public class Game
             Traps = SaveTraps(),
             Torches = SaveTorches(),
             StairsLocation = BattleGrid.instance.CurrentFloor.Level.Exit.StairsLocation.Value,
+            Enemies = SaveEnemies(),
         };
         return game;
+    }
+
+    private static List<EnemyData> SaveEnemies()
+    {
+        var res = new List<EnemyData>();
+        foreach (var enemy in BattleGrid.instance.CurrentFloor.enemies)
+        {
+            res.Add(EnemyData.SaveEnemy(enemy));
+        }
+        return res;
+    }
+
+    private List<EnemyBody> LoadEnemies()
+    {
+        var res = new List<EnemyBody>();
+        foreach (var enemy in Enemies)
+        {
+            res.Add(EnemyData.LoadEnemy(enemy));
+        }
+        return res;
     }
 
     private static List<(SerializableVector2Int, bool)> SaveTraps()
@@ -56,16 +78,17 @@ public class Game
     public void LoadGame()
     {
         TileMapData.LoadTileMap(Terrain, BattleGrid.instance.tileMap);
-        var fogOfWar = UnityEngine.Object.FindObjectOfType<FogOfWar>();
-        TileMapData.LoadTileMap(FogOfWar, fogOfWar.TileMap);
-        TileMapData.Path = "Tiles/Decorations/";
-        TileMapData.LoadTileMap(Decorations, BattleGrid.instance.DecorativeTileMap.TileMap);
         RestoreTorches();
         SetStairs();
         BattleGrid.instance.floorManager = FloorManager;
         InstantiateFloor(BattleGrid.instance.floorManager.CurrentFloor);
         BattleManager.player.puim.ClearCards();
         PlayerData.LoadPlayer(Player, BattleManager.player);
+        var fogOfWar = UnityEngine.Object.FindObjectOfType<FogOfWar>();
+        TileMapData.LoadTileMap(FogOfWar, fogOfWar.TileMap);
+        TileMapData.Path = "Tiles/Decorations/";
+        TileMapData.LoadTileMap(Decorations, BattleGrid.instance.DecorativeTileMap.TileMap);
+        fogOfWar.FindElementsToHide();
     }
 
     private void SetStairs()
@@ -78,7 +101,7 @@ public class Game
     {
         floor.SpawnWalls();
         floor.GenerateWalkableMap();
-        floor.enemies = new List<EnemyBody>();
+        floor.enemies = LoadEnemies();
         RestoreTraps(floor);
         floor.PlacePlayerInDungeon();
         floor.Level.Terrain = BattleGrid.instance.tileMap;

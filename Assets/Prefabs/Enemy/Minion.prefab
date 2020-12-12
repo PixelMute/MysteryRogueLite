@@ -243,6 +243,7 @@ MonoBehaviour:
   zPos: 0
   visionRange: 5
   TimeToMove: 0.25
+  Type: 3
   Animation: {fileID: 6932272818078246231}
   FadeAwayTime: 2
   MinMoneySpawned: 10

@@ -18,12 +18,12 @@ class TileMapData
             TileNames = new string[bounds.Height, bounds.Width],
             Bounds = bounds,
         };
-        for (int i = 0; i < bounds.Width; i++)
+        for (int i = bounds.Left; i < bounds.Right; i++)
         {
-            for (int j = 0; j < bounds.Height; j++)
+            for (int j = bounds.Bottom; j < bounds.Top; j++)
             {
                 var tile = tileMap.GetTile(new UnityEngine.Vector3Int(i, j, 0));
-                data.TileNames[j, i] = tile == null ? "" : tile.name;
+                data.TileNames[j - bounds.Bottom, i - bounds.Left] = tile == null ? "" : tile.name;
             }
         }
         return data;
@@ -31,11 +31,11 @@ class TileMapData
 
     public static void LoadTileMap(TileMapData data, Tilemap tileMap)
     {
-        for (int i = 0; i < data.Bounds.Width; i++)
+        for (int i = data.Bounds.Left; i < data.Bounds.Right; i++)
         {
-            for (int j = 0; j < data.Bounds.Height; j++)
+            for (int j = data.Bounds.Bottom; j < data.Bounds.Top; j++)
             {
-                tileMap.SetTile(new Vector3Int(i, j, 0), LoadTile(data.TileNames[j, i]));
+                tileMap.SetTile(new Vector3Int(i, j, 0), LoadTile(data.TileNames[j - data.Bounds.Bottom, i - data.Bounds.Left]));
             }
         }
     }

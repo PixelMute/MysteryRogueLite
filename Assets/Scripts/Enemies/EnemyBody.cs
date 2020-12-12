@@ -8,6 +8,8 @@ using UnityEngine;
 //[RequireComponent(typeof(Attack))]
 public class EnemyBody : TileCreature
 {
+    public enum EnemyType { melee, brute, archer, minion, boss }
+    public EnemyType Type;
     public EnemyUI EnemyUI { get; private set; }
     public Health Health { get; private set; }
     public Attack Attack { get; private set; }

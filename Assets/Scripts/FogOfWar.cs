@@ -20,12 +20,13 @@ public class FogOfWar : MonoBehaviour
     {
         get
         {
+            var levelBounds = BattleGrid.instance.CurrentFloor.Level.Bounds;
             return new RogueRect()
             {
-                Left = -NumExtraTiles / 2,
-                Right = BattleGrid.instance.CurrentFloor.sizeX - (NumExtraTiles / 2),
-                Bottom = -NumExtraTiles / 2,
-                Top = BattleGrid.instance.CurrentFloor.sizeZ - (NumExtraTiles / 2)
+                Left = levelBounds.Left - NumExtraTiles,
+                Right = levelBounds.Right + NumExtraTiles,
+                Bottom = levelBounds.Bottom - NumExtraTiles,
+                Top = levelBounds.Top + NumExtraTiles
             };
         }
     }
@@ -60,9 +61,10 @@ public class FogOfWar : MonoBehaviour
         TileMap.ClearAllTiles();
         SizeX = BattleGrid.instance.CurrentFloor.sizeX + NumExtraTiles;
         SizeZ = BattleGrid.instance.CurrentFloor.sizeZ + NumExtraTiles;
-        for (int i = -NumExtraTiles / 2; i < SizeX - (NumExtraTiles / 2); i++)
+        var levelBounds = BattleGrid.instance.CurrentFloor.Level.Bounds;
+        for (int i = levelBounds.Left - (NumExtraTiles / 2); i < levelBounds.Right + (NumExtraTiles / 2); i++)
         {
-            for (int j = -NumExtraTiles / 2; j < SizeZ - (NumExtraTiles / 2); j++)
+            for (int j = levelBounds.Bottom - (NumExtraTiles / 2); j < levelBounds.Top + (NumExtraTiles / 2); j++)
             {
                 TileMap.SetTile(new Vector3Int(i, j, 0), NotVisitedTile);
             }
@@ -175,7 +177,7 @@ public class FogOfWar : MonoBehaviour
         }
     }
 
-    private void FindElementsToHide()
+    public void FindElementsToHide()
     {
         HiddenElements = Object.FindObjectsOfType<HideInFog>().ToList();
     }
