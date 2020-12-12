@@ -58,7 +58,6 @@
 	<cornercutting/>
 	<emptyTile/>
 </playconditions>
-<theme>Impundulu</theme>
 <prompts><move/><cutscorners/></prompts>
 <flavor>A moving adventurer is an alive adventurer.</flavor>
 </card>
@@ -136,7 +135,7 @@
 <spiritcost val="10"/>
 <energycost val="2"/>
 <name>ThunderStep</name>
-<description>Deal 30 damage to all adjacent enemies, then move to target. Range 1-1.</description>
+<description>Deal 30 damage to all adjacent enemies, then move to target. Range 1-1. Cuts corners.</description>
 <effects>
 	<aoe selftar="true" radius="1" hitempty="false">
 		<strike dmg="30"/>
@@ -148,8 +147,9 @@
 <theme>Draconic</theme>
 <playconditions>
 	<emptyTile/>
+	<cornercutting/>
 </playconditions>
-<prompts><move/><aoe/></prompts>
+<prompts><move/><aoe/><cutscorners/></prompts>
 <flavor>The sky itself heralds me.</flavor>
 </card>
 
@@ -1002,11 +1002,11 @@
 <card>
 <id val="45"/>
 <spiritcost val="7"/>
-<energycost val="2"/>
+<energycost val="1"/>
 <name>Shatter</name>
-<description>Deal 20 damage to target, then deal 1 damage to all enemies in range 3. Range 1-2.</description>
+<description>Deal 10 damage to target, then deal 1 damage to all enemies in range 3. Range 1-2.</description>
 <effects>
-	<strike dmg="20"/>
+	<strike dmg="10"/>
 	<aoe selftar="true" radius="1" hitempty="false">
 		<strike dmg="20"/>
 	</aoe>
@@ -1197,7 +1197,7 @@
 <spiritcost val="0"/>
 <energycost val="0"/>
 <name>Inoshikachō</name>
-<description>Move to targeted tile. Draw a card. Range 1-2.</description>
+<description>Move to targeted tile. Draw a card. Range 1-2. Cuts corners.</description>
 <effects>
 	<teleport/>
 	<drawcards val="1"/>
@@ -1208,8 +1208,9 @@
 <playconditions>
 	<emptyTile/>
 	<needsLOS/>
+	<cornercutting/>
 </playconditions>
-<prompts><move/></prompts>
+<prompts><move/><cutscorners/></prompts>
 <flavor>The grace of the wilds.</flavor>
 </card>
 

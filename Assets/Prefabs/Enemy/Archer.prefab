@@ -73,7 +73,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -1042359479
   m_SortingLayer: 2
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_Sprite: {fileID: -2497771501395824623, guid: c37696ba20226b24bbb7cc2513199c55,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -245,10 +245,8 @@ MonoBehaviour:
   TimeToMove: 0.25
   Animation: {fileID: 668038562130186651}
   FadeAwayTime: 1
-  Splatter: {fileID: 8337488611466378588}
   MinMoneySpawned: 10
   MaxMoneySpawned: 22
-  Splatter: {fileID: 0}
   enemyColor: {r: 0, g: 0, b: 0, a: 0}
   enemyLineY: 0
 --- !u!114 &588003684119583458

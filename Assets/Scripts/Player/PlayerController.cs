@@ -8,6 +8,8 @@ using UnityEngine;
 public class PlayerController : TileCreature
 {
     private const int movementEnergyCost = 1;
+    private const float cardSpiritCostMult = 1.4f;
+
     public Rigidbody rb;
     public BoxCollider boxCollider;
     public PlayerAnimation Animation;
@@ -27,9 +29,11 @@ public class PlayerController : TileCreature
 
     private float currentSpirit;
     private int maxSpirit = 1000;
-    private int spiritCostPerDiscard = 15; // How much spirit it costs to discard a card
+    private int spiritCostPerDiscard = 30; // How much spirit it costs to discard a card
     private int health;
     private int maxHealth = 100;
+    private enum SpiritLossStage { full, stage1, stage2, empty };
+    private SpiritLossStage spiritStage = SpiritLossStage.full;
 
     private int money;
 
@@ -151,17 +155,17 @@ public class PlayerController : TileCreature
 
         if (false) // Debugging testing certain cards.
         {
-            Card card1 = CardFactory.GetCard("rockfall");
+            Card card1 = CardFactory.GetCard("celerity");
             card1.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card1);
             playerDeck.InsertCardAtEndOfDrawPile(card1);
 
-            Card card2 = CardFactory.GetCard("Reminiscence");
+            Card card2 = CardFactory.GetCard("sagacity");
             card2.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card2);
             playerDeck.InsertCardAtEndOfDrawPile(card2);
 
-            Card card3 = CardFactory.GetCard("shield slam");
+            Card card3 = CardFactory.GetCard("blockade");
             card3.Owner = this;
             playerDeck.InsertCardAtEndOfDrawPile(card3);
             playerDeck.InsertCardAtEndOfDrawPile(card3);
@@ -198,6 +202,7 @@ public class PlayerController : TileCreature
 
     public void GainInventoryCard(Card card)
     {
+        card.Owner = this;
         playerDeck.AddCardToInventory(card);
         puim.CardAddedToInventory(card);
     }
@@ -370,7 +375,7 @@ public class PlayerController : TileCreature
     private void PayCardCost(Card cardData)
     {
         CurrentEnergy -= cardData.CardInfo.EnergyCost;
-        LoseSpirit(cardData.CardInfo.SpiritCost);
+        LoseSpirit(cardData.CardInfo.SpiritCost * cardSpiritCostMult);
     }
 
     // Discards this card and fixes the indexes for the others.
@@ -435,6 +440,14 @@ public class PlayerController : TileCreature
             Card hanaFuda = CardFactory.GetCardTheme("hanafuda").GetRandomCardInTheme();
             hanaFuda.Owner = this;
             GainInventoryCard(hanaFuda);
+        }
+        else if (Input.GetKeyDown(KeyCode.F3))
+        {
+            GainSpiritPercentage(.05f);
+        }
+        else if (Input.GetKeyDown(KeyCode.F4))
+        {
+            LoseSpirit(75);
         }
     }
 
@@ -557,7 +570,7 @@ public class PlayerController : TileCreature
                             Card hanaFuda = CardFactory.GetCardTheme("hanafuda").GetRandomCardInTheme();
                             hanaFuda.Owner = this;
                             GainInventoryCard(hanaFuda);
-                            puim.ShowAlert("You found the \"" + hanaFuda.CardInfo.Name + "\". Press V to open your inventory.");
+                            puim.ShowAlert("You found the hanfuda card \"" + hanaFuda.CardInfo.Name + "\". Press V to open your inventory.");
                             break;
                     }
                     treasureObj.DestroySelf();
@@ -629,7 +642,7 @@ public class PlayerController : TileCreature
         // Do we have enough energy?
         if (currentEnergy < movementEnergyCost)
         {
-            puim.ShowAlert("Not enough energy. Press enter to end turn.");
+            puim.ShowAlert("Not enough energy. Press enter or q to end turn.");
             return false;
         }
 
@@ -663,6 +676,12 @@ public class PlayerController : TileCreature
     {
         // Decrement banished cards.
         playerDeck.TickDownBanishedCards(0);
+
+        // Gain back 35% spirit.
+        GainSpiritPercentage(.35f);
+
+        // Heal for 20 HP
+        TakeDamage(Vector2Int.zero, -20);
     }
 
     // Applies incoming damage
@@ -674,7 +693,7 @@ public class PlayerController : TileCreature
             // Do we have defense?
             if (statusEffects.TryGetValue(BattleManager.StatusEffectEnum.defense, out StatusEffectDataHolder val))
             {
-                int oldDamage = (int)damage;
+                int oldDamage = damage;
                 damage -= val.EffectValue;
                 ApplyStatusEffect(BattleManager.StatusEffectEnum.defense, -1 * oldDamage); // Deal damage to defense
             }
@@ -711,13 +730,19 @@ public class PlayerController : TileCreature
         Sprite.color = Color.white;
     }
 
+    int loseSpiritEveryX = 3;
+    int walkCounter = 0;
     // Handles stuff that happens at the end of the player turn.
     public void EndOfTurn()
     {
         //Debug.Log("Player Controller end of turn");
         // Spirit decay
-        LoseSpirit(1);
-
+        walkCounter++;
+        if (walkCounter >= loseSpiritEveryX)
+        {
+            walkCounter = 0;
+            LoseSpirit(1);
+        }
         puim.EndOfTurn();
     }
 
@@ -734,6 +759,8 @@ public class PlayerController : TileCreature
         StartOfTurnDraw();
     }
 
+    int turnsSinceInCombat = 0;
+    int turnsUntilStatusDecay = 3;
     private void StartOfTurnStatusDecay()
     {
         // Do we have defense?
@@ -744,15 +771,25 @@ public class PlayerController : TileCreature
         // Do we have any engaged enemies?
         if (engagedEnemies.Count == 0)
         {
-            // We need to lose 1 momentum and insight.
-            if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.momentum))
-            { // Lose one momentum
-                ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1);
+            // We're not in combat.
+            turnsSinceInCombat++;
+            if (turnsSinceInCombat >= turnsUntilStatusDecay)
+            {
+                // We need to lose 1 momentum and insight.
+                if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.momentum))
+                { // Lose one momentum
+                    ApplyStatusEffect(BattleManager.StatusEffectEnum.momentum, -1);
+                }
+                if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.insight))
+                { // Lose one insight
+                    Debug.Log("Losing insight. Engaged enemy count: " + engagedEnemies.Count);
+                    ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, -1);
+                }
             }
-            if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.insight))
-            { // Lose one insight
-                ApplyStatusEffect(BattleManager.StatusEffectEnum.insight, -1);
-            }
+        }
+        else
+        {
+            turnsSinceInCombat = 0;
         }
     }
 
@@ -762,9 +799,15 @@ public class PlayerController : TileCreature
     {
         float lossMult = 1 - (0.5f * (1 - (CurrentSpirit / maxSpirit)));
         //Debug.Log("Currently have " + CurrentSpirit.ToString("0.00") + "/" + maxSpirit + " spirit, which makes the loss mult " + lossMult);
-        CurrentSpirit -= amount * lossMult;
+        float amountToLose = amount * lossMult;
+        CurrentSpirit -= amountToLose;
         if (CurrentSpirit < 0)
+        {
             CurrentSpirit = 0;
+            int damageToTake = Math.Max(((int)amountToLose) / 2, 1);
+            TakeDamage(new Vector2Int(xPos, zPos), damageToTake);
+        }
+        UpdateSpiritStage();
     }
 
     public void GainSpirit(float amount)
@@ -772,6 +815,97 @@ public class PlayerController : TileCreature
         CurrentSpirit += amount;
         if (CurrentSpirit > maxSpirit)
             CurrentSpirit = maxSpirit;
+        UpdateSpiritStage();
+    }
+
+    public void GainSpiritPercentage(float percent)
+    {
+        float amount = maxSpirit * percent;
+        if (amount > 0)
+            GainSpirit(amount);
+        else
+            LoseSpirit(-1 * amount);
+    }
+
+    // Updates the penalties from low spirit.
+    private void UpdateSpiritStage()
+    {
+        float spiritPercentage = CurrentSpirit / maxSpirit;
+        if (spiritPercentage >= .67 && spiritStage != SpiritLossStage.full)
+        {
+            LeaveSpiritStage();
+            EnterSpiritStage(SpiritLossStage.full);
+        }
+        else if (spiritPercentage >= .33 && spiritPercentage < .67 && spiritStage != SpiritLossStage.stage1)
+        {
+            LeaveSpiritStage();
+            EnterSpiritStage(SpiritLossStage.stage1);
+        }
+        else if (spiritPercentage > 0 && spiritPercentage < .33 && spiritStage != SpiritLossStage.stage2)
+        {
+            LeaveSpiritStage();
+            EnterSpiritStage(SpiritLossStage.stage2);
+        }
+        else if (spiritPercentage == 0 && spiritStage != SpiritLossStage.empty)
+        {
+            LeaveSpiritStage();
+            EnterSpiritStage(SpiritLossStage.empty);
+        }
+    }
+
+    private void LeaveSpiritStage()
+    {
+        // Remove any stacks of spirit loss we have.
+        if (statusEffects.ContainsKey(BattleManager.StatusEffectEnum.spiritLoss))
+        {
+            StatusEffectDataHolder x = statusEffects[BattleManager.StatusEffectEnum.spiritLoss];
+            puim.RemoveStatusEffect(x);
+            statusEffects.Remove(BattleManager.StatusEffectEnum.spiritLoss);
+        }
+
+        // Reset other penalties to normal.
+        int spStage = (int)spiritStage;
+        Debug.Log("Leaving stage " + spStage);
+        if (spStage >= 1) // Mild loss. .33 - .67
+        {
+            // Reset redraw limit penalty
+            cardRedrawAmount += 1;
+            // Reset draw times.
+            maxTurnsUntilDraw -= 1;
+        }
+        
+        if (spStage >= 2) // Severe loss. 0-.33
+        {
+            cardRedrawAmount += 1;
+            maxTurnsUntilDraw -= 1;
+        }
+
+        Debug.Log("Card redraw is " + cardRedrawAmount);
+
+    }
+
+    private void EnterSpiritStage(SpiritLossStage e)
+    {
+        int spStage = (int)e;
+        if (spStage >= 1) // Mild loss. .33 - .67
+        {
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.spiritLoss, 1);
+            cardRedrawAmount -= 1;
+            maxTurnsUntilDraw += 1;
+        }
+
+        if (spStage >= 2) // Severe loss. 0-.33
+        {
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.spiritLoss, 1);
+            cardRedrawAmount -= 1;
+            maxTurnsUntilDraw += 1;
+        }
+
+        if (spStage == 3) // Empty.
+        {
+            ApplyStatusEffect(BattleManager.StatusEffectEnum.spiritLoss, 1);
+        }
+        spiritStage = e;
     }
 
     // Returns true on a success
@@ -782,6 +916,7 @@ public class PlayerController : TileCreature
 
     public void AddEngagedEnemy(TileEntity tar)
     {
+        Debug.Log("Enemy is attacking");
         engagedEnemies.Add(tar);
     }
 
@@ -827,6 +962,10 @@ public class PlayerController : TileCreature
     // Right now, this is called by a button.
     public void GetCardReward(int price)
     {
+        if (!puim.CanGetCardReward())
+        {
+            return;
+        }
         if (price > 0)
         {
             if (Money < price)
@@ -870,4 +1009,15 @@ public class PlayerController : TileCreature
         else
             return 1f;
     }
+
+    public void GainMaxHP(int amount)
+    {
+        maxHealth += amount;
+        Health += amount;
+    }
+
+    public void GainMoney(int amount)
+    {
+        Money += amount;
+    }    
 }

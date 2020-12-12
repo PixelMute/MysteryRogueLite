@@ -129,6 +129,9 @@ public class BattleGrid : MonoBehaviour
         floorManager.GenerateNewFloor();
         //InitFogOfWar();
         FogOfWar.Initialize();
+
+        // Give player the starting bonus event.
+        BattleManager.player.puim.RequestEvent(Roguelike.EventDatabase.EventEnum.startingBoon);
     }
 
 

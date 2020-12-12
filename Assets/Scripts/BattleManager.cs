@@ -12,7 +12,9 @@ public class BattleManager : MonoBehaviour
     public static PlayerController player;
     public static Camera mainCamera;
 
-    public enum StatusEffectEnum { defense, momentum, insight };
+    public EventDatabase edb;
+
+    public enum StatusEffectEnum { defense, momentum, insight, spiritLoss };
     // This should be set as an array of sprites that corresponds to each enum in order
     [SerializeField] public Sprite[] statusEffectReference;
 
@@ -42,6 +44,7 @@ public class BattleManager : MonoBehaviour
 
         player = GameObject.Find("PlayerHolder").GetComponent<PlayerController>();
         mainCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        edb = new EventDatabase();
     }
 
     public Shader ShaderGUItext;

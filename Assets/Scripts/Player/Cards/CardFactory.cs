@@ -744,6 +744,27 @@ public class CardFactory
         return null;
     }
 
+    /// <summary>
+    /// Gets a random card of a required theme. Later, have this only give unlocked cards.
+    /// </summary>
+    /// <param name="theme"> 0 = all, 1 = draconic</param>
+    /// <param name="includeHanafuda"></param>
+    /// <returns></returns>
+    public static Card GetRandomCard(string requiredTheme = "", bool includeHanafuda = false)
+    {
+        CardThemeHolder theme = GetCardTheme(requiredTheme);
+        if (theme != null)
+        {
+            return theme.GetRandomCardInTheme();
+        }
+        else
+        {
+            int totalCards = CardFactory.GetTotalCards() - CardFactory.GetCardTheme("hanafuda").CountCardsInTheme();
+            int pickedCard = UnityEngine.Random.Range(4, totalCards);
+            return GetCardByID(pickedCard);
+        }
+    }
+
     public static CardThemeHolder GetCardTheme(string themeName)
     {
         if (ThemeDictionary.ContainsKey(themeName.ToLower()))

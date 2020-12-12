@@ -40,12 +40,12 @@ public class AudioManager : MonoBehaviour
 
     public static void PlayGun()
     {
-        PlayClip("gun-shot-01");
+        PlayClip("gun-shot-01", 0.25f);
     }
 
-    private static void PlayClip(string soundName)
+    private static void PlayClip(string soundName, float volume = 1f)
     {
         var clip = Resources.Load<AudioClip>("Sounds/" + soundName);
-        AudioSource.PlayOneShot(clip);
+        AudioSource.PlayOneShot(clip, volume);
     }
 }
