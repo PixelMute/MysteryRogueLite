@@ -75,7 +75,7 @@ public class TurnManager : MonoBehaviour
 
         if (CurrentPhase == TurnPhase.action)
         {
-            if (Input.GetKeyDown(KeyCode.Return))
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Q))
             {
                 CurrentPhase = TurnPhase.end;
                 return;

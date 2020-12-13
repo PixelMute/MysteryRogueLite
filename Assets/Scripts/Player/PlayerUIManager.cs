@@ -31,7 +31,7 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField] private GameObject banishCounter = null;
 
     // Player UI FSM.
-    public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView }
+    public enum PlayerUIState { standardCardDrawer, controllingCamera, massCardView, cardRewardView, inEventChoice }
 
     internal class PlayerUIStateClass
     {
@@ -58,6 +58,10 @@ public class PlayerUIManager : MonoBehaviour
     [SerializeField] private GameObject inventoryView;
     [SerializeField] private GameObject inventoryContent;
     private List<CardInterface> graphicalInventory;
+
+    // PickChoiceView
+    [SerializeField] private GameObject pickChoiceView;
+    [SerializeField] private TextMeshProUGUI pickChoiceTextDescription;
 
     private PlayerController pc;
 
@@ -660,7 +664,7 @@ public class PlayerUIManager : MonoBehaviour
 
     public void ShowAlert(string text)
     {
-        notificationBarFade.StartFadeCycle(text, 0.75f, 1f);
+        notificationBarFade.StartFadeCycle(text, 0.75f, 0.5f);
     }
 
     private void UpdateHandLayoutSpacing()
@@ -729,6 +733,7 @@ public class PlayerUIManager : MonoBehaviour
                 switch (playerUIState.internalUIState)
                 {
                     case PlayerUIState.massCardView: // Cannot move from masscardview to controlling camera.
+                    case PlayerUIState.inEventChoice:
                         return false;
                 }
                 break;
@@ -757,6 +762,10 @@ public class PlayerUIManager : MonoBehaviour
                 cardRewardViewbackground.gameObject.SetActive(false);
                 backShading.SetActive(false);
                 break;
+            case PlayerUIState.inEventChoice:
+                pickChoiceView.gameObject.SetActive(false);
+                backShading.SetActive(false);
+                break;
         }
     }
 
@@ -778,6 +787,11 @@ public class PlayerUIManager : MonoBehaviour
                 cardRewardViewbackground.gameObject.SetActive(true);
                 backShading.SetActive(true);
                 PopulateCardRewardView();
+                break;
+            case PlayerUIState.inEventChoice: // Open event choice view
+                pickChoiceView.gameObject.SetActive(true);
+                backShading.SetActive(true);
+                PopulateEventChoiceView();
                 break;
         }
         playerUIState.internalUIState = state;
@@ -825,6 +839,9 @@ public class PlayerUIManager : MonoBehaviour
             case PlayerUIState.cardRewardView:
                 ShowAlert("Pick a card or pick skip.");
                 return;
+            case PlayerUIState.inEventChoice:
+                ShowAlert("You must pick a choice.");
+                break;
             default:
                 MoveToState(PlayerUIState.standardCardDrawer);
                 return;
@@ -987,12 +1004,10 @@ public class PlayerUIManager : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             // For now, just pick randomly.
-            int totalCards = CardFactory.GetTotalCards() - CardFactory.GetCardTheme("hanafuda").CountCardsInTheme();
-            int pickedCard = UnityEngine.Random.Range(4, totalCards);
+            Card pickedCard = CardFactory.GetRandomCard();
             GameObject newCard = GameObject.Instantiate(cardPrefab, cardRewardHorizontalLayout.transform);
             CardInterface ci = newCard.GetComponent<CardInterface>();
-            ci.cardData = CardFactory.GetCardByID(pickedCard);
-            Debug.Log("Picked number " + pickedCard + ", which is card " + ci.cardData.CardInfo.Name);
+            ci.cardData = pickedCard;
             ci.OnCardSpawned(CardInterface.CardInterfaceLocations.cardReward);
         }
     }
@@ -1014,6 +1029,17 @@ public class PlayerUIManager : MonoBehaviour
 
         // Exit out of state
         MoveToState(PlayerUIState.standardCardDrawer);
+    }
+
+    public bool CanGetCardReward()
+    {
+        if (playerUIState.internalUIState == PlayerUIState.inEventChoice)
+        {
+            ShowAlert("You must resolve this event first.");
+            return false;
+        }
+        else
+            return true;
     }
 
     #endregion
@@ -1172,6 +1198,9 @@ public class PlayerUIManager : MonoBehaviour
     bool canMoveInventory = true;
     public void ToggleInventoryVisible()
     {
+        if (playerUIState.inventoryOpen == false && (playerUIState.internalUIState == PlayerUIState.controllingCamera || playerUIState.internalUIState == PlayerUIState.inEventChoice))
+            return;
+
         if (canMoveInventory)
         {
             if (playerUIState.inventoryOpen)
@@ -1268,6 +1297,58 @@ public class PlayerUIManager : MonoBehaviour
 
         // Now remove
         graphicalInventory.RemoveAt(index);
+    }
+
+    #endregion
+
+    #region PickEventChoicePanel
+
+    private EventDatabase.EventEnum currentEvent;
+    public void RequestEvent(EventDatabase.EventEnum evn)
+    {
+        if (playerUIState.internalUIState != PlayerUIState.inEventChoice)
+        {
+            currentEvent = evn;
+            MoveToState(PlayerUIState.inEventChoice);
+        }
+    }
+
+    // This currently is only really set up for 3 choices. Later, we can have a more robust system that generates/destroys buttons.
+    private void PopulateEventChoiceView()
+    {
+        // Get the three buttons.
+        EventChoiceButton[] buttons = pickChoiceView.GetComponentsInChildren<EventChoiceButton>();
+        List<int> pickedChoices = new List<int>();
+        RogueEvent even = EventDatabase.GetEvent(currentEvent);
+
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            // Find a choice we haven't added yet to the dialog box.
+            int pickedChoice;
+            do
+            {
+                pickedChoice = Random.Range(0, even.NumChoices);
+            } while (pickedChoices.Contains(pickedChoice));
+
+            pickedChoices.Add(pickedChoice);
+            buttons[i].SetValues(currentEvent, pickedChoice);
+            buttons[i].buttonText.SetText(even.ChoiceDescriptions[pickedChoice]);
+        }
+
+        pickChoiceTextDescription.SetText(even.Description);
+    }
+
+    public void ResolveEvent(EventDatabase.EventEnum emu, int pickedChoice)
+    {
+        if (playerUIState.internalUIState != PlayerUIState.inEventChoice)
+        {
+            Debug.LogWarning("Warning, PlayerUIManager was asked to resolve an event when we're not in the correct ui state.");
+            return;
+        }
+        MoveToState(PlayerUIState.standardCardDrawer);
+
+        EventDatabase.ResolveEvent(emu, pickedChoice);
+
     }
 
     #endregion

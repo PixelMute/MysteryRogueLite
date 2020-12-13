@@ -51,3 +51,6 @@ TagManager:
   - name: FogOfWar
     uniqueID: 2017870235
     locked: 0
+  - name: WorldSpaceUI
+    uniqueID: 169666795
+    locked: 0
