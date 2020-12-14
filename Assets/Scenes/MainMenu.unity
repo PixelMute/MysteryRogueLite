@@ -6946,7 +6946,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Audio: {fileID: 72640758}
-  _slider: {fileID: 1368952257}
+  volSlider: {fileID: 1368952257}
 --- !u!1 &2029655426
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,18 +6,23 @@ public class VolumeSlider : MonoBehaviour
     public Audio Audio;
     public Slider _slider;
 
-    private void Start()
+    private void Awake()
     {
         var slider = GetComponent<Slider>();
         if (slider != null)
         {
             _slider = slider;
         }
-        _slider.value = Audio.Volume;
+        _slider.value = Audio.Volume; 
     }
 
     public void OnChange()
     {
-        Audio.Volume = _slider.value;
+        
+        if (_slider != null)
+        {
+            Audio.Volume = _slider.value;
+        }
+        
     }
 }

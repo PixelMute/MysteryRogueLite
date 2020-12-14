@@ -134,6 +134,10 @@ public class BattleGrid : MonoBehaviour
         {
             SeededRandom.NewRandomSeed();
             Debug.Log($"Random seed: {SeededRandom.Seed}");
+            if (CustomRun.instance == null)
+            {
+                CustomRun.instance = new CustomRun();
+            }
             floorManager.GenerateNewFloor();
             //InitFogOfWar();
             FogOfWar.Initialize();
