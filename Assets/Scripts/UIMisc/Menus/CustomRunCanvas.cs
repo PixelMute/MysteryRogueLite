@@ -84,7 +84,7 @@ public class CustomRunCanvas : MonoBehaviour
         }
         if (int.TryParse(input, out int res))
         {
-            if (res > 0)
+            if (res >= 0)
             {
                 CustomRun.NumEnemies = res;
                 return;
