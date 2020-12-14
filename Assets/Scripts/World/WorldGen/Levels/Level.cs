@@ -198,11 +198,12 @@ public class Level
         rooms.Add(Entrance);
         rooms.Add(Exit);
 
-        for (int i = 0; i < 5; i++)
+        for (int i = 0; i < CustomRun.instance.RoomsPerFloor - 2; i++)
         {
             rooms.Add(new StandardRoom());
         }
-        rooms.Add(new LargeSqaureRoom());
+        var randomInt = SeededRandom.Range(0, rooms.Count);
+        rooms.Insert(randomInt, new LargeSqaureRoom());
         rooms.Add(new CoinRoom());
         //for (int i = 0; i < 2; i++)
         //{

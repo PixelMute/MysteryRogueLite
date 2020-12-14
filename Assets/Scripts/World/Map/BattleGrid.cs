@@ -92,7 +92,7 @@ public class BattleGrid : MonoBehaviour
 
     public void GoDownFloor()
     {
-        if (floorManager.CurrentFloorNumber + 1 == floorManager.WinningFloorNumber)
+        if (CustomRun.instance.IsLastFloor(floorManager.CurrentFloorNumber))
         {
             SaveGameSystem.instance?.DeleteGame();
             GameOverScreen.PlayerWon();

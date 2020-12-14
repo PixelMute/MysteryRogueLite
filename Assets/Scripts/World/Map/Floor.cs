@@ -26,7 +26,7 @@ public class FloorManager
         Level level;
         BattleGrid.instance.tileMap.ClearAllTiles();
         BattleGrid.instance.DecorativeTileMap.Clear();
-        if (CurrentFloorNumber == WinningFloorNumber - 1)
+        if (CustomRun.instance.IsBossFloor(CurrentFloorNumber))
         {
             level = new BossLevel(BattleGrid.instance.tileMap, BattleGrid.instance.DecorativeTileMap);
         }
@@ -289,7 +289,7 @@ public class Floor
 
     private int GetNumberOfEnemiesForFloor()
     {
-        return FloorNumber + 4;
+        return CustomRun.instance.GetNumberOfEnemies(FloorNumber);
     }
 
     public void DespawnFloor()
@@ -300,15 +300,24 @@ public class Floor
             {
                 if (map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.player && map[i, j].tileEntityType != Roguelike.Tile.TileEntityType.boss)
                 {
-                    BattleGrid.instance.DestroyGameObject(map[i, j].GetEntityOnTile()?.gameObject);
+                    if (map[i, j].GetEntityOnTile() != null)
+                    {
+                        BattleGrid.instance.DestroyGameObject(map[i, j].GetEntityOnTile()?.gameObject);
+                    }
                 }
                 if (map[i, j].tileItemType != Roguelike.Tile.TileItemType.empty)
                 {
-                    BattleGrid.instance.DestroyGameObject(map[i, j].GetItemOnTile()?.gameObject);
+                    if (map[i, j].GetItemOnTile() != null)
+                    {
+                        BattleGrid.instance.DestroyGameObject(map[i, j].GetItemOnTile()?.gameObject);
+                    }
                 }
                 if (map[i, j].tileTerrainType != Roguelike.Tile.TileTerrainType.floor)
                 {
-                    BattleGrid.instance.DestroyGameObject(map[i, j].terrainOnTile?.gameObject);
+                    if (map[i, j].terrainOnTile != null)
+                    {
+                        BattleGrid.instance.DestroyGameObject(map[i, j].terrainOnTile?.gameObject);
+                    }
                 }
             }
         }

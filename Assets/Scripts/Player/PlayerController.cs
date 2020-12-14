@@ -32,11 +32,6 @@ public class PlayerController : TileCreature
     [NonSerialized]
     public int energyPerTurn = 3;
 
-    private float currentSpirit;
-    private int maxSpirit = 1000;
-    private int spiritCostPerDiscard = 30; // How much spirit it costs to discard a card
-    private int health;
-    private int maxHealth = 100;
     private enum SpiritLossStage { full, stage1, stage2, empty };
     private SpiritLossStage spiritStage = SpiritLossStage.full;
 
@@ -45,7 +40,7 @@ public class PlayerController : TileCreature
     [NonSerialized]
     public int maxSpirit = 1000;
     [NonSerialized]
-    public int spiritCostPerDiscard = 15; // How much spirit it costs to discard a card
+    public int spiritCostPerDiscard = 30; // How much spirit it costs to discard a card
     private int health;
     [NonSerialized]
     public int maxHealth = 100;
@@ -891,7 +886,7 @@ public class PlayerController : TileCreature
             // Reset draw times.
             maxTurnsUntilDraw -= 1;
         }
-        
+
         if (spStage >= 2) // Severe loss. 0-.33
         {
             cardRedrawAmount += 1;
@@ -1037,5 +1032,5 @@ public class PlayerController : TileCreature
     public void GainMoney(int amount)
     {
         Money += amount;
-    }    
+    }
 }

@@ -50,6 +50,7 @@ class SaveGameSystem
 
     public static IEnumerator StartGameScene(int index)
     {
+        CustomRun.instance = new CustomRun();
         if (MetaDatas[index] == null)
         {
             MetaDatas[index] = new GameMetaData()

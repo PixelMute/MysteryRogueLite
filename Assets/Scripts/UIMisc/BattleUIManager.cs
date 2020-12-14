@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 // A collection of methods that UI buttons call
 public class BattleUIManager : MonoBehaviour
@@ -26,7 +24,7 @@ public class BattleUIManager : MonoBehaviour
 
     public void GetCardRewardButtonClicked()
     {
-        BattleManager.player.GetCardReward(30);
+        BattleManager.player.GetCardReward(CustomRun.instance.PrizeCost);
     }
 
     public void ToggleCardDrawerPositionButtonClicked()
