@@ -4,11 +4,15 @@ using UnityEngine.UI;
 public class VolumeSlider : MonoBehaviour
 {
     public Audio Audio;
-    private Slider _slider;
+    public Slider _slider;
 
     private void Start()
     {
-        _slider = GetComponent<Slider>();
+        var slider = GetComponent<Slider>();
+        if (slider != null)
+        {
+            _slider = slider;
+        }
         _slider.value = Audio.Volume;
     }
 

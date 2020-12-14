@@ -6,6 +6,7 @@ public class AudioManager : MonoBehaviour
     public static AudioManager instance;
 
     public AudioSource MusicSource;
+    public AudioSource BossMusic;
     public AudioSource EffectSource;
     private Dictionary<string, AudioClip> _audioClips;
 
@@ -85,6 +86,18 @@ public class AudioManager : MonoBehaviour
     public static void PlayCardSound(string name)
     {
         instance.PlaySoundEffect(name + "-01");
+    }
+
+    public static void PlayBossMusic()
+    {
+        instance.BossMusic.Play();
+        instance.MusicSource.Stop();
+    }
+
+    public static void PlayBackgroundMusic()
+    {
+        instance.MusicSource.Play();
+        instance.BossMusic.Stop();
     }
 
     public void PlaySoundEffect(string soundName)

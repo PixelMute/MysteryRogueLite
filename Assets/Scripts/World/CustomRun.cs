@@ -35,7 +35,7 @@ public class CustomRun
 
     public bool IsLastFloor(int floorIndex)
     {
-        return floorIndex + 1 == NumberOfFloors;
+        return (floorIndex + 1) == NumberOfFloors;
     }
 
     public void Remove()

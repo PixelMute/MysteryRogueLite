@@ -526,6 +526,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0310169f3b7420a48a0911a7f443bea4, type: 3}
+--- !u!114 &72640758 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2780490970222843974, guid: 0310169f3b7420a48a0911a7f443bea4,
+    type: 3}
+  m_PrefabInstance: {fileID: 72640757}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c8af71e796b8f4894a8d0fa20af2b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &128077966
 GameObject:
   m_ObjectHideFlags: 0
@@ -4131,6 +4143,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding: {x: -8, y: -5, z: -8, w: -5}
   m_Softness: {x: 0, y: 0}
+--- !u!114 &1368952257 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2659782183400852751, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+    type: 3}
+  m_PrefabInstance: {fileID: 6452123819046699304}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1401941621
 GameObject:
   m_ObjectHideFlags: 0
@@ -6903,6 +6927,26 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1997403644}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1998229098 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3253597681300043060, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+    type: 3}
+  m_PrefabInstance: {fileID: 6452123819046699304}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1998229099
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1998229098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96ce569a8372d5442a32c28355a27a19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Audio: {fileID: 72640758}
+  _slider: {fileID: 1368952257}
 --- !u!1 &2029655426
 GameObject:
   m_ObjectHideFlags: 0
@@ -7615,6 +7659,41 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalScale.z
       value: 0.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 2659782183400852751, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2659782183400852751, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: VolumeSlider, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2659782183400852751, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2659782183400852751, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2659782183400852751, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 1998229099}
+    - target: {fileID: 2659782183400852751, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: OnChange
+      objectReference: {fileID: 0}
+    - target: {fileID: 2659782183400852751, guid: 2d9629478bf34904e9bc15fbfd92ee55,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 4632598104672593764, guid: 2d9629478bf34904e9bc15fbfd92ee55,
         type: 3}

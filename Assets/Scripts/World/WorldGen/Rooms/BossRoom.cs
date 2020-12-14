@@ -52,6 +52,7 @@ public class BossRoom : Room
         if (x >= Bounds.Left + 1 && x <= Bounds.Right - 2 && z <= Bounds.Top - 2 && z >= Bounds.Bottom + 1)
         {
             Debug.Log("Activating boss");
+            AudioManager.PlayBossMusic();
 
             var level = BattleGrid.instance.CurrentFloor.Level as BossLevel;
             if (level != null)
@@ -72,6 +73,7 @@ public class BossRoom : Room
 
     public void UnlockRoom()
     {
+        AudioManager.PlayBackgroundMusic();
         var level = BattleGrid.instance.CurrentFloor.Level as BossLevel;
         if (level != null)
         {
