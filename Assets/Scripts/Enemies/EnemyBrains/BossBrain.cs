@@ -227,7 +227,7 @@ public class BossBrain : EnemyBrain
             Body.Animation.BecomeInvincible();
             Body.Invincible = true;
             SpawnWaveOfMinions(NumberMinionsInWave);
-            InvincibleTurns = InvincibleTurnsLeft;
+            InvincibleTurnsLeft = InvincibleTurns;
         }
     }
 
