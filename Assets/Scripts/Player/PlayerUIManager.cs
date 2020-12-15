@@ -22,7 +22,7 @@ public class PlayerUIManager : MonoBehaviour
     private GridLayoutGroup statusEffectLayout;
     private GridLayoutGroup massCardViewGridLayout;
     private Image massCardViewBackground;
-    private Image cardRewardViewbackground;
+    [SerializeField] private GameObject cardRewardViewbackground;
     private HorizontalLayoutGroup cardRewardHorizontalLayout;
 
     // Ones that should be assigned in the editor.
@@ -102,9 +102,9 @@ public class PlayerUIManager : MonoBehaviour
             baseUIObject = GameObject.Find("Canvas - MasterCanvas");
 
         string[] objNames = new string[] {"CurrentEnergyText", "EnergyPerTurnText", "HealthTextObject", "SpiritBarFill", "SpiritTextObject", "HandLayout", "StatusEffectGridLayout",
-                                            "DeckViewContent", "View - MassCardView", "View - GainCardView", "CardOptionsHolder", "HealthBarFill"};
+                                            "DeckViewContent", "View - MassCardView", "CardOptionsHolder", "HealthBarFill"};
         Type[] typeNames = new Type[] {typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(TextMeshProUGUI), typeof(Image), typeof(TextMeshProUGUI), typeof(HorizontalLayoutGroup),
-        typeof (GridLayoutGroup), typeof (GridLayoutGroup), typeof(Image), typeof(Image), typeof(HorizontalLayoutGroup), typeof(Image)};
+        typeof (GridLayoutGroup), typeof (GridLayoutGroup), typeof(Image), typeof(HorizontalLayoutGroup), typeof(Image)};
         Component[] valArray = BattleManager.RecursiveVariableAssign(baseUIObject, objNames, typeNames);
 
         energyTextComponent = valArray[0] as TextMeshProUGUI;
@@ -116,9 +116,8 @@ public class PlayerUIManager : MonoBehaviour
         statusEffectLayout = valArray[6] as GridLayoutGroup;
         massCardViewGridLayout = valArray[7] as GridLayoutGroup;
         massCardViewBackground = valArray[8] as Image;
-        cardRewardViewbackground = valArray[9] as Image;
-        cardRewardHorizontalLayout = valArray[10] as HorizontalLayoutGroup;
-        healthFillImage = valArray[11] as Image;
+        cardRewardHorizontalLayout = valArray[9] as HorizontalLayoutGroup;
+        healthFillImage = valArray[10] as Image;
 
         graphicalHand = new List<CardInterface>();
         graphicalInventory = new List<CardInterface>();
