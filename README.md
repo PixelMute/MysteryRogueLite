@@ -1,6 +1,6 @@
 # MysteryRogueLite
 
-Hello there. If you're looking to play the game, you can download it from https://iowa-my.sharepoint.com/:u:/g/personal/impope_uiowa_edu/ESo8zXOp_cRMmrPk7aQNy4gBlCFrgafJpWBTMikF67ax4w?e=y8F79N . That gives you the zip file, which you can unzip. Inside is a copy of this readme, and the Unity executable you can run. If for some reason you want to compile it yourself, download everything in this Github and import it into a blank Unity project.
+Hello there. If you're looking to play the game, you can download it from https://iowa-my.sharepoint.com/:u:/g/personal/impope_uiowa_edu/ESo8zXOp_cRMmrPk7aQNy4gBlCFrgafJpWBTMikF67ax4w . That gives you the zip file, which you can unzip. Inside is a copy of this readme, and the Unity executable you can run. If for some reason you want to compile it yourself, download everything in this Github and import it into a blank Unity project.
 
 
 Project Vault
